@@ -1,0 +1,345 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guía Reunión Kick Off</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+            line-height: 1.7;
+            padding: 40px;
+        }
+        
+        .container { max-width: 900px; margin: 0 auto; }
+        
+        h1 {
+            color: #1a1a2e;
+            border-bottom: 3px solid #00d4ff;
+            padding-bottom: 15px;
+            margin-bottom: 30px;
+        }
+        
+        h2 {
+            color: #16213e;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #ddd;
+        }
+        
+        h3 {
+            color: #7c3aed;
+            margin-top: 20px;
+        }
+        
+        .section {
+            background: white;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+        }
+        
+        .timeline {
+            display: flex;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .time-block {
+            flex: 1;
+            background: #e8f4f8;
+            border-radius: 10px;
+            padding: 15px;
+            border-left: 4px solid #00d4ff;
+        }
+        
+        .time-block h4 {
+            color: #00d4ff;
+            margin-bottom: 10px;
+        }
+        
+        .question {
+            background: #fff3cd;
+            border-left: 4px solid #f59e0b;
+            padding: 15px;
+            margin: 10px 0;
+            border-radius: 0 10px 10px 0;
+        }
+        
+        .question.vital {
+            background: #fee2e2;
+            border-left-color: #ef4444;
+        }
+        
+        .do-dont {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin: 20px 0;
+        }
+        
+        .do {
+            background: #d1fae5;
+            border-radius: 10px;
+            padding: 20px;
+            border-left: 4px solid #10b981;
+        }
+        
+        .dont {
+            background: #fee2e2;
+            border-radius: 10px;
+            padding: 20px;
+            border-left: 4px solid #ef4444;
+        }
+        
+        .do h4, .dont h4 {
+            margin-bottom: 15px;
+        }
+        
+        .do h4 { color: #10b981; }
+        .dont h4 { color: #ef4444; }
+        
+        ul { margin-left: 20px; }
+        li { margin: 8px 0; }
+        
+        .tip {
+            background: #e0f2fe;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+            border-left: 4px solid #0ea5e9;
+        }
+        
+        .warning {
+            background: #fef3c7;
+            border-radius: 10px;
+            padding: 15px;
+            margin: 15px 0;
+            border-left: 4px solid #f59e0b;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 15px 0;
+        }
+        
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border: 1px solid #ddd;
+        }
+        
+        th { background: #f8f9fa; }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>📋 Guía para Reunión de Kick Off</h1>
+        <p><strong>Duración:</strong> 20-30 minutos | <strong>Objetivo:</strong> Definir alcance y prioridades</p>
+        
+        <!-- ESTRUCTURA DE LA REUNIÓN -->
+        <div class="section">
+            <h2>⏱️ Estructura de la Reunión</h2>
+            
+            <div class="timeline">
+                <div class="time-block">
+                    <h4>0-3 min</h4>
+                    <p>Presentación y contexto</p>
+                </div>
+                <div class="time-block">
+                    <h4>3-10 min</h4>
+                    <p>Explicar propuesta inicial</p>
+                </div>
+                <div class="time-block">
+                    <h4>10-18 min</h4>
+                    <p>Preguntas y respuestas</p>
+                </div>
+                <div class="time-block">
+                    <h4>18-25 min</h4>
+                    <p>Presentar MVP</p>
+                </div>
+                <div class="time-block">
+                    <h4>25-30 min</h4>
+                    <p>Cierre y próximos pasos</p>
+                </div>
+            </div>
+        </div>
+        
+        <!-- PRESENTACIÓN INICIAL -->
+        <div class="section">
+            <h2>🎤 Cómo Comenzar (0-3 min)</h2>
+            
+            <h3>Tu Introducción</h3>
+            <p>"Buenos días/tardes, me llamo [nombre] y voy a realizar mis prácticas curriculares de [Duración] horas durante las próximas 3 semanas. El objetivo de hoy es conocer mejor sus necesidades y definir juntos un alcance realista para el proyecto."</p>
+            
+            <div class="tip">
+                <strong>💡 Clave:</strong> No te presentes como "el que va a hacer todo". Preséntate como "el que va a entregar un sistema funcional".
+            </div>
+        </div>
+        
+        <!-- PREGUNTAS CLAVE -->
+        <div class="section">
+            <h2>❓ Preguntas Clave (10-18 min)</h2>
+            
+            <h3>Preguntas Vitales (hacer primero)</h3>
+            
+            <div class="question vital">
+                <strong>1. ¿Qué software utilizan actualmente?</strong><br>
+                <em>Para saber integración posible</em>
+            </div>
+            
+            <div class="question vital">
+                <strong>2. ¿Tienen datos históricos de alumn@s?</strong><br>
+                <em>Para saber si IA es viable</em>
+            </div>
+            
+            <div class="question vital">
+                <strong>3. ¿Cuál es el problema más urgente que tienen?</strong><br>
+                <em>Para priorizar funcionalidades</em>
+            </div>
+            
+            <div class="question vital">
+                <strong>4. ¿Cuántos alumn@s gestionan al mes?</strong><br>
+                <em>Para dimensionar el sistema</em>
+            </div>
+            
+            <h3>Preguntas de Recursos</h3>
+            
+            <div class="question">
+                <strong>5. ¿Qué acceso técnico pueden darme?</strong><br>
+                <em>Servidor, BD, etc.</em>
+            </div>
+            
+            <div class="question">
+                <strong>6. ¿Cuántos instructores y vehículos tienen?</strong>
+            </div>
+            
+            <h3>Preguntas de Expectativas</h3>
+            
+            <div class="question">
+                <strong>7. ¿Prefieren un POC funcional o un sistema más completo?</strong>
+            </div>
+            
+            <div class="question">
+                <strong>8. ¿Tienen presupuesto para WhatsApp Business API?</strong>
+            </div>
+            
+            <div class="question">
+                <strong>9. ¿Tienen política de protección de datos (RGPD)?</strong>
+            </div>
+        </div>
+        
+        <!-- CÓMO EXPLICAR LIMITACIONES -->
+        <div class="section">
+            <h2>💬 Cómo Explicar las Limitaciones</h2>
+            
+            <div class="do-dont">
+                <div class="do">
+                    <h4>✅ SÍ Decir</h4>
+                    <ul>
+                        <li>"He diseñado un MVP realista que asegura un sistema funcional entregable"</li>
+                        <li>"Las funcionalidades avanzadas pueden desarrollarse en fases futuras"</li>
+                        <li>"Email es gratuito, WhatsApp tiene costes"</li>
+                        <li>"Sin datos históricos, la IA predictiva no funciona"</li>
+                    </ul>
+                </div>
+                <div class="dont">
+                    <h4>❌ NO Decir</h4>
+                    <ul>
+                        <li>"Solo tengo 90 horas, no puedo hacer mucho"</li>
+                        <li>"No sé si llegaré a terminar algo"</li>
+                        <li>"Todo es muy complicado"</li>
+                        <li>"Necesito muchas cosas que probablemente no tienen"</li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        
+        <!-- CÓMO HABLAR DE TEMAS ESPECÍFICOS -->
+        <div class="section">
+            <h2>🎯 Cómo Tratar Temas Específicos</h2>
+            
+            <h3>IA Predictiva</h3>
+            <div class="warning">
+                <strong>Cuando pregunten por predecir si un alumn@ aprobará:</strong><br><br>
+                "Para que la IA prediga con exactitud, necesitamos datos históricos de alumn@s que ya han fatto el examen: notas de test, número de prácticas, errores frecuentes, tiempo entre clases, asistencia, etc.<br><br>
+                <strong>Si no tienen esos datos:</strong> puedo implementar un sistema de reglas básico que funcione desde el primer día (ej: "si +20 prácticas y -5 errores = probabilidad alta"). Esto NO es IA avanzada, pero deja la estructura lista para IA futura."
+            </div>
+            
+            <h3>WhatsApp</h3>
+            <div class="warning">
+                <strong>Cuando pregunten por WhatsApp automático:</strong><br><br>
+                "Recomiendo empezar con email automático porque es gratuito, no tiene restricciones y funciona inmediatamente. WhatsApp Business API tiene costes (aproximadamente X euros al mes dependiendo del volumen) y requiere aprobación de Meta. Si el presupuesto lo permite, podemos incluirlo después."
+            </div>
+            
+            <h3>Comercial Virtual / Chatbot</h3>
+            <div class="warning">
+                <strong>Cuando pregunten por chatbot 24/7:</strong><br><br>
+                "Un asistente virtual que converse naturalmente requiere tecnologías de Procesamiento de Lenguaje Natural (NLP) muy avanzadas y muchas horas de desarrollo. Para 90 horas no es viable. Lo que sí podemos hacer es un sistema de respuestas automáticas básico por email o WhatsApp."
+            </div>
+        </div>
+        
+        <!-- CÓMO CERRAR -->
+        <div class="section">
+            <h2>🏁 Cómo Cerrar la Reunión (25-30 min)</h2>
+            
+            <h3>Pasos para cerrar</h3>
+            <ol>
+                <li><strong>Resumir acuerdos:</strong> "Entonces, los puntos clave son..."</li>
+                <li><strong>Confirmar prioridades:</strong> "Quedamos en que priorizamos X"</li>
+                <li><strong>Establecer comunicación:</strong> "Nos comunicaremos por email/correo"</li>
+                <li><strong>Definir siguiente paso:</strong> "La próxima semana we'll tener otra reunión para revisar avances"</li>
+                <li><strong>Agradecer:</strong> "Gracias por su tiempo y disposición"</li>
+            </ol>
+            
+            <div class="tip">
+                <strong>💡 Después de la reunión:</strong> Envía un email resumiendo lo hablado y los acuerdos alcanzados. Queda profesional.
+            </div>
+        </div>
+        
+        <!-- NOTAS RÁPIDAS -->
+        <div class="section">
+            <h2>📝 Notas Rápidas durante la Reunión</h2>
+            
+            <table>
+                <tr>
+                    <th>Información</th>
+                    <th>Qué anotar</th>
+                </tr>
+                <tr>
+                    <td>Software actual</td>
+                    <td>Nombre, versión, si tiene API</td>
+                </tr>
+                <tr>
+                    <td>Datos históricos</td>
+                    <td>Cuántos registros, formato (Excel, papel, sistema)</td>
+                </tr>
+                <tr>
+                    <td>Volumen</td>
+                    <td>Número alumn@s/mes, instructores, vehículos</td>
+                </tr>
+                <tr>
+                    <td>Problema principal</td>
+                    <td>Proceso que más tiempo roba</td>
+                </tr>
+                <tr>
+                    <td>Persona de contacto</td>
+                    <td>Nombre, email, teléfono, disponibilidad</td>
+                </tr>
+                <tr>
+                    <td>Presupuesto</td>
+                    <td>Para APIs externas, hosting, etc.</td>
+                </tr>
+            </table>
+        </div>
+        
+    </div>
+</body>
+</html>

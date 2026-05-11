@@ -1,0 +1,997 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pliego de Prescripciones Técnicas - Autoescuela</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+        
+        body {
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #fff;
+            color: #333;
+            line-height: 1.8;
+            padding: 40px;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        
+        h1 {
+            text-align: center;
+            font-size: 1.8em;
+            color: #1a1a2e;
+            margin-bottom: 10px;
+            padding-bottom: 15px;
+            border-bottom: 3px solid #00d4ff;
+        }
+        
+        h2 {
+            font-size: 1.3em;
+            color: #16213e;
+            margin-top: 40px;
+            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #ddd;
+        }
+        
+        h3 {
+            font-size: 1.1em;
+            color: #7c3aed;
+            margin-top: 25px;
+            margin-bottom: 15px;
+        }
+        
+        h4 {
+            font-size: 1em;
+            color: #333;
+            margin-top: 20px;
+            margin-bottom: 10px;
+            font-weight: 600;
+        }
+        
+        p { margin-bottom: 15px; }
+        
+        .subtitle {
+            text-align: center;
+            color: #666;
+            margin-bottom: 30px;
+        }
+        
+        .meta-info {
+            background: #f5f5f5;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 30px;
+        }
+        
+        .meta-info table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+        
+        .meta-info td {
+            padding: 8px 0;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .meta-info td:first-child {
+            font-weight: 600;
+            width: 30%;
+        }
+        
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin: 20px 0;
+        }
+        
+        th, td {
+            padding: 12px;
+            text-align: left;
+            border: 1px solid #ddd;
+            font-size: 0.9em;
+        }
+        
+        th {
+            background: #f5f5f5;
+            color: #16213e;
+            font-weight: 600;
+        }
+        
+        tr:nth-child(even) {
+            background: #fafafa;
+        }
+        
+        ul, ol {
+            margin-left: 25px;
+            margin-bottom: 15px;
+        }
+        
+        li { margin-bottom: 8px; }
+        
+        .box {
+            background: #f8f9fa;
+            border-left: 4px solid #00d4ff;
+            padding: 15px 20px;
+            margin: 20px 0;
+            border-radius: 0 10px 10px 0;
+        }
+        
+        .box.warning {
+            background: #fff3cd;
+            border-left-color: #f59e0b;
+        }
+        
+        .box.success {
+            background: #d1fae5;
+            border-left-color: #10b981;
+        }
+        
+        .box.danger {
+            background: #fee2e2;
+            border-left-color: #ef4444;
+        }
+        
+        .box.info {
+            background: #e0f2fe;
+            border-left-color: #0ea5e9;
+        }
+        
+        .two-col {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+        }
+        
+        .firma-box {
+            border: 1px solid #ddd;
+            padding: 20px;
+            margin-top: 40px;
+            border-radius: 10px;
+        }
+        
+        .firma-box h4 {
+            margin-top: 0;
+        }
+        
+        .firma-line {
+            border-bottom: 1px solid #333;
+            margin-bottom: 10px;
+            height: 30px;
+        }
+        
+        .section {
+            page-break-inside: avoid;
+        }
+        
+        @media print {
+            body { padding: 20px; }
+            h2 { page-break-before: auto; }
+        }
+    </style>
+</head>
+<body>
+
+<h1>PLIEGO DE PRESCRIPCIONES TÉCNICAS</h1>
+<p class="subtitle">Contrato de Desarrollo de Sistema de Gestión Digital para Autoescuela</p>
+
+<div class="meta-info">
+    <table>
+        <tr><td>EXPEDIENTE:</td><td>PPT-AUTOESCUELA-2026-001</td></tr>
+        <tr><td>FECHA:</td><td>Mayo 2026</td></tr>
+        <tr><td>PROCEDIMIENTO:</td><td>Contratación directa - Prácticas curriculares</td></tr>
+    </table>
+</div>
+
+<h2>CAPÍTULO I - DISPOSICIONES GENERALES</h2>
+
+<div class="section">
+    <h3>CLÁUSULA 1. - OBJETO DEL PLIEGO</h3>
+    <p>El presente Pliego tiene por objeto definir las prescripciones técnicas que regirán la contratación del desarrollo, implementación y puesta en marcha de un sistema de gestión digital para una autoescuela, incluyendo módulos de gestión de alumn@s, reservas de clases prácticas, seguimiento de progreso y automatizaciones básicas.</p>
+</div>
+
+<div class="section">
+    <h3>CLÁUSULA 2. - NATURALEZA DEL CONTRATO</h3>
+    <p>El presente contrato se celebra al amparo de las siguientes características:</p>
+    <ul>
+        <li><strong>Tipo:</strong> Contrato de servicios de desarrollo de software</li>
+        <li><strong>Modalidad:</strong> Prácticas curriculares (90 horas)</li>
+        <li><strong>Alcance:</strong> MVP (Producto Mínimo Viable)</li>
+        <li><strong>Destino:</strong> Gestión interna de autoescuela</li>
+    </ul>
+</div>
+
+<div class="section">
+    <h3>CLÁUSULA 3. - PARTES DEL CONTRATO</h3>
+    <table>
+        <tr>
+            <th>Parte</th>
+            <th>Denominación</th>
+        </tr>
+        <tr>
+            <td><strong>Contratante</strong></td>
+            <td>Autoescuela [NOMBRE]</td>
+        </tr>
+        <tr>
+            <td><strong>Contratista</strong></td>
+            <td>[Nombre del estudiante prácticas]</td>
+        </tr>
+        <tr>
+            <td><strong>Tutor académico</strong></td>
+            <td>[Nombre] - [Centro educativo]</td>
+        </tr>
+        <tr>
+            <td><strong>Tutor empresarial</strong></td>
+            <td>[Nombre] - [Cargo en la autoescuela]</td>
+        </tr>
+    </table>
+</div>
+
+<h2>CAPÍTULO II - OBJETO DEL CONTRATO</h2>
+
+<div class="section">
+    <h3>CLÁUSULA 4. - DESCRIPCIÓN DEL OBJETO</h3>
+    
+    <h4>4.1. Objeto general</h4>
+    <p>Desarrollo de un sistema de gestión digital para la administración y seguimiento de las actividades de una autoescuela.</p>
+    
+    <div class="box success">
+        <strong>Módulos incluidos en el alcance:</strong>
+        <ul>
+            <li>Gestión de alumn@s (alta, edición, estados)</li>
+            <li>Sistema de reservas de clases prácticas</li>
+            <li>Seguimiento de progreso de alumn@s</li>
+            <li>Dashboard de métricas básicas</li>
+            <li>Automatización de emails (recordatorios, notificaciones)</li>
+        </ul>
+    </div>
+    
+    <div class="box danger">
+        <strong>Módulos excluidos del alcance (para fases futuras):</strong>
+        <ul>
+            <li>Comercial virtual / Chatbot 24/7</li>
+            <li>IA predictiva avanzada</li>
+            <li>Integración con WhatsApp Business API</li>
+            <li>Sistema de facturación automatizada</li>
+            <li>Teórica adaptativa con IA</li>
+            <li>Mantenimiento de vehículos</li>
+            <li>Base de conocimiento</li>
+        </ul>
+    </div>
+    
+    <h4>4.2. Resultados esperados</h4>
+    <p>El contratista deberá entregar:</p>
+    <ol>
+        <li>Código fuente completo y documentado</li>
+        <li>Documentación técnica (arquitectura, API, base de datos)</li>
+        <li>Manual de usuario</li>
+        <li>Sistema desplegado y funcional</li>
+        <li>Datos de prueba (seed data)</li>
+    </ol>
+</div>
+
+<h2>CAPÍTULO III - ÁMBITO Y ALCANCE</h2>
+
+<div class="section">
+    <h3>CLÁUSULA 5. - ALCANCE DEL PROYECTO</h3>
+    
+    <h4>5.1. Alcance técnico</h4>
+    <table>
+        <tr>
+            <th>Componente</th>
+            <th>Descripción</th>
+            <th>Horas estimadas</th>
+        </tr>
+        <tr>
+            <td>Análisis y requisitos</td>
+            <td>Reuniones, documentación</td>
+            <td>10h</td>
+        </tr>
+        <tr>
+            <td>Diseño BD y arquitectura</td>
+            <td>Modelo datos, estructura API</td>
+            <td>8h</td>
+        </tr>
+        <tr>
+            <td>Backend (API REST)</td>
+            <td>Endpoints, lógica de negocio</td>
+            <td>25h</td>
+        </tr>
+        <tr>
+            <td>Frontend</td>
+            <td>Interfaz de usuario</td>
+            <td>20h</td>
+        </tr>
+        <tr>
+            <td>Agenda y reservas</td>
+            <td>Calendario, gestión horarios</td>
+            <td>10h</td>
+        </tr>
+        <tr>
+            <td>Automatizaciones</td>
+            <td>Email SMTP, plantillas</td>
+            <td>7h</td>
+        </tr>
+        <tr>
+            <td>Dashboard</td>
+            <td>Métricas y visualizaciones</td>
+            <td>5h</td>
+        </tr>
+        <tr>
+            <td>Testing y documentación</td>
+            <td>Pruebas, manuales</td>
+            <td>5h</td>
+        </tr>
+        <tr style="background: #e0f2fe;">
+            <td><strong>TOTAL</strong></td>
+            <td></td>
+            <td><strong>90h</strong></td>
+        </tr>
+    </table>
+    
+    <h4>5.2. Volumen de usuarios estimados</h4>
+    <table>
+        <tr>
+            <th>Tipo</th>
+            <th>Cantidad estimada</th>
+        </tr>
+        <tr>
+            <td>Alumn@s</td>
+            <td>30-50 activos</td>
+        </tr>
+        <tr>
+            <td>Instructores</td>
+            <td>3-5</td>
+        </tr>
+        <tr>
+            <td>Administradores</td>
+            <td>1-2</td>
+        </tr>
+    </table>
+    
+    <h4>5.3. Funcionalidades específicas requeridas</h4>
+    
+    <p><strong>A) Gestión de alumn@s</strong></p>
+    <ul>
+        <li>Registro de alumn@s (nombre, apellidos, DNI, teléfono, email)</li>
+        <li>Estados: Teórica / Prácticas / Examen pendiente / Aprobado</li>
+        <li>Asignación de instructor</li>
+        <li>Histórico de clases</li>
+    </ul>
+    
+    <p><strong>B) Reservas de clases prácticas</strong></p>
+    <ul>
+        <li>Calendario visual semanal/mensual</li>
+        <li>Reserva manual de clases</li>
+        <li>Asignación: alumn@, instructor, vehículo</li>
+        <li>Prevención de solapamientos de horarios</li>
+        <li>Visualización de disponibilidad</li>
+    </ul>
+    
+    <p><strong>C) Seguimiento de progreso</strong></p>
+    <ul>
+        <li>Registro de número de prácticas realizadas</li>
+        <li>Observaciones del instructor por clase</li>
+        <li>Nivel estimado: Bajo / Medio / Preparado para examen</li>
+        <li>Histórico de progreso por alumn@</li>
+    </ul>
+    
+    <p><strong>D) Dashboard</strong></p>
+    <ul>
+        <li>Número de alumn@s activos</li>
+        <li>Clases programadas próximas</li>
+        <li>Alumn@s preparados para examen</li>
+        <li>Métricas simples de gestión</li>
+    </ul>
+    
+    <p><strong>E) Automatización de mensajes</strong></p>
+    <ul>
+        <li>Envío de recordatorios de clases (email)</li>
+        <li>Confirmaciones de reserva (email)</li>
+        <li>Notificaciones de exámenes (email)</li>
+        <li>Plantillas configurables</li>
+    </ul>
+</div>
+
+<h2>CAPÍTULO IV - REQUISITOS TÉCNICOS</h2>
+
+<div class="section">
+    <h3>CLÁUSULA 6. - REQUISITOS DEL SOFTWARE</h3>
+    
+    <h4>6.1. Requisitos de arquitectura</h4>
+    <table>
+        <tr>
+            <th>Requisito</th>
+            <th>Especificación</th>
+        </tr>
+        <tr>
+            <td>Arquitectura</td>
+            <td>REST API + Cliente web</td>
+        </tr>
+        <tr>
+            <td>Backend</td>
+            <td>Framework moderno (FastAPI/Django)</td>
+        </tr>
+        <tr>
+            <td>Frontend</td>
+            <td>Framework moderno (React/Vue)</td>
+        </tr>
+        <tr>
+            <td>Base de datos</td>
+            <td>PostgreSQL o SQLite (para MVP)</td>
+        </tr>
+        <tr>
+            <td>Despliegue</td>
+            <td>Contenedores Docker</td>
+        </tr>
+    </table>
+    
+    <h4>6.2. Requisitos de tecnologías</h4>
+    <div class="box info">
+        <strong>El contratista deberá utilizar tecnologías open source y/o gratuitas siempre que sea posible:</strong>
+    </div>
+    <table>
+        <tr>
+            <th>Capa</th>
+            <th>Tecnología recomendada</th>
+        </tr>
+        <tr>
+            <td>Backend</td>
+            <td>FastAPI, Django, Flask</td>
+        </tr>
+        <tr>
+            <td>Frontend</td>
+            <td>React, Vue.js</td>
+        </tr>
+        <tr>
+            <td>Base de datos</td>
+            <td>PostgreSQL, SQLite</td>
+        </tr>
+        <tr>
+            <td>Automatización</td>
+            <td>Scripts Python, n8n</td>
+        </tr>
+        <tr>
+            <td>Autenticación</td>
+            <td>JWT</td>
+        </tr>
+        <tr>
+            <td>Despliegue</td>
+            <td>Docker</td>
+        </tr>
+    </table>
+    
+    <h4>6.3. Requisitos de código</h4>
+    <ul>
+        <li>Código fuente versionado en Git</li>
+        <li>Estructura limpia y documentada</li>
+        <li>Comentarios en funciones complejas</li>
+        <li>README con instrucciones de instalación y ejecución</li>
+        <li>Variables de configuración (no hardcoded)</li>
+    </ul>
+    
+    <h4>6.4. Requisitos de seguridad</h4>
+    <ul>
+        <li>Autenticación mediante JWT</li>
+        <li>Contraseñas hasheadas (bcrypt/argon2)</li>
+        <li>Validación de inputs</li>
+        <li>Protección contra inyección SQL</li>
+        <li>Gestión de sesiones segura</li>
+    </ul>
+</div>
+
+<div class="section">
+    <h3>CLÁUSULA 7. - REQUISITOS DE INTEGRACIÓN</h3>
+    
+    <table>
+        <tr>
+            <th>Integración</th>
+            <th>Tipo</th>
+            <th>Prioridad</th>
+        </tr>
+        <tr>
+            <td>Email (SMTP)</td>
+            <td>Saliente</td>
+            <td>REQUERIDA</td>
+        </tr>
+        <tr>
+            <td>Base de datos</td>
+            <td>Local</td>
+            <td>REQUERIDA</td>
+        </tr>
+        <tr>
+            <td>WhatsApp Business API</td>
+            <td>-</td>
+            <td>NO INCLUIDA (costes adicionales)</td>
+        </tr>
+        <tr>
+            <td>Google Calendar</td>
+            <td>-</td>
+            <td>NO INCLUIDA</td>
+        </tr>
+        <tr>
+            <td>Sistemas de facturación</td>
+            <td>-</td>
+            <td>NO INCLUIDA</td>
+        </tr>
+    </table>
+</div>
+
+<div class="section">
+    <h3>CLÁUSULA 8. - REQUISITOS NO FUNCIONALES</h3>
+    
+    <h4>8.1. Rendimiento</h4>
+    <ul>
+        <li>Tiempo de respuesta de API < 500ms (operaciones simples)</li>
+        <li>Interfaz responsiva (funcione en dispositivos modernos)</li>
+    </ul>
+    
+    <h4>8.2. Usabilidad</h4>
+    <ul>
+        <li>Interfaz intuitiva y fácil de usar</li>
+        <li>Navegación clara</li>
+        <li>Mensajes de error comprensibles</li>
+    </ul>
+    
+    <h4>8.3. Mantenibilidad</h4>
+    <ul>
+        <li>Código modular y estructurado</li>
+        <li>Documentación técnica actualizada</li>
+        <li>Instrucciones claras para despliegue</li>
+    </ul>
+    
+    <h4>8.4. Disponibilidad</h4>
+    <ul>
+        <li>Sistema funcional 24/7 (en producción)</li>
+        <li>Diseño para alta disponibilidad (objetivo, no requisito estricto)</li>
+    </ul>
+</div>
+
+<h2>CAPÍTULO V - CONDICIONES DE EJECUCIÓN</h2>
+
+<div class="section">
+    <h3>CLÁUSULA 9. - PLAZO DE EJECUCIÓN</h3>
+    
+    <div class="box warning">
+        <strong>Duración máxima: 90 horas de trabajo</strong>
+    </div>
+    
+    <h4>9.1. Distribución orientativa</h4>
+    <table>
+        <tr>
+            <th>Fase</th>
+            <th>Duración</th>
+            <th>Entregables</th>
+        </tr>
+        <tr>
+            <td>Fase 1: Análisis y diseño</td>
+            <td>Semana 1</td>
+            <td>Documento de requisitos, diseño BD</td>
+        </tr>
+        <tr>
+            <td>Fase 2: Desarrollo core</td>
+            <td>Semana 2</td>
+            <td>API, Frontend base, integraciones</td>
+        </tr>
+        <tr>
+            <td>Fase 3: Completado</td>
+            <td>Semana 3</td>
+            <td>Funcionalidades completas, testing, docs</td>
+        </tr>
+    </table>
+    
+    <h4>9.2. Reuniones de seguimiento</h4>
+    <ul>
+        <li><strong>Frecuencia:</strong> Semanal</li>
+        <li><strong>Duración:</strong> 30-60 minutos</li>
+        <li><strong>Formato:</strong> Presencial o videoconferencia</li>
+        <li><strong>Contenido:</strong> Revisión de avances, ajustes de alcance</li>
+    </ul>
+</div>
+
+<div class="section">
+    <h3>CLÁUSULA 10. - LUGAR DE EJECUCIÓN</h3>
+    <p>El trabajo se realizará:</p>
+    <ul>
+        <li>Presencial en las instalaciones de la autoescuela (preferible)</li>
+        <li>Remoto según acuerdo entre partes</li>
+        <li>Combinación de ambos según necesidades</li>
+    </ul>
+</div>
+
+<div class="section">
+    <h3>CLÁUSULA 11. - MEDIOS Y RECURSOS</h3>
+    
+    <h4>11.1. Medios del contratista</h4>
+    <ul>
+        <li>Su propio equipo portátil</li>
+        <li>Licencias de software necesarias (open source)</li>
+        <li>Conexión a internet</li>
+    </ul>
+    
+    <h4>11.2. Medios de la empresa</h4>
+    <ul>
+        <li>Acceso a datos e información necesaria</li>
+        <li>Acceso a sistemas existentes (si aplica)</li>
+        <li>Espacio de trabajo (si presencial)</li>
+        <li>Cuenta de email para automatizaciones (SMTP)</li>
+    </ul>
+</div>
+
+<h2>CAPÍTULO VI - CONDICIONES DE ENTREGA</h2>
+
+<div class="section">
+    <h3>CLÁUSULA 12. - ENTREGABLES</h3>
+    
+    <h4>12.1. Entregables principales</h4>
+    <table>
+        <tr>
+            <th>#</th>
+            <th>Entregable</th>
+            <th>Formato</th>
+            <th>Descripción</th>
+        </tr>
+        <tr>
+            <td>1</td>
+            <td>Código fuente</td>
+            <td>Git / ZIP</td>
+            <td>Repositorio completo</td>
+        </tr>
+        <tr>
+            <td>2</td>
+            <td>Documentación técnica</td>
+            <td>PDF/MD</td>
+            <td>Arquitectura, API, modelo datos</td>
+        </tr>
+        <tr>
+            <td>3</td>
+            <td>Manual de usuario</td>
+            <td>PDF</td>
+            <td>Guía de uso del sistema</td>
+        </tr>
+        <tr>
+            <td>4</td>
+            <td>Sistema desplegado</td>
+            <td>URL/Servidor</td>
+            <td>Aplicación funcionando</td>
+        </tr>
+        <tr>
+            <td>5</td>
+            <td>Datos de prueba</td>
+            <td>JSON/CSV</td>
+            <td>Seed data para pruebas</td>
+        </tr>
+    </table>
+    
+    <h4>12.2. Criterios de aceptación</h4>
+    <p>El sistema se considerará aceptado cuando cumple TODOS los siguientes requisitos:</p>
+    <table>
+        <tr>
+            <th>Requisito</th>
+            <th>Criterio</th>
+        </tr>
+        <tr>
+            <td>Gestión alumn@s</td>
+            <td>Alta, edición, listado y eliminación funcionan</td>
+        </tr>
+        <tr>
+            <td>Reservas</td>
+            <td>Crear, modificar, cancelar reservas funciona</td>
+        </tr>
+        <tr>
+            <td>Seguimiento</td>
+            <td>Registro y visualización de progreso funciona</td>
+        </tr>
+        <tr>
+            <td>Dashboard</td>
+            <td>Métricas básicas se muestran correctamente</td>
+        </tr>
+        <tr>
+            <td>Email</td>
+            <td>Automatizaciones de email funcionan</td>
+        </tr>
+        <tr>
+            <td>Despliegue</td>
+            <td>Sistema accesible y funcional</td>
+        </tr>
+        <tr>
+            <td>Documentación</td>
+            <td>Manual de usuario completo</td>
+        </tr>
+    </table>
+</div>
+
+<h2>CAPÍTULO VII - GARANTÍA Y MANTENIMIENTO</h2>
+
+<div class="section">
+    <h3>CLÁUSULA 13. - PERIODO DE GARANTÍA</h3>
+    
+    <div class="box warning">
+        <strong>Período de garantía: 30 días naturales</strong> desde la entrega final
+    </div>
+    
+    <h4>13.1. Cobertura de la garantía</h4>
+    <p>Durante el período de garantía, el contratista corregirá:</p>
+    <ul>
+        <li>Errores de funcionamiento graves</li>
+        <li>Bugs que impidan el uso normal del sistema</li>
+        <li>Problemas de despliegue</li>
+    </ul>
+    
+    <h4>13.2. Exclusiones de garantía</h4>
+    <p>No se incluyen:</p>
+    <ul>
+        <li>Cambios request por nuevas funcionalidades</li>
+        <li>Problemas derivados de modificaciones del contratista</li>
+        <li>Fallos por uso inadecuado</li>
+        <li>Actualizaciones de dependencias</li>
+    </ul>
+</div>
+
+<div class="section">
+    <h3>CLÁUSULA 14. - MANTENIMIENTO POSTERIOR</h3>
+    <p>El presente contrato NO incluye mantenimiento posterior a la garantía.</p>
+    <div class="box info">
+        <strong>Recomendación:</strong> Se recomienda a la empresa establecer un acuerdo de mantenimiento separado tras la garantía.
+    </div>
+</div>
+
+<h2>CAPÍTULO VIII - PROPIEDAD INTELECTUAL</h2>
+
+<div class="section">
+    <h3>CLÁUSULA 15. - PROPIEDAD DEL CÓDIGO</h3>
+    
+    <ul>
+        <li><strong>Propiedad:</strong> El código desarrollado será propiedad de la empresa contratante.</li>
+        <li><strong>Uso educativo:</strong> El contratista podrá usar el código con fines educativos (portfolio, github), mencionando que fue desarrollado para la empresa.</li>
+        <li><strong>Licencia sugerida:</strong> Se recomienda licencia MIT o similar para el código.</li>
+    </ul>
+    
+    <h3>CLÁUSULA 16. - PROPIEDAD DE DATOS</h3>
+    <p>Los datos introducidos en el sistema durante su uso serán propiedad exclusiva de la empresa.</p>
+</div>
+
+<h2>CAPÍTULO IX - CONFIDENCIALIDAD</h2>
+
+<div class="section">
+    <h3>CLÁUSULA 17. - OBLIGACIONES DE CONFIDENCIALIDAD</h3>
+    
+    <p><strong>El contratista se compromete a:</strong></p>
+    <ul>
+        <li>No revelar información sensible de la empresa</li>
+        <li>No compartir datos de alumn@s con terceros</li>
+        <li>No publicar información del proyecto sin autorización</li>
+        <li>Devolver o destruir información al finalizar el contrato</li>
+    </ul>
+    <p><strong>Duración:</strong> Las obligaciones de confidencialidad permanecerán vigentes durante 2 años tras la finalización del contrato.</p>
+</div>
+
+<h2>CAPÍTULO X - PROTECCIÓN DE DATOS (RGPD)</h2>
+
+<div class="section">
+    <h3>CLÁUSULA 18. - CUMPLIMIENTO NORMATIVO</h3>
+    
+    <ul>
+        <li><strong>Responsable del tratamiento:</strong> La empresa será responsable del tratamiento de datos personales.</li>
+        <li><strong>Obligaciones del contratista:</strong>
+            <ul>
+                <li>Tratar los datos únicamente según instrucciones de la empresa</li>
+                <li>No transferir datos a terceros</li>
+                <li>Aplicar medidas técnicas y organizativas de seguridad</li>
+                <li>Notificar breaches de seguridad inmediatamente</li>
+                <li>Devolver o eliminar datos al finalizar el contrato</li>
+            </ul>
+        </li>
+        <li><strong>Datos a tratar:</strong> Datos identificativos de alumn@s (nombre, DNI, contacto), datos de progreso académico, datos de horarios y reservas.</li>
+    </ul>
+</div>
+
+<h2>CAPÍTULO XI - RESPONSABILIDADES</h2>
+
+<div class="section">
+    <h3>CLÁUSULA 19. - RESPONSABILIDADES DEL CONTRATISTA</h3>
+    <p>El contratista será responsable de:</p>
+    <ul>
+        <li>Ejecutar el trabajo según el alcance acordado</li>
+        <li>Cumplir los plazos establecidos</li>
+        <li>Entregar la documentación requerida</li>
+        <li>Mantener informada a la empresa de incidencias</li>
+        <li>Corrección de errores durante la garantía</li>
+    </ul>
+    
+    <h3>CLÁUSULA 20. - RESPONSABILIDADES DE LA EMPRESA</h3>
+    <p>La empresa será responsable de:</p>
+    <ul>
+        <li>Proporcionar acceso a información necesaria</li>
+        <li>Facilitar recursos acordados</li>
+        <li>Validar entregables en plazos razonables</li>
+        <li>Proporcionar feedback timely</li>
+        <li>Respetar el alcance acordado</li>
+    </ul>
+</div>
+
+<h2>CAPÍTULO XII - PENALIDADES</h2>
+
+<div class="section">
+    <h3>CLÁUSULA 21. - PENALIDADES POR INCUMPLIMIENTO</h3>
+    
+    <h4>21.1. Retraso en entrega</h4>
+    <p>Si el contratista no entrega en fecha, se aplicarán las siguientes considérations:</p>
+    <ul>
+        <li>Comunicación inmediata a la empresa</li>
+        <li>Justificación documentada del retraso</li>
+        <li>Ajuste de plazos si es necesario</li>
+    </ul>
+    
+    <h4>21.2. No entrega del sistema</h4>
+    <p>Si por causas imputables al contratista no se entrega el sistema funcional, se evaluará la situación para determinar acciones correctivas.</p>
+</div>
+
+<h2>CAPÍTULO XIII - RESOLUCIÓN DEL CONTRATO</h2>
+
+<div class="section">
+    <h3>CLÁUSULA 22. - CAUSAS DE RESOLUCIÓN</h3>
+    <p>El contrato podrá resolverse por:</p>
+    <ul>
+        <li>Mutuo acuerdo de ambas partes</li>
+        <li>Incumplimiento grave de obligaciones</li>
+        <li>Imposibilidad de ejecución del objeto</li>
+        <li>Finalización del período de prácticas</li>
+    </ul>
+</div>
+
+<h2>CAPÍTULO XIV - DISPOSICIONES FINALES</h2>
+
+<div class="section">
+    <h3>CLÁUSULA 23. - DOCUMENTOS DEL CONTRATO</h3>
+    <p>Forman parte del contrato:</p>
+    <ol>
+        <li>El presente Pliego de Prescripciones Técnicas</li>
+        <li>Los anexos que se adjunten</li>
+        <li>Las modificaciones acordadas durante la ejecución</li>
+    </ol>
+    
+    <h3>CLÁUSULA 24. - LEGISLACIÓN APLICABLE</h3>
+    <p>Este contrato se regirá por la legislación española aplicable a contratos de servicios y prácticas curriculares.</p>
+</div>
+
+<h2>ANEXO I: PRESUPUESTO ESTIMADO</h2>
+
+<div class="section">
+    <table>
+        <tr>
+            <th>Concepto</th>
+            <th>Estimación</th>
+        </tr>
+        <tr>
+            <td>Desarrollo (90h)</td>
+            <td>Prácticas curriculares - sin coste</td>
+        </tr>
+        <tr>
+            <td>Hosting/VPS (mensual)</td>
+            <td>~5-10€/mes</td>
+        </tr>
+        <tr>
+            <td>Dominio (anual)</td>
+            <td>~10€/año</td>
+        </tr>
+        <tr>
+            <td>Email (SMTP)</td>
+            <td>Gratuito (hasta 100/día)</td>
+        </tr>
+        <tr>
+            <td>WhatsApp API</td>
+            <td>No incluido (coste opcional)</td>
+        </tr>
+    </table>
+    <div class="box info">
+        <strong>Nota:</strong> Este proyecto se desarrolla en el marco de prácticas curriculares, por lo que no conlleva coste directo para la empresa más allá de los gastos de hosting opcionales.
+    </div>
+</div>
+
+<h2>ANEXO II: TECNOLOGÍAS PROPUESTAS</h2>
+
+<div class="section">
+    <table>
+        <tr>
+            <th>Capa</th>
+            <th>Tecnología</th>
+            <th>Alternativas</th>
+        </tr>
+        <tr>
+            <td>Backend</td>
+            <td>FastAPI</td>
+            <td>Django, Flask</td>
+        </tr>
+        <tr>
+            <td>Frontend</td>
+            <td>React</td>
+            <td>Vue.js</td>
+        </tr>
+        <tr>
+            <td>Base de datos</td>
+            <td>PostgreSQL</td>
+            <td>SQLite (MVP)</td>
+        </tr>
+        <tr>
+            <td>Automatización</td>
+            <td>Python scripts</td>
+            <td>n8n</td>
+        </tr>
+        <tr>
+            <td>Despliegue</td>
+            <td>Docker</td>
+            <td>Manual</td>
+        </tr>
+    </table>
+</div>
+
+<h2>ANEXO III: PLAN DE TRABAJO</h2>
+
+<div class="section">
+    <table>
+        <tr>
+            <th>Semana</th>
+            <th>Foco</th>
+            <th>Entregable</th>
+        </tr>
+        <tr>
+            <td>1</td>
+            <td>Análisis y diseño</td>
+            <td>Requisitos, diseño BD</td>
+        </tr>
+        <tr>
+            <td>2</td>
+            <td>Desarrollo</td>
+            <td>API, Frontend</td>
+        </tr>
+        <tr>
+            <td>3</td>
+            <td>Completado</td>
+            <td>Funcionalidades, docs</td>
+        </tr>
+    </table>
+</div>
+
+<h2>FIRMAS</h2>
+
+<div class="two-col">
+    <div class="firma-box">
+        <h4>Por la empresa:</h4>
+        <div class="firma-line"></div>
+        <p>Firma: _____________________</p>
+        <p>Nombre: _____________________</p>
+        <p>Fecha: _____________________</p>
+    </div>
+    <div class="firma-box">
+        <h4>Por el contratista:</h4>
+        <div class="firma-line"></div>
+        <p>Firma: _____________________</p>
+        <p>Nombre: _____________________</p>
+        <p>Fecha: _____________________</p>
+    </div>
+</div>
+
+<div class="two-col" style="margin-top: 20px;">
+    <div class="firma-box">
+        <h4>Tutor empresarial:</h4>
+        <div class="firma-line"></div>
+        <p>Firma: _____________________</p>
+        <p>Nombre: _____________________</p>
+    </div>
+    <div class="firma-box">
+        <h4>Tutor académico:</h4>
+        <div class="firma-line"></div>
+        <p>Firma: _____________________</p>
+        <p>Nombre: _____________________</p>
+    </div>
+</div>
+
+<p style="margin-top: 40px; text-align: center; color: #666;">
+    <em>Documento elaborado en Mayo 2026<br>
+    Pliego de Prescripciones Técnicas - Proyecto Autoescuela Digital</em>
+</p>
+
+</body>
+</html>
