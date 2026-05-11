@@ -298,15 +298,35 @@ La autoescuela necesita modernizar sus procesos operativos mediante digitalizaci
 
 | Capa | Tecnología | Coste | Justificación |
 |------|------------|-------|---------------|
-| **Backend** | FastAPI | ✅ Gratis | Moderno, rápido, documentación automática, open source |
-| **Frontend** | React | ✅ Gratis | Gran ecosistema, componentes reutilizables |
-| **Base de datos** | PostgreSQL | ✅ Gratis | Robusto, relacional, open source |
-| **Automatización** | n8n o Python | ✅ Gratis | Visual o scripts, open source |
-| **IA (POC)** | scikit-learn | ✅ Gratis | Lógico, no requiere GPU |
+| **Backend** | FastAPI | ✅ Gratis | APIs rápidas, excelente para IA, desarrollo ágil |
+| **Frontend** | React / Next.js | ✅ Gratis | Gran ecosistema, componentes reutilizables |
+| **Base de datos** | PostgreSQL | ✅ Gratis | Robusto, profesional, gratuito |
+| **Automatización** | n8n | ✅ Gratis | Automatización visual, integración APIs, flujos operativos |
+| **IA (POC)** | scikit-learn | ✅ Gratis | IA ligera, predicción simple, ideal para MVP |
+| **Dashboard** | Metabase | ✅ Gratis | Dashboards rápidos, KPIs, informes |
+| **Calendario** | FullCalendar | ✅ Gratis | Calendario visual para reservas |
 | **Emails** | SMTP (Gmail/SendGrid) | ✅ Gratis hasta 100/día | Estándar, gratuito |
-| **Despliegue** | Docker + VPS | ~5-10€/mes | Portable, profesional |
+| **Despliegue** | Docker | ✅ Gratis | Entornos reproducibles, despliegue sencillo |
+| **OCR (opcional)** | OCRmyPDF / Tesseract | ✅ Gratis | Extracción de texto de documentos |
+| **Parsing docs** | Apache Tika / Unstructured | ✅ Gratis | Parsing de documentos |
 
 **Coste mensual estimado: 5-10€** (solo VPS)
+
+## 5.1.2 Herramientas a Evitar (Too Complex for 90h)
+
+| Herramienta/Tecnología | Razón para evitarla |
+|------------------------|---------------------|
+| **Kubernetes** | Sobredimensionado para MVP |
+| **Arquitecturas microservicios** | Complejidad innecesaria |
+| **LangChain complejo** | Curva de aprendizaje alta |
+| **Fine tuning** | Requiere datos y recursos |
+| **Multiagentes** | Muy complejo para el tiempo |
+| **RAG avanzado** | Requiere infraestructura |
+| **Sistemas enterprise** | Sobredimensionados |
+| **Frontends complejos** | Más tiempo de desarrollo |
+| **Apps móviles** | Desarrollo dual (iOS/Android) |
+
+> **Nota:** Estas herramientas son válidas para fases futuras o proyectos más grandes, pero no para un MVP de 90 horas.
 
 ## 5.2 Diagrama de Arquitectura
 
