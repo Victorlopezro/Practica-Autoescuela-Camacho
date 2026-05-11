@@ -1,0 +1,45 @@
+@startuml riesgos
+!theme plain
+
+skinparam entityBackgroundColor #FFECB3
+skinparam noteBackgroundColor #E1F5FE
+
+rectangle "Riesgos del Proyecto" {
+    rectangle "Técnicos" as R1 #FFCDD2
+    rectangle "Scope" as R2 #FFCDD2
+    rectangle "Datos" as R3 #FFF9C4
+    rectangle "Legales" as R4 #FFF9C4
+    rectangle "Recursos" as R5 #B3E5FC
+}
+
+note as N1
+  **R1 - Técnicos**
+  - Integraciones externas
+  - APIs de WhatsApp/Facturación
+  - Configuración de calendarios
+  
+  **R2 - Scope**
+  - Alcance muy amplio
+  - MVP no definido claramente
+  - Riesgo de sobredimensionar
+end note
+
+note as N2
+  **R3 - Datos**
+  - Falta de datos históricos
+  - Calidad de datos insuficiente
+  - IA sin entrenamiento
+  
+  **R4 - Legales**
+  - RGPD y protección datos
+  - Consentimientos alumn@s
+end note
+
+note as N3
+  **R5 - Recursos**
+  - Acceso técnico limitado
+  - documentacion incompleta
+  - Procesos no definidos
+end note
+
+@enduml

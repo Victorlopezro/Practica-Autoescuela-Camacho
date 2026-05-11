@@ -1,0 +1,55 @@
+@startuml funcionalidades
+!theme plain
+left to right direction
+
+actor "Alumno" as A
+actor "Instructor" as I
+actor "Admin" as Ad
+
+rectangle "Funcionalidades Autoescuela" {
+    rectangle "Gestión Central" {
+        usecase "Agenda Inteligente" as UC1
+        usecase "Reservas Clases" as UC2
+        usecase "Seguimiento Progreso" as UC3
+    }
+    
+    rectangle "IA y Predicción" {
+        usecase "Predicción Aprobado" as UC4
+        usecase "Teórica Adaptativa" as UC5
+    }
+    
+    rectangle "Automatización" {
+        usecase "WhatsApp Citas" as UC6
+        usecase "Comercial 24/7" as UC7
+        usecase "Facturación Auto" as UC8
+        usecase "Recordatorios" as UC9
+    }
+    
+    rectangle "Soporte" {
+        usecase "Base Conocimiento" as UC10
+        usecase "Asistente Recepción" as UC11
+    }
+    
+    rectangle "Mantenimiento" {
+        usecase "Gestión Vehículos" as UC12
+    }
+}
+
+A --> UC2
+A --> UC6
+A --> UC3
+A --> UC4
+A --> UC5
+A --> UC7
+
+I --> UC3
+I --> UC1
+
+Ad --> UC8
+Ad --> UC9
+Ad --> UC12
+Ad --> UC10
+Ad --> UC11
+Ad --> UC1
+
+@enduml

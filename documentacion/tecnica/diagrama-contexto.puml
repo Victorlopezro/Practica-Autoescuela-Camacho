@@ -1,0 +1,52 @@
+@startuml contexto-proyecto
+!theme plain
+skinparam componentStyle uml2
+
+actor "Alumno" as alumno
+actor "Instructor" as instructor
+actor "Administrador" as admin
+actor "Dueño/Gerente" as gerente
+
+package "Sistema Autoescuela" {
+    [App IA] as appia
+    [Agenda y Reservas] as agenda
+    [WhatsApp Automatizado] as whatsapp
+    [Facturación] as facturacion
+    [Teórica IA] as teorica
+    [Seguimiento Progreso] as progreso
+    [Mantenimiento Vehículos] as mantenimiento
+    [Base Conocimiento] as conocimiento
+    [Comercial Virtual] as comercial
+    [Asistente Recepción] as reception
+}
+
+cloud "Servicios Externos" {
+    [WhatsApp Business API] as wabapi
+    [API de Pagos] as pagos
+    [Servicios IA] as ia
+    [Calendario] as calendar
+}
+
+alumno --> agenda
+alumno --> whatsapp
+alumno --> progreso
+alumno --> appia
+
+instructor --> agenda
+instructor --> progreso
+
+admin --> facturacion
+admin --> agenda
+admin --> mantenimiento
+admin --> conocimiento
+
+gerente --> appia
+gerente --> comercial
+
+agenda --> calendar
+whatsapp --> wabapi
+facturacion --> pagos
+appia --> ia
+teorica --> ia
+
+@enduml

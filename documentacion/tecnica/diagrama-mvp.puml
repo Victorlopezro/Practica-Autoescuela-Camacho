@@ -1,0 +1,42 @@
+@startuml mvp-propuesto
+!theme plain
+skinparam componentStyle uml2
+
+package "MVP - Prácticas 90h" {
+    component "Gestión de Reservas" as GR #C8E6C9
+    component "Agenda Inteligente" as AI #C8E6C9
+    component "Seguimiento Progreso" as SP #C8E6C9
+    component "WhatsApp Automatizado" as WA #C8E6C9
+    component "Dashboard Métricas" as DM #C8E6C9
+    component "IA Predicción (POC)" as IA #FFF9C4
+}
+
+package "Futuras Fases" {
+    component "Teórica Adaptativa" as TA #E0E0E0
+    component "Facturación Auto" as FA #E0E0E0
+    component "Comercial Virtual" as CV #E0E0E0
+    component "Mantenimiento" as MT #E0E0E0
+}
+
+GR --> SP
+GR --> AI
+SP --> IA
+GR --> WA
+DM --> GR
+DM --> SP
+DM --> WA
+
+note top of GR
+  <b>Prioridad MVP:</b>
+  1. Reservas y Agenda
+  2. Seguimiento Progreso
+  3. WhatsApp Automatizado
+  4. Dashboard Básico
+end note
+
+note top of IA
+  <b>POC IA:</b>
+  Solo si hay datos históricos
+end note
+
+@enduml

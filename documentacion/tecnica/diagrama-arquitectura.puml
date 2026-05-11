@@ -1,0 +1,82 @@
+@startuml arquitectura
+!theme plain
+skinparam componentStyle uml2
+
+skinparam rectangle {
+    BackgroundColor #E3F2FD
+    BorderColor #1976D2
+}
+
+skinparam database {
+    BackgroundColor #FFF3E0
+    BorderColor #E65100
+}
+
+skinparam cloud {
+    BackgroundColor #F3E5F5
+    BorderColor #7B1FA2
+}
+
+rectangle "Frontend" {
+    [Web App] as web
+    [Panel Admin] as admin
+    [App Móvil] as app
+}
+
+rectangle "Backend - API" {
+    [Auth Service] as auth
+    [Reservas Service] as reservas
+    [Alumnos Service] as alumnos
+    [WhatsApp Service] as whatsapp
+    [IA Service] as ia
+    [Facturación Service] as fact
+    [Notificaciones] as notif
+}
+
+database "Base de Datos" {
+    [PostgreSQL] as db
+}
+
+cloud "Servicios Externos" {
+    [WhatsApp API] as wapi
+    [OpenAI/API IA] as openai
+    [Stripe/Pagos] as stripe
+    [Google Calendar] as gcal
+}
+
+node "Despliegue" {
+    [Docker] as docker
+    [Vercel/Netlify] as vercel
+}
+
+web --> auth
+app --> auth
+admin --> auth
+
+auth --> reservas
+auth --> alumnos
+auth --> whatsapp
+auth --> ia
+auth --> fact
+
+reservas --> db
+alumnos --> db
+whatsapp --> db
+fact --> db
+
+whatsapp --> wapi
+ia --> openai
+fact --> stripe
+reservas --> gcal
+
+notif --> wapi
+
+docker --> web
+docker --> auth
+docker --> reservas
+docker --> alumnos
+docker --> whatsapp
+docker --> ia
+docker --> fact
+
+@enduml

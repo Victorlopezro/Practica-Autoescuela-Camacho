@@ -1,0 +1,101 @@
+@startuml entidades
+!theme plain
+
+hide circle
+skinparam entityBackgroundColor #E8F5E9
+skinparam attributeFontSize 11
+
+entity "Alumno" as alumno {
+    *id : PK
+    *nombre : string
+    *apellidos : string
+    *email : string
+    *telefono : string
+    *dni : string
+    fecha_alta : date
+    estado : enum
+    --
+    instructor_id : FK
+}
+
+entity "Instructor" as instructor {
+    *id : PK
+    *nombre : string
+    *apellidos : string
+    *email : string
+    *telefono : string
+    --
+    vehiculos : list
+}
+
+entity "Vehiculo" as vehiculo {
+    *id : PK
+    *matricula : string
+    modelo : string
+    marca : string
+    tipo : enum
+    proxima_itv : date
+    proxima_revision : date
+    --
+    instructor_id : FK
+}
+
+entity "Clase_Practica" as clase {
+    *id : PK
+    *fecha_hora : datetime
+    duracion : int
+    estado : enum
+    --
+    alumno_id : FK
+    instructor_id : FK
+    vehiculo_id : FK
+}
+
+entity "Reserva" as reserva {
+    *id : PK
+    *fecha : datetime
+    estado : enum
+    tipo : enum
+    --
+    alumno_id : FK
+    instructor_id : FK
+    clase_id : FK
+}
+
+entity "Progreso" as progreso {
+    *id : PK
+    *fecha : date
+    habilidades : json
+    errores : json
+    comentarios : text
+    probabilidad_aprobado : float
+    --
+    clase_id : FK
+    instructor_id : FK
+}
+
+entity "Examen" as examen {
+    *id : PK
+    *fecha : date
+    tipo : enum
+    lugar : string
+    resultado : enum
+    --
+    alumno_id : FK
+}
+
+alumno ||--o{ clase
+alumno ||--o{ reserva
+alumno ||--o{ progreso
+alumno ||--o{ examen
+
+instructor ||--o{ clase
+instructor ||--o{ reserva
+instructor ||--o{ progreso
+
+vehiculo ||--o{ clase
+
+reserva }o--|| clase
+clase ||--o{ progreso
+
+@enduml

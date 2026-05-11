@@ -1,0 +1,39 @@
+@startuml priorizacion
+!theme plain
+skinparam rectangleBackgroundColor #E8F5E9
+skinparam rectangleFontSize 14
+
+rectangle "URGENTE + IMPORTANTE\n(HACER)" #FFCDD2 {
+    rectangle "Agenda + Reservas" #FFEBEE
+    rectangle "WhatsApp Citas" #FFEBEE
+    rectangle "Seguimiento Progreso" #FFEBEE
+}
+
+rectangle "IMPORTANTE - URGENTE\n(PLANIFICAR)" #FFF9C4 {
+    rectangle "IA Predicción" #FFFDE7
+    rectangle "Teórica IA" #FFFDE7
+    rectangle "Facturación Auto" #FFFDE7
+}
+
+rectangle "URGENTE - IMPORTANTE\n(DELEGAR)" #B3E5FC {
+    rectangle "Comercial 24/7" #E1F5FE
+    rectangle "Base Conocimiento" #E1F5FE
+}
+
+rectangle "NI URGENTE NI IMPORTANTE\n(ELIMINAR)" #E0E0E0 {
+    rectangle "Mant. Vehículos" #F5F5F5
+    rectangle "Asistente Recepción" #F5F5F5
+}
+
+note right of "URGENTE + IMPORTANTE\n(HACER)"
+  Impacto directo en 
+  operativa diaria.
+  MVP funcional.
+end note
+
+note right of "IMPORTANTE - URGENTE\n(PLANIFICAR)"
+  Dependen de datos
+  o más tiempo.
+end note
+
+@enduml

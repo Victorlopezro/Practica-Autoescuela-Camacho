@@ -1,0 +1,48 @@
+@startuml kickoff-flujo
+!theme plain
+
+(*) --> "Inicio Reunión\n(5 min)" 
+--> "Presentación del\nproyecto y objetivos"
+
+note right
+  - Presentar propuesta inicial
+  - Explicar limitaciones (90h)
+end note
+
+--> "Presentación\nempresa\n(10 min)"
+
+note right
+  - Conocer estructura actual
+  - Identificar problemas principales
+  - Volumen de alumn@s/mes
+  - Software actual
+end note
+
+--> "Definir alcance\nrealista\n(10 min)"
+
+note right
+  - Priorizar funcionalidades
+  - Definir MVP
+  - Acordar entregables
+end note
+
+--> "Resolver dudas\ntécnicas\n(5 min)"
+
+note right
+  - Acceso a datos
+  - APIs disponibles
+  - Restricciones legales
+end note
+
+--> "Definir próximos\npasos\n(5 min)"
+
+note right
+  - Asignar responsable
+  - Canal de comunicación
+  - Fechas de seguimiento
+end note
+
+--> "Documentar\nacuerdos"
+--> (*)
+
+@enduml
