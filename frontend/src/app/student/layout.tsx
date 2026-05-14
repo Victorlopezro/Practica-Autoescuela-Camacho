@@ -10,6 +10,7 @@ const navItems = [
   { href: '/student/history', label: 'Historial', icon: 'history' },
   { href: '/student/progress', label: 'Progreso', icon: 'trending_up' },
   { href: '/student/payments', label: 'Pagos', icon: 'payments' },
+  { href: '/student/billing', label: 'Facturación', icon: 'receipt_long' },
   { href: '/student/profile', label: 'Perfil', icon: 'person' },
 ];
 
@@ -20,6 +21,7 @@ const breadcrumbMap: Record<string, { label: string; breadcrumbs: { label: strin
   '/student/history': { label: 'Historial', breadcrumbs: [{ label: 'INICIO', href: '/student/dashboard' }, { label: 'HISTORIAL' }] },
   '/student/progress': { label: 'Progreso', breadcrumbs: [{ label: 'INICIO', href: '/student/dashboard' }, { label: 'PROGRESO' }] },
   '/student/payments': { label: 'Pagos', breadcrumbs: [{ label: 'INICIO', href: '/student/dashboard' }, { label: 'PAGOS' }] },
+  '/student/billing': { label: 'Facturación', breadcrumbs: [{ label: 'INICIO', href: '/student/dashboard' }, { label: 'FACTURACIÓN' }] },
   '/student/profile': { label: 'Perfil', breadcrumbs: [{ label: 'INICIO', href: '/student/dashboard' }, { label: 'PERFIL' }] },
 };
 
