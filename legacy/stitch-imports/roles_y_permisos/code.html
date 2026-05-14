@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Roles y Permisos - Autoescuela Camacho</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-variant": "#d3e4fe",
+                    "secondary-fixed-dim": "#b9c3ff",
+                    "on-surface-variant": "#3e4850",
+                    "surface-container-high": "#dce9ff",
+                    "on-secondary-container": "#20358b",
+                    "secondary": "#4558ae",
+                    "on-secondary-fixed-variant": "#2b3f94",
+                    "primary": "#00628c",
+                    "surface": "#f8f9ff",
+                    "on-tertiary-fixed-variant": "#653e00",
+                    "surface-container": "#e5eeff",
+                    "on-secondary": "#ffffff",
+                    "on-error": "#ffffff",
+                    "primary-fixed": "#c8e6ff",
+                    "on-primary-fixed-variant": "#004c6d",
+                    "tertiary-container": "#a36700",
+                    "surface-container-highest": "#d3e4fe",
+                    "surface-container-low": "#eff4ff",
+                    "primary-fixed-dim": "#87ceff",
+                    "error": "#ba1a1a",
+                    "tertiary": "#825100",
+                    "error-container": "#ffdad6",
+                    "on-secondary-fixed": "#001256",
+                    "background": "#f8f9ff",
+                    "tertiary-fixed-dim": "#ffb95f",
+                    "on-tertiary-fixed": "#2a1700",
+                    "on-primary": "#ffffff",
+                    "surface-dim": "#cbdbf5",
+                    "inverse-on-surface": "#eaf1ff",
+                    "surface-container-lowest": "#ffffff",
+                    "secondary-container": "#90a3ff",
+                    "inverse-primary": "#87ceff",
+                    "on-surface": "#0b1c30",
+                    "on-primary-container": "#fcfcff",
+                    "surface-tint": "#006590",
+                    "primary-container": "#007cb0",
+                    "outline-variant": "#bec8d1",
+                    "on-tertiary": "#ffffff",
+                    "on-background": "#0b1c30",
+                    "on-error-container": "#93000a",
+                    "secondary-fixed": "#dde1ff",
+                    "tertiary-fixed": "#ffddb8",
+                    "on-primary-fixed": "#001e2e",
+                    "outline": "#6f7881",
+                    "surface-bright": "#f8f9ff",
+                    "on-tertiary-container": "#fffbff",
+                    "inverse-surface": "#213145"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "sm": "1rem",
+                    "lg": "2.5rem",
+                    "xs": "0.5rem",
+                    "xl": "4rem",
+                    "md": "1.5rem",
+                    "gutter": "1.5rem",
+                    "container-max": "1280px",
+                    "base": "4px"
+            },
+            "fontFamily": {
+                    "headline-md": ["Inter"],
+                    "display-lg": ["Inter"],
+                    "display-lg-mobile": ["Inter"],
+                    "label-caps": ["Inter"],
+                    "body-base": ["Inter"],
+                    "body-sm": ["Inter"]
+            },
+            "fontSize": {
+                    "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "display-lg-mobile": ["36px", {"lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "label-caps": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "body-base": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background antialiased overflow-x-hidden">
+<!-- NavigationDrawer Shell -->
+<aside class="w-[280px] h-full fixed left-0 top-0 bg-surface-container-lowest dark:bg-inverse-surface shadow-sm flex flex-col h-screen py-md px-sm z-50">
+<div class="px-sm mb-lg">
+<span class="text-headline-md font-headline-md font-bold text-primary dark:text-primary-fixed">Autoescuela Camacho</span>
+</div>
+<nav class="flex-1 space-y-xs overflow-y-auto">
+<!-- Active State based on Page Intent: Configuración -->
+<a class="flex items-center gap-md p-sm rounded-lg text-on-surface-variant dark:text-surface-variant hover:text-on-surface hover:bg-surface-container-high dark:hover:bg-on-surface-variant/10 transition-colors duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="text-body-base font-body-base">Dashboard</span>
+</a>
+<a class="flex items-center gap-md p-sm rounded-lg text-on-surface-variant dark:text-surface-variant hover:text-on-surface hover:bg-surface-container-high dark:hover:bg-on-surface-variant/10 transition-colors duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+<span class="text-body-base font-body-base">Alumnos</span>
+</a>
+<a class="flex items-center gap-md p-sm rounded-lg text-on-surface-variant dark:text-surface-variant hover:text-on-surface hover:bg-surface-container-high dark:hover:bg-on-surface-variant/10 transition-colors duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="badge">badge</span>
+<span class="text-body-base font-body-base">Profesores</span>
+</a>
+<a class="flex items-center gap-md p-sm rounded-lg text-on-surface-variant dark:text-surface-variant hover:text-on-surface hover:bg-surface-container-high dark:hover:bg-on-surface-variant/10 transition-colors duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="directions_car">directions_car</span>
+<span class="text-body-base font-body-base">Flota</span>
+</a>
+<a class="flex items-center gap-md p-sm rounded-lg text-on-surface-variant dark:text-surface-variant hover:text-on-surface hover:bg-surface-container-high dark:hover:bg-on-surface-variant/10 transition-colors duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="calendar_month">calendar_month</span>
+<span class="text-body-base font-body-base">Horarios</span>
+</a>
+<a class="flex items-center gap-md p-sm rounded-lg text-on-surface-variant dark:text-surface-variant hover:text-on-surface hover:bg-surface-container-high dark:hover:bg-on-surface-variant/10 transition-colors duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="payments">payments</span>
+<span class="text-body-base font-body-base">Finanzas</span>
+</a>
+<a class="flex items-center gap-md p-sm rounded-lg text-on-surface-variant dark:text-surface-variant hover:text-on-surface hover:bg-surface-container-high dark:hover:bg-on-surface-variant/10 transition-colors duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="query_stats">query_stats</span>
+<span class="text-body-base font-body-base">IA/Analítica</span>
+</a>
+<a class="flex items-center gap-md p-sm rounded-lg text-primary dark:text-inverse-primary font-bold bg-secondary-container/20 dark:bg-secondary/20 scale-[0.99] transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="text-body-base font-body-base">Configuración</span>
+</a>
+</nav>
+<div class="mt-auto p-sm border-t border-outline-variant/30 flex items-center gap-sm">
+<div class="w-10 h-10 rounded-full bg-primary-fixed flex items-center justify-center text-on-primary-fixed font-bold">AC</div>
+<div class="flex flex-col">
+<span class="text-body-sm font-bold text-on-surface">Admin User</span>
+<span class="text-label-caps text-on-surface-variant">Sede Principal</span>
+</div>
+</div>
+</aside>
+<!-- TopAppBar -->
+<header class="w-[calc(100%-280px)] fixed top-0 right-0 z-40 bg-surface/80 dark:bg-inverse-surface/80 backdrop-blur-md flex justify-between items-center px-lg h-16 ml-[280px]">
+<div class="flex items-center gap-md">
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="search">search</span>
+<span class="text-headline-md font-headline-md text-on-surface">Roles y Permisos</span>
+</div>
+<div class="flex items-center gap-md">
+<button class="material-symbols-outlined p-xs hover:bg-surface-container-low rounded-full" data-icon="notifications">notifications</button>
+<div class="w-8 h-8 rounded-full overflow-hidden bg-secondary-container">
+<img alt="Admin Profile Avatar" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDxaloy3LBnXia8mLaXgN1QYXNYIyfmXZ1Qox3-Fs99kr_iHim70r8jDyNUsjyRC86TNuOr9Vk_9ahNGGLvUTV_6vbHtOuAqAShI6UG0k-SQ1JVeU_PW-dCh6ZVHbYXHr4kZSba_TEm6lraBivNzDh7sgyWcmuCjcSUySQDswoYx14H8yjQ3Aew_dPuhhaNhQcFCGE-G-Lkc9ehydG6AcMJWAp-EEWTaS0WtvbrM4uymvYn8JutiCUpwDk_a9Xz2-zS4NLrWCv2oho"/>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="ml-[280px] pt-16 min-h-screen p-lg">
+<div class="max-w-container-max mx-auto space-y-lg">
+<!-- Matrix Style Permissions UI -->
+<section class="bg-surface-container-lowest rounded-xl border border-outline-variant shadow-sm overflow-hidden">
+<div class="p-md border-b border-outline-variant flex justify-between items-center bg-surface-container-low">
+<div>
+<h2 class="text-headline-md font-headline-md text-on-surface">Matriz de Acceso</h2>
+<p class="text-body-sm text-on-surface-variant">Define qué acciones puede realizar cada rol en la plataforma.</p>
+</div>
+<button class="bg-primary text-on-primary px-md py-xs rounded-lg font-bold flex items-center gap-xs hover:opacity-90 transition-opacity">
+<span class="material-symbols-outlined text-[20px]" data-icon="add">add</span>
+                        Nuevo Rol
+                    </button>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left border-collapse">
+<thead>
+<tr class="bg-surface-container-low">
+<th class="p-md text-label-caps text-on-surface-variant border-b border-outline-variant">MÓDULO / FUNCIONALIDAD</th>
+<th class="p-md text-label-caps text-on-surface-variant border-b border-outline-variant text-center">ADMINISTRADOR</th>
+<th class="p-md text-label-caps text-on-surface-variant border-b border-outline-variant text-center">PROFESOR</th>
+<th class="p-md text-label-caps text-on-surface-variant border-b border-outline-variant text-center">SECRETARÍA</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-outline-variant/30">
+<tr>
+<td class="p-md">
+<div class="font-bold text-on-surface">Gestión de Alumnos</div>
+<div class="text-body-sm text-on-surface-variant italic">Inscripción, edición y baja.</div>
+</td>
+<td class="p-md text-center">
+<label class="inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-surface-variant rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary relative"></div>
+</label>
+</td>
+<td class="p-md text-center">
+<label class="inline-flex items-center cursor-pointer opacity-50">
+<input class="sr-only peer" disabled="" type="checkbox"/>
+<div class="w-11 h-6 bg-surface-variant rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary relative"></div>
+</label>
+</td>
+<td class="p-md text-center">
+<label class="inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-surface-variant rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary relative"></div>
+</label>
+</td>
+</tr>
+<tr>
+<td class="p-md">
+<div class="font-bold text-on-surface">Control de Finanzas</div>
+<div class="text-body-sm text-on-surface-variant italic">Acceso a facturación y pagos.</div>
+</td>
+<td class="p-md text-center">
+<label class="inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-surface-variant rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary relative"></div>
+</label>
+</td>
+<td class="p-md text-center">
+<label class="inline-flex items-center cursor-pointer">
+<input class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-surface-variant rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary relative"></div>
+</label>
+</td>
+<td class="p-md text-center">
+<label class="inline-flex items-center cursor-pointer">
+<input class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-surface-variant rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary relative"></div>
+</label>
+</td>
+</tr>
+<tr>
+<td class="p-md">
+<div class="font-bold text-on-surface">Asignación de Clases</div>
+<div class="text-body-sm text-on-surface-variant italic">Modificar agenda de profesores.</div>
+</td>
+<td class="p-md text-center">
+<label class="inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-surface-variant rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary relative"></div>
+</label>
+</td>
+<td class="p-md text-center">
+<label class="inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-surface-variant rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary relative"></div>
+</label>
+</td>
+<td class="p-md text-center">
+<label class="inline-flex items-center cursor-pointer">
+<input checked="" class="sr-only peer" type="checkbox"/>
+<div class="w-11 h-6 bg-surface-variant rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-primary relative"></div>
+</label>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-lg">
+<!-- User Role Assignment List -->
+<section class="bg-surface-container-lowest rounded-xl border border-outline-variant shadow-sm flex flex-col h-full">
+<div class="p-md border-b border-outline-variant">
+<h3 class="text-headline-md font-headline-md text-on-surface">Asignación de Usuarios</h3>
+<p class="text-body-sm text-on-surface-variant">Gestiona qué rol tiene cada miembro del equipo.</p>
+</div>
+<div class="p-md space-y-sm">
+<div class="flex items-center gap-md p-sm hover:bg-surface-container-low rounded-lg transition-colors border border-transparent hover:border-outline-variant/30">
+<img alt="User Avatar" class="w-10 h-10 rounded-full" data-alt="A professional headshot of a person for a corporate profile, featuring soft high-key lighting and a clean white background. The image has a modern SaaS aesthetic with neutral tones and a focus on clarity and reliability, matching a minimalist digital dashboard environment." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDlzs2TsGNtpNZE1LYPFgT-aDXeAo25i9lyJA3895N0t8y8SyEr3stBkxTlRQsa0nF65EMjNh8PpQ6qLuckk5KqorOUOW4Ut-8OQynnoSgJG2jaVD4E_80t4uyMeF3qU1iDs9pk3gYf4js10jZb1juz_PyzAhzgwp2L67wTe9qCAjMLmJpu4pIgH_bUNFhMRLO3Bkd-e296aG3ui1YbDDK2QmX-LMemnOkzmS7_Re0oquXSaBN9gnf_XvoJ4yxns4P4hOcCVFuTGHE"/>
+<div class="flex-1">
+<div class="font-bold text-on-surface">Carlos Ruiz</div>
+<div class="text-body-sm text-on-surface-variant">carlos.ruiz@camacho.es</div>
+</div>
+<select class="bg-surface border border-outline-variant rounded-lg text-body-sm p-xs focus:ring-2 focus:ring-primary outline-none">
+<option>Administrador</option>
+<option selected="">Profesor</option>
+<option>Secretaría</option>
+</select>
+</div>
+<div class="flex items-center gap-md p-sm hover:bg-surface-container-low rounded-lg transition-colors border border-transparent hover:border-outline-variant/30">
+<img alt="User Avatar" class="w-10 h-10 rounded-full" data-alt="A high-quality professional portrait of a woman in a business setting, illuminated by natural diffused light. The background is a minimalist, slightly blurred office space. The visual style is clean, sharp, and high-contrast, designed to integrate seamlessly into a premium management software interface." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDVBIRlVXZ4Y2ozjGt1lsx8IpiGvsMrvMnQgjFFekq9LW3u61-4I8_kys32ZcWIMX3yucKPD0w1yQeINR7vXkoLaso98DQs_K010s81tvXLlnLAI9byJ00NAW9wCCO1Apn-v_faAZTSd5Qesv_bYPCs2L9LpurfuEZtNQiK3Cop9dCDmD-NJSnocOXrAeWwfKUVwkp95Il3FDEL7Loo7eyw4t4vpUB_PqJvtjidAeYJzw3Vaxh4dcsrmkYbYQVuOjivmlfokgs9vQQ"/>
+<div class="flex-1">
+<div class="font-bold text-on-surface">Elena Martínez</div>
+<div class="text-body-sm text-on-surface-variant">elena.mtz@camacho.es</div>
+</div>
+<select class="bg-surface border border-outline-variant rounded-lg text-body-sm p-xs focus:ring-2 focus:ring-primary outline-none">
+<option>Administrador</option>
+<option>Profesor</option>
+<option selected="">Secretaría</option>
+</select>
+</div>
+<div class="flex items-center gap-md p-sm hover:bg-surface-container-low rounded-lg transition-colors border border-transparent hover:border-outline-variant/30">
+<img alt="User Avatar" class="w-10 h-10 rounded-full" data-alt="A clean, professional close-up of a person suitable for a user profile in a corporate application. The lighting is balanced and soft, creating a trust-inspiring look. The overall aesthetic is minimalist, adhering to a high-end SaaS brand identity with a crisp, bright color palette." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBSxOI-whBjD4dZzLmYnm6G1YAyhAbJFg6WYYWLseWPa07SadvrW9BmbE-eBTgYeNAJaJKXoviJC9ZtOwMbtDsbubHJwypTsZgq8sqqW6LqFRlPDnegNMt3tI3QOxi8sTR0hQ8ZeUPCa1_T3ZZkqSnOx8eWHfpnJSIrSkeILfsP0sehVdk5ZsC6-jOG98OgQy5DAVnd6G4W70HMFW62hsGNks8RSOX4V_zIsHupjm0R7oTMkMw6o-G8OJI5ly15uhaWuDN8-DQZfdQ"/>
+<div class="flex-1">
+<div class="font-bold text-on-surface">Javier Soler</div>
+<div class="text-body-sm text-on-surface-variant">j.soler@camacho.es</div>
+</div>
+<select class="bg-surface border border-outline-variant rounded-lg text-body-sm p-xs focus:ring-2 focus:ring-primary outline-none">
+<option selected="">Administrador</option>
+<option>Profesor</option>
+<option>Secretaría</option>
+</select>
+</div>
+</div>
+<div class="mt-auto p-md bg-surface-container-low border-t border-outline-variant text-center">
+<button class="text-primary font-bold text-body-sm hover:underline">Ver todos los usuarios (12)</button>
+</div>
+</section>
+<!-- Detailed Audit Logs -->
+<section class="bg-surface-container-lowest rounded-xl border border-outline-variant shadow-sm flex flex-col h-full">
+<div class="p-md border-b border-outline-variant">
+<h3 class="text-headline-md font-headline-md text-on-surface">Registro de Auditoría</h3>
+<p class="text-body-sm text-on-surface-variant">Últimos cambios en los niveles de acceso del sistema.</p>
+</div>
+<div class="p-md space-y-md flex-1">
+<div class="flex gap-md">
+<div class="flex flex-col items-center">
+<div class="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center">
+<span class="material-symbols-outlined text-[18px] text-on-primary-container" data-icon="edit">edit</span>
+</div>
+<div class="w-[2px] flex-1 bg-outline-variant/30 my-xs"></div>
+</div>
+<div class="pb-sm">
+<div class="text-body-base font-bold text-on-surface">Permiso modificado</div>
+<p class="text-body-sm text-on-surface-variant">Javier Soler cambió el acceso a <span class="font-bold">"Finanzas"</span> para el rol <span class="font-bold">Profesor</span>.</p>
+<div class="text-label-caps text-on-surface-variant mt-xs">Hace 2 horas</div>
+</div>
+</div>
+<div class="flex gap-md">
+<div class="flex flex-col items-center">
+<div class="w-8 h-8 rounded-full bg-tertiary-container flex items-center justify-center">
+<span class="material-symbols-outlined text-[18px] text-on-tertiary-container" data-icon="person_add">person_add</span>
+</div>
+<div class="w-[2px] flex-1 bg-outline-variant/30 my-xs"></div>
+</div>
+<div class="pb-sm">
+<div class="text-body-base font-bold text-on-surface">Nuevo usuario asignado</div>
+<p class="text-body-sm text-on-surface-variant">Carlos Ruiz fue asignado al rol <span class="font-bold">Profesor</span> por Sistema.</p>
+<div class="text-label-caps text-on-surface-variant mt-xs">Ayer, 14:30</div>
+</div>
+</div>
+<div class="flex gap-md">
+<div class="flex flex-col items-center">
+<div class="w-8 h-8 rounded-full bg-error-container flex items-center justify-center">
+<span class="material-symbols-outlined text-[18px] text-on-error-container" data-icon="security_update_warning">security_update_warning</span>
+</div>
+</div>
+<div class="pb-sm">
+<div class="text-body-base font-bold text-on-surface">Intento de acceso denegado</div>
+<p class="text-body-sm text-on-surface-variant">Módulo de IA/Analítica bloqueado para Elena Martínez.</p>
+<div class="text-label-caps text-on-surface-variant mt-xs">24 Oct, 09:15</div>
+</div>
+</div>
+</div>
+<div class="p-md bg-surface-container-low border-t border-outline-variant text-center">
+<button class="text-primary font-bold text-body-sm hover:underline">Descargar log completo (CSV)</button>
+</div>
+</section>
+</div>
+<!-- Access Control Banner -->
+<section class="bg-primary/5 border border-primary/20 rounded-xl p-md flex flex-col md:flex-row items-center gap-md">
+<div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary shrink-0">
+<span class="material-symbols-outlined text-[32px]" data-icon="policy">policy</span>
+</div>
+<div class="flex-1 text-center md:text-left">
+<h4 class="text-body-base font-bold text-on-surface">Cumplimiento de Seguridad</h4>
+<p class="text-body-sm text-on-surface-variant">Cualquier cambio en la matriz de permisos enviará una notificación automática a todos los administradores del sistema por motivos de seguridad.</p>
+</div>
+<div class="flex items-center gap-sm">
+<span class="text-label-caps text-on-surface-variant">ESTADO: PROTEGIDO</span>
+<div class="w-3 h-3 rounded-full bg-green-500 animate-pulse"></div>
+</div>
+</section>
+</div>
+</main>
+<!-- FAB Suppression Logic: Not on Details/Config pages, but if primary intent is Role Management, we could have a 'Add User' FAB -->
+<!-- However, the task mentions Matrix and Logs as primary, so we maintain the standard button pattern for better enterprise feel. -->
+</body></html>

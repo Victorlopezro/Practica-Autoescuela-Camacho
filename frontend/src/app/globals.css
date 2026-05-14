@@ -1,0 +1,128 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+@import "shadcn/tailwind.css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme {
+  --font-sans: var(--font-inter);
+  --font-mono: var(--font-geist-mono);
+  --font-heading: var(--font-inter);
+
+  /* Stitch Material Design 3 palette */
+  --color-background: #f8f9ff;
+  --color-foreground: #0b1c30;
+  --color-primary: #00628c;
+  --color-primary-foreground: #ffffff;
+  --color-primary-container: #007cb0;
+  --color-on-primary-container: #fcfcff;
+  --color-primary-fixed: #c8e6ff;
+  --color-primary-fixed-dim: #87ceff;
+  --color-on-primary-fixed: #001e2e;
+  --color-on-primary-fixed-variant: #004c6d;
+  --color-secondary: #4558ae;
+  --color-secondary-foreground: #ffffff;
+  --color-secondary-container: #90a3ff;
+  --color-on-secondary-container: #20358b;
+  --color-secondary-fixed: #dde1ff;
+  --color-secondary-fixed-dim: #b9c3ff;
+  --color-on-secondary-fixed: #001256;
+  --color-on-secondary-fixed-variant: #2b3f94;
+  --color-tertiary: #825100;
+  --color-tertiary-foreground: #ffffff;
+  --color-tertiary-container: #a36700;
+  --color-on-tertiary-container: #fffbff;
+  --color-tertiary-fixed: #ffddb8;
+  --color-tertiary-fixed-dim: #ffb95f;
+  --color-on-tertiary-fixed: #2a1700;
+  --color-on-tertiary-fixed-variant: #653e00;
+  --color-error: #ba1a1a;
+  --color-error-foreground: #ffffff;
+  --color-error-container: #ffdad6;
+  --color-on-error-container: #93000a;
+  --color-surface: #f8f9ff;
+  --color-on-surface: #0b1c30;
+  --color-surface-dim: #cbdbf5;
+  --color-surface-bright: #f8f9ff;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-container-low: #eff4ff;
+  --color-surface-container: #e5eeff;
+  --color-surface-container-high: #dce9ff;
+  --color-surface-container-highest: #d3e4fe;
+  --color-surface-variant: #d3e4fe;
+  --color-on-surface-variant: #3e4850;
+  --color-inverse-surface: #213145;
+  --color-inverse-on-surface: #eaf1ff;
+  --color-inverse-primary: #87ceff;
+  --color-outline: #6f7881;
+  --color-outline-variant: #bec8d1;
+  --color-surface-tint: #006590;
+
+  /* shadcn compat */
+  --color-card: #ffffff;
+  --color-card-foreground: #0b1c30;
+  --color-popover: #ffffff;
+  --color-popover-foreground: #0b1c30;
+  --color-muted: #eaf1ff;
+  --color-muted-foreground: #3e4850;
+  --color-accent: #c8e6ff;
+  --color-accent-foreground: #001e2e;
+  --color-destructive: #ba1a1a;
+  --color-destructive-foreground: #ffffff;
+  --color-border: #d3e4fe;
+  --color-input: #d3e4fe;
+  --color-ring: #00628c;
+  --color-chart-1: #00628c;
+  --color-chart-2: #4558ae;
+  --color-chart-3: #825100;
+  --color-chart-4: #1b7a3e;
+  --color-chart-5: #ba1a1a;
+  --color-sidebar: #f8f9ff;
+  --color-sidebar-foreground: #0b1c30;
+  --color-sidebar-primary: #00628c;
+  --color-sidebar-primary-foreground: #ffffff;
+  --color-sidebar-accent: #c8e6ff;
+  --color-sidebar-accent-foreground: #004c6d;
+  --color-sidebar-border: #d3e4fe;
+  --color-sidebar-ring: #00628c;
+
+  --radius-sm: 0.25rem;
+  --radius-md: 0.5rem;
+  --radius-lg: 0.75rem;
+  --radius-xl: 0.75rem;
+  --radius-2xl: 1rem;
+  --radius-3xl: 1.5rem;
+  --radius-4xl: 2rem;
+
+  /* Stitch spacing */
+  --spacing-xs: 0.5rem;
+  --spacing-sm: 1rem;
+  --spacing-md: 1.5rem;
+  --spacing-lg: 2.5rem;
+  --spacing-xl: 4rem;
+  --spacing-gutter: 1.5rem;
+  --spacing-container-max: 1280px;
+
+  /* Stitch font sizes */
+  --text-display-lg: 48px;
+  --text-display-lg-mobile: 36px;
+  --text-headline-md: 24px;
+  --text-body-base: 16px;
+  --text-body-sm: 14px;
+  --text-label-caps: 12px;
+}
+
+.material-symbols-outlined {
+  font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    font-family: 'Inter', sans-serif;
+    @apply bg-background text-on-surface;
+    -webkit-tap-highlight-color: transparent;
+  }
+}

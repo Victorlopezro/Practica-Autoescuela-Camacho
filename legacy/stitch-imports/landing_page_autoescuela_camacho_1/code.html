@@ -1,0 +1,467 @@
+<!DOCTYPE html>
+
+<html class="scroll-smooth" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary-fixed-variant": "#2b3f94",
+                        "surface": "#f8f9ff",
+                        "inverse-on-surface": "#eaf1ff",
+                        "on-tertiary": "#ffffff",
+                        "primary-fixed-dim": "#87ceff",
+                        "on-secondary-fixed": "#001256",
+                        "on-error": "#ffffff",
+                        "secondary": "#4558ae",
+                        "surface-bright": "#f8f9ff",
+                        "surface-container-high": "#dce9ff",
+                        "secondary-fixed-dim": "#b9c3ff",
+                        "surface-variant": "#d3e4fe",
+                        "on-tertiary-fixed-variant": "#653e00",
+                        "on-primary-fixed-variant": "#004c6d",
+                        "surface-container-low": "#eff4ff",
+                        "surface-container-highest": "#d3e4fe",
+                        "on-background": "#0b1c30",
+                        "primary": "#00628c",
+                        "inverse-primary": "#87ceff",
+                        "on-surface-variant": "#3e4850",
+                        "inverse-surface": "#213145",
+                        "on-secondary": "#ffffff",
+                        "surface-container": "#e5eeff",
+                        "background": "#f8f9ff",
+                        "outline-variant": "#bec8d1",
+                        "tertiary": "#825100",
+                        "on-secondary-container": "#20358b",
+                        "on-primary": "#ffffff",
+                        "surface-tint": "#006590",
+                        "tertiary-container": "#a36700",
+                        "on-primary-fixed": "#001e2e",
+                        "tertiary-fixed-dim": "#ffb95f",
+                        "on-tertiary-fixed": "#2a1700",
+                        "on-primary-container": "#fcfcff",
+                        "error": "#ba1a1a",
+                        "error-container": "#ffdad6",
+                        "primary-fixed": "#c8e6ff",
+                        "on-tertiary-container": "#fffbff",
+                        "surface-dim": "#cbdbf5",
+                        "surface-container-lowest": "#ffffff",
+                        "on-surface": "#0b1c30",
+                        "on-error-container": "#93000a",
+                        "secondary-container": "#90a3ff",
+                        "tertiary-fixed": "#ffddb8",
+                        "outline": "#6f7881",
+                        "secondary-fixed": "#dde1ff",
+                        "primary-container": "#007cb0"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "md": "1.5rem",
+                        "sm": "1rem",
+                        "gutter": "1.5rem",
+                        "base": "4px",
+                        "lg": "2.5rem",
+                        "container-max": "1280px",
+                        "xs": "0.5rem",
+                        "xl": "4rem"
+                    },
+                    "fontFamily": {
+                        "display-lg-mobile": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "display-lg": ["Inter"],
+                        "body-base": ["Inter"],
+                        "label-caps": ["Inter"],
+                        "headline-md": ["Inter"]
+                    },
+                    "fontSize": {
+                        "display-lg-mobile": ["36px", {"lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "body-base": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "label-caps": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(226, 232, 240, 0.5);
+        }
+    </style>
+</head>
+<body class="bg-surface text-on-surface font-body-base antialiased">
+<!-- TopAppBar Replacement for Landing Page -->
+<header class="w-full sticky top-0 z-40 bg-surface/80 backdrop-blur-md border-b border-outline-variant/30">
+<nav class="flex justify-between items-center px-gutter h-20 max-w-container-max mx-auto">
+<div class="flex items-center gap-2">
+<img alt="Autoescuela Camacho Logo" class="h-10 w-auto" src="https://lh3.googleusercontent.com/aida-public/AB6AXuClMgodg3Izv_R0UH87yfx19h_EgjJWJr6zploSDjR5iEXddb0c1_Wd31ylTh4xy15LFVAyHTNPBHZX42BaJDkkrmIm5NHHLMEUIVl0WUZ7M_3ka8Vb_o4j-fLcAtt9dJwwZ4_qbFNmE26Sjc3pRi0W9wy6FgwfkhQoYyolVD8TqdDSfbuFJGELzYVu99a7u8uyhR6JFKwxAjt48q0_D75UKT-jjH5C12UajzuxNe4KiMuM7P0TIZg_A8-gCGCmSX3QjLfJTtK8m0E"/>
+</div>
+<div class="hidden md:flex items-center gap-8">
+<a class="font-label-caps text-label-caps text-on-surface-variant hover:text-primary transition-colors" href="#permisos">PERMISOS</a>
+<a class="font-label-caps text-label-caps text-on-surface-variant hover:text-primary transition-colors" href="#nosotros">NOSOTROS</a>
+<a class="font-label-caps text-label-caps text-on-surface-variant hover:text-primary transition-colors" href="#contacto">CONTACTO</a>
+<a class="px-6 py-2.5 bg-primary text-white font-label-caps text-label-caps rounded-full hover:shadow-lg transition-all active:scale-95" href="#">SOLICITA INFORMACIÓN</a>
+</div>
+<button class="md:hidden text-primary">
+<span class="material-symbols-outlined">menu</span>
+</button>
+</nav>
+</header>
+<main>
+<!-- Hero Section -->
+<section class="relative min-h-[85vh] flex items-center overflow-hidden pt-12 pb-20 px-gutter">
+<div class="max-w-container-max mx-auto w-full grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+<div class="z-10">
+<div class="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-primary-fixed text-on-primary-fixed-variant mb-6">
+<span class="material-symbols-outlined text-[18px]">verified</span>
+<span class="font-label-caps text-label-caps">MÁS DE 25 AÑOS DE EXPERIENCIA</span>
+</div>
+<h1 class="font-display-lg text-display-lg-mobile md:text-display-lg text-on-background mb-6 leading-tight">
+                        Tu libertad al volante empieza con <span class="text-primary">Camacho</span>.
+                    </h1>
+<p class="text-on-surface-variant text-body-base max-w-xl mb-10 leading-relaxed">
+                        Formamos conductores seguros y responsables en Toledo. Con una metodología eficiente y profesores expertos, garantizamos un aprendizaje fluido desde el primer día.
+                    </p>
+<div class="flex flex-wrap gap-4">
+<a class="px-8 py-4 bg-primary text-white font-headline-md text-body-base rounded-xl shadow-md hover:shadow-xl hover:-translate-y-1 transition-all" href="#contacto">
+                            Solicita información
+                        </a>
+<a class="px-8 py-4 bg-white border border-outline-variant text-primary font-headline-md text-body-base rounded-xl hover:bg-surface-container transition-all" href="#permisos">
+                            Ver Permisos
+                        </a>
+</div>
+</div>
+<div class="relative h-[400px] md:h-[550px] rounded-3xl overflow-hidden shadow-2xl">
+<img class="w-full h-full object-cover" data-alt="A cinematic, high-quality photograph of a modern blue car driving through a scenic highway during the golden hour. The soft evening sun creates a warm, professional atmosphere reflecting the reliable and instructional brand identity of Autoescuela Camacho. The composition is clean and minimalist, focusing on the freedom of the road with high-end digital clarity." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA4FJaBjJ_KaviADSZJ4kh6E71C5IB48iIFxRdEuMc2lNspoEA5S-eDcRYvYpamPpxy5Abd2WYyWOwKigchnTGAbdQ0HHaMP0aLrfeMMwxPCDjubSMxa1gzoDqtPZ511Wlyrgm6biRe1lHw-xXm_pIE0uyMGHoKR9cjolv_es9yDQQ2opWwe72lJSMFS7p6Aq4Lca58q7FeCM1BBwQRRzD2uEIBY7XIYJflZB0dxyHr6ECDvXdlOwlqyh5ooi19Tbw9_Ce3-yPeg3U"/>
+<div class="absolute bottom-6 left-6 right-6">
+<div class="glass-card p-6 rounded-2xl shadow-lg border border-white/20">
+<div class="flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-primary/10 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">directions_car</span>
+</div>
+<div>
+<p class="font-headline-md text-body-base text-on-surface mb-0">Flota Renovada</p>
+<p class="text-body-sm text-on-surface-variant">Vehículos modernos para tu comodidad.</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- Stats Section -->
+<section class="bg-on-secondary-fixed-variant py-20 text-white">
+<div class="max-w-container-max mx-auto px-gutter">
+<div class="grid grid-cols-2 md:grid-cols-4 gap-8 text-center">
+<div>
+<p class="font-display-lg text-display-lg-mobile md:text-display-lg mb-1">25+</p>
+<p class="font-label-caps text-label-caps opacity-80 uppercase tracking-widest">Años de Trayectoria</p>
+</div>
+<div>
+<p class="font-display-lg text-display-lg-mobile md:text-display-lg mb-1">90%</p>
+<p class="font-label-caps text-label-caps opacity-80 uppercase tracking-widest">Tasa de Aprobado</p>
+</div>
+<div>
+<p class="font-display-lg text-display-lg-mobile md:text-display-lg mb-1">15k+</p>
+<p class="font-label-caps text-label-caps opacity-80 uppercase tracking-widest">Alumnos Graduados</p>
+</div>
+<div>
+<p class="font-display-lg text-display-lg-mobile md:text-display-lg mb-1">5</p>
+<p class="font-label-caps text-label-caps opacity-80 uppercase tracking-widest">Centros en Toledo</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Licenses Section (Asymmetric Grid) -->
+<section class="py-xl px-gutter max-w-container-max mx-auto" id="permisos">
+<div class="mb-16">
+<h2 class="font-display-lg text-display-lg-mobile text-on-background mb-4">Nuestros Permisos</h2>
+<p class="text-on-surface-variant text-body-base max-w-2xl">Ofrecemos formación integral para todo tipo de vehículos, con material didáctico propio y tutorías personalizadas.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-12 gap-6">
+<!-- Permiso B -->
+<div class="md:col-span-8 group relative overflow-hidden rounded-3xl bg-white border border-outline-variant/30 shadow-sm hover:shadow-xl transition-all h-[400px]">
+<div class="absolute inset-0 z-0 opacity-40 group-hover:scale-105 transition-transform duration-700">
+<img class="w-full h-full object-cover" data-alt="A premium close-up of a student's hands on a steering wheel of a modern car, emphasizing focus and instructional precision. The lighting is bright and airy, matching a high-performance SaaS aesthetic. Deep blues and soft whites dominate the scene to convey trust and reliability for driving students." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDPuAIbCc2K8cr5I9Pxo52IIV8BQJ3UBJfjO-5B-CxhEJxwjP23pNpWhtEfzAz9kplCPDtFUhMrYtyPT8Yp_ZxjOaSumtGOxKJ76P6NIlFGAi342EBiCNBQAbzWB1BCPDltE3JpXiqZk8Sq_PhTTvAnuIRi51WsqjCzjjIpTo3AsHrvD4o36_KUac9TZBUP7o1kdVw6xZLopqxc5T1Z9g579cz8jTDIHLgLHjLng2XFAEETSeIMr1lak_81z7CBuY4n4q2Z_-egT_k"/>
+</div>
+<div class="absolute inset-0 bg-gradient-to-t from-white via-white/40 to-transparent z-10"></div>
+<div class="relative z-20 p-8 h-full flex flex-col justify-end">
+<span class="w-fit px-4 py-1 rounded-full bg-primary text-white font-label-caps text-label-caps mb-4">MÁS POPULAR</span>
+<h3 class="font-headline-md text-headline-md text-on-surface mb-2">Permiso B</h3>
+<p class="text-on-surface-variant text-body-base mb-6 max-w-md">Turismos y vehículos ligeros. La formación más completa para tu día a día.</p>
+<div class="flex gap-4">
+<span class="flex items-center gap-1 text-primary"><span class="material-symbols-outlined text-[18px]">check_circle</span> Teórica Online</span>
+<span class="flex items-center gap-1 text-primary"><span class="material-symbols-outlined text-[18px]">check_circle</span> Intensivos</span>
+</div>
+</div>
+</div>
+<!-- Permiso A -->
+<div class="md:col-span-4 group bg-surface-container-low rounded-3xl p-8 border border-outline-variant/30 flex flex-col justify-between hover:shadow-lg transition-all">
+<div>
+<div class="w-14 h-14 rounded-2xl bg-white flex items-center justify-center text-primary shadow-sm mb-6">
+<span class="material-symbols-outlined text-[32px]">sports_motorsports</span>
+</div>
+<h3 class="font-headline-md text-headline-md text-on-surface mb-2">Permisos A / A2</h3>
+<p class="text-on-surface-variant text-body-sm leading-relaxed">Siente la libertad en dos ruedas. Especialistas en formación de motoristas con circuito propio.</p>
+</div>
+<button class="mt-8 flex items-center gap-2 text-primary font-bold hover:underline">
+                        Saber más <span class="material-symbols-outlined">arrow_forward</span>
+</button>
+</div>
+<!-- Permiso C/D -->
+<div class="md:col-span-6 bg-white border border-outline-variant/30 rounded-3xl p-8 flex flex-col md:flex-row gap-8 hover:shadow-lg transition-all">
+<div class="flex-1">
+<h3 class="font-headline-md text-headline-md text-on-surface mb-2">Camión y Bus (C/D)</h3>
+<p class="text-on-surface-variant text-body-sm mb-6">Impulsa tu carrera profesional. Formación especializada CAP y permisos profesionales.</p>
+<ul class="space-y-2">
+<li class="flex items-center gap-2 text-body-sm text-on-surface-variant"><span class="material-symbols-outlined text-primary text-[18px]">task_alt</span> Bolsa de empleo</li>
+<li class="flex items-center gap-2 text-body-sm text-on-surface-variant"><span class="material-symbols-outlined text-primary text-[18px]">task_alt</span> Financiación a medida</li>
+</ul>
+</div>
+<div class="w-full md:w-1/3 rounded-2xl overflow-hidden h-32 md:h-auto">
+<img class="w-full h-full object-cover" data-alt="A professional commercial truck parked in a modern logistics center. High-key lighting, clean environment, reflecting professional vocational training for trucking and bus licenses. Corporate blue tones and a sense of industrial efficiency." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCGiwASVmEnaq_SL8Jdb5pEYQDQV7cvCLZXmnsNexfsvM2kTXPMbtQ2u90atk9m_YQ8FRSMh3ZCDK7PfsmnGfnEu3kktxTm6g1az9OyaOTrkNtaJC3r5BZr1E8HohfqhUZC-rEm6orZObsHe1O9LvpBK4cLd5PglgTkcM7_0ywN2nKxOweIa7UIOlbdWUphRvC_-Lh6IOqhDcY_moXLGf18WXpCuYj8QtoYDFMmpFpdktg-AaUqBz4oK7NuEgo8WeCyvw3YYoYIpIc"/>
+</div>
+</div>
+<!-- CAP/Otros -->
+<div class="md:col-span-6 bg-on-secondary-fixed text-white rounded-3xl p-8 flex flex-col justify-center items-center text-center">
+<h3 class="font-headline-md text-headline-md mb-2">Cursos CAP y ADR</h3>
+<p class="text-white/80 text-body-sm mb-6 max-w-sm">Renovaciones y formación inicial para conductores profesionales. Centros autorizados por transporte.</p>
+<a class="px-6 py-3 bg-white text-on-secondary-fixed rounded-xl font-bold hover:bg-surface-container transition-colors" href="#">Ver calendario de cursos</a>
+</div>
+</div>
+</section>
+<!-- Testimonials -->
+<section class="bg-surface-container-lowest py-xl">
+<div class="max-w-container-max mx-auto px-gutter">
+<div class="text-center mb-16">
+<h2 class="font-display-lg text-display-lg-mobile text-on-background mb-4">Lo que dicen nuestros alumnos</h2>
+<p class="text-on-surface-variant text-body-base">Cientos de nuevos conductores cada año avalan nuestra metodología.</p>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-3 gap-8">
+<div class="bg-white p-8 rounded-2xl border border-outline-variant/30 shadow-sm">
+<div class="flex text-[#ffb95f] mb-4">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+<p class="text-on-surface-variant text-body-base italic mb-6">"Excelente trato y paciencia infinita de los profesores. Me saqué el carnet B a la primera gracias a sus consejos. ¡Muy recomendables!"</p>
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-surface-container-high"></div>
+<div>
+<p class="font-bold text-on-surface text-body-sm">Elena Martínez</p>
+<p class="text-on-surface-variant text-label-caps uppercase">Permiso B</p>
+</div>
+</div>
+</div>
+<div class="bg-white p-8 rounded-2xl border border-outline-variant/30 shadow-sm border-t-4 border-t-primary">
+<div class="flex text-[#ffb95f] mb-4">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+<p class="text-on-surface-variant text-body-base italic mb-6">"La mejor autoescuela de Toledo para el carnet de camión. Flota moderna y mucha flexibilidad horaria para los que trabajamos."</p>
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-surface-container-high"></div>
+<div>
+<p class="font-bold text-on-surface text-body-sm">Carlos Ruiz</p>
+<p class="text-on-surface-variant text-label-caps uppercase">Permiso C + CAP</p>
+</div>
+</div>
+</div>
+<div class="bg-white p-8 rounded-2xl border border-outline-variant/30 shadow-sm">
+<div class="flex text-[#ffb95f] mb-4">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">star</span>
+</div>
+<p class="text-on-surface-variant text-body-base italic mb-6">"Me daba pánico conducir y consiguieron que me sintiera segura desde el minuto uno. El material online es muy útil."</p>
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-surface-container-high"></div>
+<div>
+<p class="font-bold text-on-surface text-body-sm">Lucía Gómez</p>
+<p class="text-on-surface-variant text-label-caps uppercase">Permiso B</p>
+</div>
+</div>
+</div>
+</div>
+</div>
+</section>
+<!-- FAQ Section -->
+<section class="py-xl max-w-3xl mx-auto px-gutter">
+<h2 class="font-display-lg text-display-lg-mobile text-on-background mb-12 text-center">Preguntas Frecuentes</h2>
+<div class="space-y-4">
+<details class="group bg-white rounded-2xl border border-outline-variant/30 overflow-hidden" open="">
+<summary class="flex justify-between items-center p-6 cursor-pointer font-bold text-on-surface hover:bg-surface-container transition-colors list-none">
+                        ¿Qué necesito para empezar hoy mismo?
+                        <span class="material-symbols-outlined group-open:rotate-180 transition-transform">expand_more</span>
+</summary>
+<div class="p-6 pt-0 text-on-surface-variant text-body-base border-t border-outline-variant/10">
+                        Solo necesitas tu DNI o NIE en vigor. Nosotros nos encargamos de todo el papeleo y la gestión con la DGT para que tú solo te preocupes de estudiar y conducir.
+                    </div>
+</details>
+<details class="group bg-white rounded-2xl border border-outline-variant/30 overflow-hidden">
+<summary class="flex justify-between items-center p-6 cursor-pointer font-bold text-on-surface hover:bg-surface-container transition-colors list-none">
+                        ¿Tenéis cursos intensivos de teórica?
+                        <span class="material-symbols-outlined group-open:rotate-180 transition-transform">expand_more</span>
+</summary>
+<div class="p-6 pt-0 text-on-surface-variant text-body-base border-t border-outline-variant/10">
+                        Sí, disponemos de cursos intensivos presenciales y acceso 24/7 a nuestra plataforma online con tests actualizados y clases grabadas.
+                    </div>
+</details>
+<details class="group bg-white rounded-2xl border border-outline-variant/30 overflow-hidden">
+<summary class="flex justify-between items-center p-6 cursor-pointer font-bold text-on-surface hover:bg-surface-container transition-colors list-none">
+                        ¿Ofrecéis facilidades de pago?
+                        <span class="material-symbols-outlined group-open:rotate-180 transition-transform">expand_more</span>
+</summary>
+<div class="p-6 pt-0 text-on-surface-variant text-body-base border-t border-outline-variant/10">
+                        Totalmente. Puedes financiar tu carnet en cómodas cuotas sin intereses para que el coste no sea un impedimento en tu formación.
+                    </div>
+</details>
+</div>
+</section>
+<!-- Contact Section -->
+<section class="bg-surface-container-low py-xl px-gutter" id="contacto">
+<div class="max-w-container-max mx-auto">
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-16">
+<div>
+<h2 class="font-display-lg text-display-lg-mobile text-on-background mb-6">Contacta con nosotros</h2>
+<p class="text-on-surface-variant text-body-base mb-10">¿Tienes dudas? Déjanos tus datos y un asesor te llamará para explicarte nuestros packs y ofertas actuales en Toledo.</p>
+<div class="space-y-6">
+<div class="flex items-start gap-4">
+<div class="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">location_on</span>
+</div>
+<div>
+<p class="font-bold text-on-surface">Central Toledo</p>
+<p class="text-on-surface-variant text-body-sm">Av. de Barber, 12, 45004 Toledo</p>
+</div>
+</div>
+<div class="flex items-start gap-4">
+<div class="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">call</span>
+</div>
+<div>
+<p class="font-bold text-on-surface">Teléfono</p>
+<p class="text-on-surface-variant text-body-sm">+34 925 00 00 00</p>
+</div>
+</div>
+<div class="flex items-start gap-4">
+<div class="w-12 h-12 rounded-xl bg-primary/10 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">mail</span>
+</div>
+<div>
+<p class="font-bold text-on-surface">Email</p>
+<p class="text-on-surface-variant text-body-sm">info@autoescuelacamacho.com</p>
+</div>
+</div>
+</div>
+</div>
+<div class="bg-white p-8 md:p-10 rounded-3xl shadow-xl border border-outline-variant/20">
+<form action="#" class="space-y-6">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+<div class="space-y-2">
+<label class="font-label-caps text-label-caps text-on-surface-variant">NOMBRE</label>
+<input class="w-full px-4 py-3 rounded-xl border border-outline-variant focus:ring-2 focus:ring-primary focus:border-primary bg-surface/50" placeholder="Tu nombre" type="text"/>
+</div>
+<div class="space-y-2">
+<label class="font-label-caps text-label-caps text-on-surface-variant">TELÉFONO</label>
+<input class="w-full px-4 py-3 rounded-xl border border-outline-variant focus:ring-2 focus:ring-primary focus:border-primary bg-surface/50" placeholder="Tu teléfono" type="tel"/>
+</div>
+</div>
+<div class="space-y-2">
+<label class="font-label-caps text-label-caps text-on-surface-variant">PERMISO DE INTERÉS</label>
+<select class="w-full px-4 py-3 rounded-xl border border-outline-variant focus:ring-2 focus:ring-primary focus:border-primary bg-surface/50">
+<option>Permiso B (Coche)</option>
+<option>Permiso A/A2 (Moto)</option>
+<option>Permiso C/D (Profesional)</option>
+<option>Cursos CAP / ADR</option>
+</select>
+</div>
+<div class="space-y-2">
+<label class="font-label-caps text-label-caps text-on-surface-variant">MENSAJE (OPCIONAL)</label>
+<textarea class="w-full px-4 py-3 rounded-xl border border-outline-variant focus:ring-2 focus:ring-primary focus:border-primary bg-surface/50" placeholder="¿En qué podemos ayudarte?" rows="4"></textarea>
+</div>
+<button class="w-full py-4 bg-primary text-white font-bold rounded-xl hover:bg-primary-container transition-all shadow-md active:scale-[0.98]" type="submit">
+                                Enviar Solicitud
+                            </button>
+<p class="text-center text-body-sm text-on-surface-variant">Al enviar el formulario aceptas nuestra política de privacidad.</p>
+</form>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Footer -->
+<footer class="bg-surface-container-highest py-xl border-t border-outline-variant">
+<div class="max-w-container-max mx-auto px-gutter">
+<div class="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
+<div class="md:col-span-1">
+<img alt="Autoescuela Camacho Logo" class="h-10 mb-6" src="https://lh3.googleusercontent.com/aida-public/AB6AXuClMgodg3Izv_R0UH87yfx19h_EgjJWJr6zploSDjR5iEXddb0c1_Wd31ylTh4xy15LFVAyHTNPBHZX42BaJDkkrmIm5NHHLMEUIVl0WUZ7M_3ka8Vb_o4j-fLcAtt9dJwwZ4_qbFNmE26Sjc3pRi0W9wy6FgwfkhQoYyolVD8TqdDSfbuFJGELzYVu99a7u8uyhR6JFKwxAjt48q0_D75UKT-jjH5C12UajzuxNe4KiMuM7P0TIZg_A8-gCGCmSX3QjLfJTtK8m0E"/>
+<p class="text-on-surface-variant text-body-sm leading-relaxed">
+                        Líderes en formación vial en Toledo. Más de dos décadas ayudando a miles de personas a conseguir su independencia al volante.
+                    </p>
+</div>
+<div>
+<h4 class="font-bold text-on-surface mb-6">Navegación</h4>
+<ul class="space-y-4">
+<li><a class="text-on-surface-variant hover:text-primary transition-colors text-body-sm" href="#">Inicio</a></li>
+<li><a class="text-on-surface-variant hover:text-primary transition-colors text-body-sm" href="#permisos">Permisos</a></li>
+<li><a class="text-on-surface-variant hover:text-primary transition-colors text-body-sm" href="#nosotros">Sobre Nosotros</a></li>
+<li><a class="text-on-surface-variant hover:text-primary transition-colors text-body-sm" href="#contacto">Ubicaciones</a></li>
+</ul>
+</div>
+<div>
+<h4 class="font-bold text-on-surface mb-6">Legal</h4>
+<ul class="space-y-4">
+<li><a class="text-on-surface-variant hover:text-primary transition-colors text-body-sm" href="#">Aviso Legal</a></li>
+<li><a class="text-on-surface-variant hover:text-primary transition-colors text-body-sm" href="#">Política de Privacidad</a></li>
+<li><a class="text-on-surface-variant hover:text-primary transition-colors text-body-sm" href="#">Política de Cookies</a></li>
+</ul>
+</div>
+<div>
+<h4 class="font-bold text-on-surface mb-6">Síguenos</h4>
+<div class="flex gap-4">
+<a class="w-10 h-10 rounded-full bg-white flex items-center justify-center text-primary shadow-sm hover:bg-primary hover:text-white transition-all" href="#">
+<span class="material-symbols-outlined text-[20px]">public</span>
+</a>
+<a class="w-10 h-10 rounded-full bg-white flex items-center justify-center text-primary shadow-sm hover:bg-primary hover:text-white transition-all" href="#">
+<span class="material-symbols-outlined text-[20px]">share</span>
+</a>
+<a class="w-10 h-10 rounded-full bg-white flex items-center justify-center text-primary shadow-sm hover:bg-primary hover:text-white transition-all" href="#">
+<span class="material-symbols-outlined text-[20px]">thumb_up</span>
+</a>
+</div>
+</div>
+</div>
+<div class="flex flex-col md:flex-row justify-between items-center pt-8 border-t border-outline-variant/30 text-body-sm text-on-surface-variant">
+<p>© 2024 Autoescuela Camacho. Todos los derechos reservados.</p>
+<p class="mt-4 md:mt-0">Diseñado con excelencia en Toledo.</p>
+</div>
+</div>
+</footer>
+</body></html>

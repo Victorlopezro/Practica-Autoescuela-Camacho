@@ -1,0 +1,32 @@
+<svg width="500" height="220" viewBox="0 0 500 220" xmlns="http://www.w3.org/2000/svg">
+  <!-- AUTOESCUELA text -->
+  <text x="250" y="40" font-family="Arial, sans-serif" font-size="28" font-weight="bold" text-anchor="middle" fill="#1a1a1a">
+    AUTOESCUELA
+  </text>
+
+  <!-- CA text -->
+  <text x="100" y="140" font-family="Arial, sans-serif" font-size="80" font-weight="bold" fill="#0099D8">
+    CA
+  </text>
+
+  <!-- Truck/Car icon in the middle -->
+  <g transform="translate(210, 70)">
+    <!-- Truck body -->
+    <path d="M 10 30 L 70 20 L 70 50 L 10 60 Z" fill="#0099D8"/>
+    <rect x="15" y="35" width="50" height="20" fill="#0099D8"/>
+
+    <!-- Windshield -->
+    <path d="M 25 35 L 35 30 L 45 30 L 50 35 Z" fill="#ffffff" opacity="0.3"/>
+
+    <!-- Wheels -->
+    <circle cx="25" cy="65" r="12" fill="#1a1a1a"/>
+    <circle cx="25" cy="65" r="6" fill="#666666"/>
+    <circle cx="55" cy="65" r="12" fill="#1a1a1a"/>
+    <circle cx="55" cy="65" r="6" fill="#666666"/>
+  </g>
+
+  <!-- ACHO text -->
+  <text x="320" y="140" font-family="Arial, sans-serif" font-size="80" font-weight="bold" fill="#0099D8">
+    ACHO
+  </text>
+</svg>

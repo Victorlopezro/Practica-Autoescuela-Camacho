@@ -1,0 +1,481 @@
+<!DOCTYPE html>
+
+<html lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-container-lowest": "#ffffff",
+                    "error": "#ba1a1a",
+                    "on-tertiary": "#ffffff",
+                    "surface-tint": "#006590",
+                    "surface-container": "#e5eeff",
+                    "outline-variant": "#bec8d1",
+                    "surface-bright": "#f8f9ff",
+                    "primary-fixed": "#c8e6ff",
+                    "primary": "#00628c",
+                    "outline": "#6f7881",
+                    "on-surface-variant": "#3e4850",
+                    "on-tertiary-fixed": "#2a1700",
+                    "on-primary-container": "#fcfcff",
+                    "primary-fixed-dim": "#87ceff",
+                    "tertiary-container": "#a36700",
+                    "surface-container-highest": "#d3e4fe",
+                    "secondary": "#4558ae",
+                    "background": "#f8f9ff",
+                    "error-container": "#ffdad6",
+                    "inverse-on-surface": "#eaf1ff",
+                    "on-tertiary-fixed-variant": "#653e00",
+                    "on-secondary-fixed": "#001256",
+                    "on-primary": "#ffffff",
+                    "inverse-primary": "#87ceff",
+                    "inverse-surface": "#213145",
+                    "surface-dim": "#cbdbf5",
+                    "secondary-fixed": "#dde1ff",
+                    "tertiary-fixed": "#ffddb8",
+                    "tertiary": "#825100",
+                    "surface": "#f8f9ff",
+                    "surface-container-low": "#eff4ff",
+                    "on-primary-fixed-variant": "#004c6d",
+                    "primary-container": "#007cb0",
+                    "on-primary-fixed": "#001e2e",
+                    "on-error": "#ffffff",
+                    "on-error-container": "#93000a",
+                    "tertiary-fixed-dim": "#ffb95f",
+                    "on-tertiary-container": "#fffbff",
+                    "on-secondary-container": "#20358b",
+                    "on-secondary": "#ffffff",
+                    "secondary-container": "#90a3ff",
+                    "secondary-fixed-dim": "#b9c3ff",
+                    "surface-container-high": "#dce9ff",
+                    "surface-variant": "#d3e4fe",
+                    "on-secondary-fixed-variant": "#2b3f94",
+                    "on-surface": "#0b1c30",
+                    "on-background": "#0b1c30"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "xs": "0.5rem",
+                    "xl": "4rem",
+                    "md": "1.5rem",
+                    "base": "4px",
+                    "sm": "1rem",
+                    "lg": "2.5rem",
+                    "gutter": "1.5rem",
+                    "container-max": "1280px"
+            },
+            "fontFamily": {
+                    "display-lg-mobile": ["Inter"],
+                    "body-sm": ["Inter"],
+                    "headline-md": ["Inter"],
+                    "label-caps": ["Inter"],
+                    "body-base": ["Inter"],
+                    "display-lg": ["Inter"]
+            },
+            "fontSize": {
+                    "display-lg-mobile": ["36px", {"lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "label-caps": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "body-base": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; background-color: #f8f9ff; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        @keyframes pulse-soft {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.8; transform: scale(1.02); }
+        }
+        .animate-pulse-soft {
+            animation: pulse-soft 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+        }
+        .scrollbar-hide::-webkit-scrollbar { display: none; }
+        .scrollbar-hide { -ms-overflow-style: none; scrollbar-width: none; }
+
+        /* Mobile Sidebar State Management */
+        #sidebar-overlay { opacity: 0; pointer-events: none; transition: opacity 0.3s ease; }
+        #sidebar { transform: translateX(-100%); transition: transform 0.3s ease; }
+        body.sidebar-open #sidebar { transform: translateX(0); }
+        body.sidebar-open #sidebar-overlay { opacity: 1; pointer-events: auto; }
+
+        @media (min-width: 1024px) {
+            #sidebar { transform: translateX(0) !important; position: fixed !important; }
+            #sidebar-overlay { display: none !important; }
+            main { margin-left: 280px; }
+            header { width: calc(100% - 280px) !important; }
+        }
+    </style>
+</head>
+<body class="text-on-background min-h-screen">
+<!-- Mobile Sidebar Overlay -->
+<div class="fixed inset-0 bg-on-background/40 backdrop-blur-sm z-40 lg:hidden" id="sidebar-overlay" onclick="document.body.classList.remove('sidebar-open')"></div>
+<!-- Navigation Drawer -->
+<aside class="w-[280px] h-full fixed left-0 top-0 bg-surface-container-lowest dark:bg-inverse-surface shadow-xl lg:shadow-sm flex flex-col py-md px-sm z-50" id="sidebar">
+<div class="mb-xl px-sm flex items-center justify-between">
+<h1 class="text-headline-md font-bold text-primary dark:text-primary-fixed">Autoescuela Camacho</h1>
+<button class="lg:hidden material-symbols-outlined text-on-surface-variant" onclick="document.body.classList.remove('sidebar-open')">close</button>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center gap-md px-sm py-xs rounded-lg text-on-surface-variant dark:text-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-all duration-200" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="text-body-base font-medium">Dashboard</span>
+</a>
+<a class="flex items-center gap-md px-sm py-xs rounded-lg text-on-surface-variant dark:text-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-all duration-200" href="#">
+<span class="material-symbols-outlined">group</span>
+<span class="text-body-base font-medium">Alumnos</span>
+</a>
+<a class="flex items-center gap-md px-sm py-xs rounded-lg text-on-surface-variant dark:text-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-all duration-200" href="#">
+<span class="material-symbols-outlined">badge</span>
+<span class="text-body-base font-medium">Profesores</span>
+</a>
+<a class="flex items-center gap-md px-sm py-xs rounded-lg text-primary dark:text-inverse-primary font-bold bg-primary/10 transition-all" href="#">
+<span class="material-symbols-outlined">directions_car</span>
+<span class="text-body-base">Flota</span>
+</a>
+<a class="flex items-center gap-md px-sm py-xs rounded-lg text-on-surface-variant dark:text-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-all duration-200" href="#">
+<span class="material-symbols-outlined">calendar_month</span>
+<span class="text-body-base font-medium">Horarios</span>
+</a>
+<a class="flex items-center gap-md px-sm py-xs rounded-lg text-on-surface-variant dark:text-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-all duration-200" href="#">
+<span class="material-symbols-outlined">payments</span>
+<span class="text-body-base font-medium">Finanzas</span>
+</a>
+<a class="flex items-center gap-md px-sm py-xs rounded-lg text-on-surface-variant dark:text-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-all duration-200" href="#">
+<span class="material-symbols-outlined">query_stats</span>
+<span class="text-body-base font-medium">IA/Analítica</span>
+</a>
+</nav>
+<div class="mt-auto border-t border-outline-variant pt-md">
+<a class="flex items-center gap-md px-sm py-xs rounded-lg text-on-surface-variant dark:text-surface-variant hover:text-on-surface hover:bg-surface-container-high transition-colors" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="text-body-base font-medium">Configuración</span>
+</a>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="min-h-screen transition-all duration-300">
+<!-- Top App Bar -->
+<header class="w-full fixed top-0 right-0 z-40 bg-surface/80 dark:bg-inverse-surface/80 backdrop-blur-md flex justify-between items-center px-gutter sm:px-lg h-16 border-b border-outline-variant/30">
+<div class="flex items-center gap-sm sm:gap-md overflow-hidden">
+<button class="lg:hidden material-symbols-outlined p-2 text-on-surface-variant hover:bg-surface-container-low rounded-lg transition-colors" onclick="document.body.classList.add('sidebar-open')">menu</button>
+<span class="hidden sm:inline material-symbols-outlined text-on-surface-variant">search</span>
+<h2 class="text-headline-md font-bold text-on-surface truncate">Gestión de Flota</h2>
+</div>
+<div class="flex items-center gap-xs sm:gap-md">
+<button class="material-symbols-outlined p-xs rounded-full hover:bg-surface-container-low transition-colors relative">
+                notifications
+                <span class="absolute top-1.5 right-1.5 w-2.5 h-2.5 bg-error rounded-full border-2 border-surface"></span>
+</button>
+<div class="flex items-center gap-sm pl-sm border-l border-outline-variant">
+<img alt="Admin" class="w-8 h-8 min-w-[32px] rounded-full object-cover ring-2 ring-primary/20" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBaQJt3KuKsvhoL2cT7f4vDk_icGsC_m3VMRjcg3G4pY8ImHvYD98sYmEoQ9UOng_--NGMVg0ylCUJWQUmhXQHAeTNtvQQ2aLEEZsxXOcQ-B9FCwGC8avu_afCMTZjnLoixedF4BUPX7qEFufhSkzvFgXF-1In1tYV4gHXPK4W06nKbFDWe3W5YAw-E9DLDl1HzYSztUdFHdySZFvrpHyg5nu0MfTPQjDJy8ReRWugVZju_Sj0doZUCD-6iRKKq1Jk815HklXADp28"/>
+<div class="hidden md:block">
+<p class="text-body-sm font-bold text-on-surface">Admin Camacho</p>
+<p class="text-[10px] font-label-caps text-on-surface-variant uppercase">Director Flota</p>
+</div>
+</div>
+</div>
+</header>
+<!-- Content Canvas -->
+<div class="pt-24 px-gutter sm:px-lg pb-xl max-w-container-max mx-auto space-y-lg">
+<!-- Fleet Overview Stats -->
+<section class="grid grid-cols-2 lg:grid-cols-4 gap-sm sm:gap-gutter">
+<div class="bg-surface-container-lowest p-sm sm:p-md rounded-xl shadow-sm border border-outline-variant/50 hover:shadow-md transition-shadow group">
+<div class="flex justify-between items-start mb-1 sm:mb-xs">
+<span class="text-[10px] sm:text-label-caps text-on-surface-variant font-bold truncate pr-1">TOTAL</span>
+<div class="p-1 sm:p-1.5 bg-primary/10 rounded-lg text-primary">
+<span class="material-symbols-outlined text-[18px] sm:text-[24px]">directions_car</span>
+</div>
+</div>
+<p class="text-headline-md sm:text-display-lg-mobile font-bold text-on-surface leading-tight">24</p>
+<div class="mt-1 sm:mt-sm flex items-center gap-xs">
+<span class="text-[11px] sm:text-body-sm text-tertiary font-bold">+2</span>
+<span class="text-[11px] sm:text-body-sm text-on-surface-variant italic truncate">este mes</span>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-sm sm:p-md rounded-xl shadow-sm border border-outline-variant/50 hover:shadow-md transition-shadow">
+<div class="flex justify-between items-start mb-1 sm:mb-xs">
+<span class="text-[10px] sm:text-label-caps text-on-surface-variant font-bold truncate pr-1">DISPONIBLES</span>
+<div class="p-1 sm:p-1.5 bg-green-100 rounded-lg text-green-700">
+<span class="material-symbols-outlined text-[18px] sm:text-[24px]">check_circle</span>
+</div>
+</div>
+<p class="text-headline-md sm:text-display-lg-mobile font-bold text-on-surface leading-tight">18</p>
+<div class="w-full bg-surface-container-low h-1 rounded-full mt-2 sm:mt-md">
+<div class="bg-green-600 h-1 rounded-full w-[75%]"></div>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-sm sm:p-md rounded-xl shadow-sm border border-outline-variant/50 hover:shadow-md transition-shadow">
+<div class="flex justify-between items-start mb-1 sm:mb-xs">
+<span class="text-[10px] sm:text-label-caps text-on-surface-variant font-bold truncate pr-1">EN CLASE</span>
+<div class="p-1 sm:p-1.5 bg-secondary/10 rounded-lg text-secondary">
+<span class="material-symbols-outlined text-[18px] sm:text-[24px]">history_edu</span>
+</div>
+</div>
+<p class="text-headline-md sm:text-display-lg-mobile font-bold text-on-surface leading-tight">4</p>
+<div class="w-full bg-surface-container-low h-1 rounded-full mt-2 sm:mt-md">
+<div class="bg-secondary h-1 rounded-full w-[16%]"></div>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-sm sm:p-md rounded-xl shadow-sm border border-outline-variant/50 hover:shadow-md transition-shadow">
+<div class="flex justify-between items-start mb-1 sm:mb-xs">
+<span class="text-[10px] sm:text-label-caps text-on-surface-variant font-bold truncate pr-1">EN TALLER</span>
+<div class="p-1 sm:p-1.5 bg-error-container text-error rounded-lg">
+<span class="material-symbols-outlined text-[18px] sm:text-[24px]">build</span>
+</div>
+</div>
+<p class="text-headline-md sm:text-display-lg-mobile font-bold text-on-surface leading-tight">2</p>
+<div class="w-full bg-surface-container-low h-1 rounded-full mt-2 sm:mt-md">
+<div class="bg-error h-1 rounded-full w-[8%]"></div>
+</div>
+</div>
+</section>
+<!-- Main Content Grid -->
+<section class="grid grid-cols-1 lg:grid-cols-3 gap-gutter items-start">
+<!-- Vehicle Cards List -->
+<div class="lg:col-span-2 space-y-md">
+<div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-md mb-sm">
+<h3 class="text-headline-md font-bold text-on-surface">Inventario de Flota</h3>
+<div class="flex gap-2 w-full sm:w-auto">
+<button class="flex-1 sm:flex-none border border-outline px-4 py-2 rounded-lg text-body-sm font-bold text-on-surface hover:bg-surface-container transition-colors flex items-center justify-center gap-2">
+<span class="material-symbols-outlined text-[18px]">tune</span>
+                            FILTRAR
+                        </button>
+<button class="flex-[1.5] sm:flex-none bg-primary text-on-primary px-4 py-2 rounded-lg text-body-sm font-bold flex items-center justify-center gap-2 shadow-lg hover:shadow-primary/20 hover:opacity-90 transition-all">
+<span class="material-symbols-outlined text-[18px]">add</span>
+<span class="whitespace-nowrap">NUEVO VEHÍCULO</span>
+</button>
+</div>
+</div>
+<div class="space-y-md">
+<!-- Vehicle Card 1 -->
+<div class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant/50 overflow-hidden group hover:border-primary/30 transition-all duration-300">
+<div class="flex flex-col md:flex-row">
+<div class="w-full md:w-1/3 aspect-[16/9] md:aspect-auto relative overflow-hidden bg-surface-container">
+<img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" data-alt="White hatchback CAMACHO" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD51hxmLHg0ZeK88FVOkOhw-PdZd-Ic7ITJAgmIx3sSMka7W0T6tRj43CY4n4A7JBaSp2PYNv7Hb1hLIjH2fDa6LN8lhCbI0kJExE9rc9yslucimKPCN9CNk25CiXab6-DfV7m9yIxw7Mh-kyCQHw6R17dEc6PwE1bBRx1f6XgnRRu9ud3gG_1GPGaTkCBZ7PCxNi653QkDnmRPNgYpLcOP4Rhj5Y1vqs3HnwK1np4vmta_j38b5ma6DzMn6FmXZGhzDm0WUfl30_o"/>
+<div class="absolute top-3 left-3 px-2 py-1 bg-green-600 text-white text-[10px] font-bold rounded-md flex items-center gap-1 shadow-md uppercase tracking-tight">
+<span class="w-1.5 h-1.5 bg-white rounded-full animate-pulse"></span>
+                                    Disponible
+                                </div>
+</div>
+<div class="flex-1 p-md grid grid-cols-1 sm:grid-cols-2 gap-md items-center">
+<div class="space-y-sm">
+<div>
+<h4 class="text-body-base font-bold text-on-surface">SEAT Ibiza Style</h4>
+<div class="flex items-center gap-2 mt-1">
+<p class="text-label-caps text-on-surface-variant bg-surface-container-low px-1.5 py-0.5 rounded">4521 LVB</p>
+<span class="w-1 h-1 rounded-full bg-outline-variant"></span>
+<p class="text-label-caps text-on-surface-variant font-medium">2023</p>
+</div>
+</div>
+<div class="flex flex-wrap gap-xs">
+<span class="px-2 py-1 bg-surface-container-high text-on-surface-variant text-[10px] font-bold rounded uppercase">Manual</span>
+<span class="px-2 py-1 bg-surface-container-high text-on-surface-variant text-[10px] font-bold rounded uppercase">Diesel</span>
+</div>
+</div>
+<div class="space-y-md">
+<div class="space-y-1.5">
+<div class="flex justify-between text-[11px] font-label-caps text-on-surface-variant">
+<span class="font-bold">MANTENIMIENTO</span>
+<span class="text-primary font-bold">85%</span>
+</div>
+<div class="w-full bg-surface-container-low h-1.5 rounded-full overflow-hidden">
+<div class="bg-primary h-full w-[85%] rounded-full"></div>
+</div>
+</div>
+<div class="flex gap-2 pt-1">
+<button class="flex-1 py-2 border border-outline rounded-lg text-[11px] font-bold text-on-surface hover:bg-surface-container-low transition-colors uppercase tracking-wider">Detalles</button>
+<button class="flex-1 py-2 bg-primary/10 text-primary font-bold rounded-lg text-[11px] hover:bg-primary/20 transition-colors uppercase tracking-wider">Asignar</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Vehicle Card 2 -->
+<div class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant/50 overflow-hidden group hover:border-secondary/30 transition-all duration-300">
+<div class="flex flex-col md:flex-row">
+<div class="w-full md:w-1/3 aspect-[16/9] md:aspect-auto relative overflow-hidden bg-surface-container">
+<img class="w-full h-full object-cover transition-transform duration-500 group-hover:scale-105" data-alt="Electric VW ID.3" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD0ZJ7GFPZ2ZMeZE9422lPlGHNjbyAgWWuHOP8VvXNlNXi4xhBLK5XHy9W1iudGgOX730_V68vekmC1MSBuhJGV6B2pSYI4MeGXWhAEJKKlmnTilVjBsCjpVr562HXl_eBKlAwRidO93QVZE0JwHI47o52HzYoxs1yNHY8WamNFw4ZBpaz5iW14E0OaW28knWQqY2i_3Ilfz1oZHNCE_ra5ZOXu4vit2l7vpFZR5JbIKpm2dvUmjYz1daaPYkZDFHPi1HOAwGP84GY"/>
+<div class="absolute top-3 left-3 px-2 py-1 bg-secondary text-white text-[10px] font-bold rounded-md flex items-center gap-1 shadow-md uppercase tracking-tight">
+                                    En Clase
+                                </div>
+</div>
+<div class="flex-1 p-md grid grid-cols-1 sm:grid-cols-2 gap-md items-center">
+<div class="space-y-sm">
+<div>
+<h4 class="text-body-base font-bold text-on-surface">VW ID.3 Pro Performance</h4>
+<div class="flex items-center gap-2 mt-1">
+<p class="text-label-caps text-on-surface-variant bg-surface-container-low px-1.5 py-0.5 rounded">9811 MXC</p>
+<span class="w-1 h-1 rounded-full bg-outline-variant"></span>
+<p class="text-label-caps text-on-surface-variant font-medium">2022</p>
+</div>
+</div>
+<div class="flex flex-wrap gap-xs">
+<span class="px-2 py-1 bg-purple-100 text-purple-700 text-[10px] font-bold rounded uppercase">Automático</span>
+<span class="px-2 py-1 bg-green-100 text-green-700 text-[10px] font-bold rounded uppercase">100% Eléctrico</span>
+</div>
+</div>
+<div class="space-y-md">
+<div class="flex items-center gap-sm p-2 bg-surface-container-low rounded-lg border border-outline-variant/30">
+<div class="w-10 h-10 min-w-[40px] rounded-full border-2 border-primary/20 p-0.5">
+<img alt="Carlos M." class="w-full h-full rounded-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBzVW9udlbpHjqrs2M_5pxuLimCHV9Nes04T2mredHmPXjPf1X8SA-pCHi13WfNb0IXhg5dIlg5Q5uD0NsNGSZLftjUL3QJkRfQFnWLSIz90Wu3qf0fl1xgqNSPovTPohDQEVTVUvTqsvcf_ehFOFjE9h22hguPfcnndrbLBsLTXSrllPGn2EjWhbSFJnCUnN4j960YsucAU3RTpDEKac3AKtycpVs7yqUrcbY3CMtbLu_tuMQmhn7dtjStVww1mhc4rMOsu79enb4"/>
+</div>
+<div class="flex-1 overflow-hidden">
+<p class="text-[9px] font-label-caps text-on-surface-variant leading-none mb-1 uppercase">CONDUCTOR ACTUAL</p>
+<p class="text-body-sm font-bold text-on-surface truncate leading-tight">Carlos M. (Profesor)</p>
+</div>
+</div>
+<div class="flex gap-2 pt-1">
+<button class="flex-1 py-2 border border-outline rounded-lg text-[11px] font-bold text-on-surface hover:bg-surface-container-low transition-colors uppercase">Historial</button>
+<button class="flex-1 py-2 bg-surface-container-high text-on-surface-variant/40 font-bold rounded-lg text-[11px] uppercase cursor-not-allowed">Localizar</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Vehicle Card 3 -->
+<div class="bg-surface-container-lowest rounded-xl shadow-sm border border-outline-variant/50 overflow-hidden group hover:border-error/30 transition-all duration-300">
+<div class="flex flex-col md:flex-row">
+<div class="w-full md:w-1/3 aspect-[16/9] md:aspect-auto relative overflow-hidden bg-surface-container grayscale">
+<img class="w-full h-full object-cover" data-alt="Renault Clio Service" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAJzrk6X_9oJQZjCfq-3ep9IS7FLsoLKijzumW-cY-RpfcrNRCB7578v5qZzBps16UnjQ9wvlvvJkoWnM_x_278YbEGsvVKLLkPidbmsiOayR-gh8jr6j9uiTraZDdLJ_uxe_4ZuAYYHmX0vtmZl9jofRLgspF4WWDUuRBons8AFfshcUUSZb2-_4839uSWw0qUanV6j8c5C1wiNgtcz4tGn0IKqOI7H67U33FBRcfKflYHq7tR0px7Q8Am5qK0C2S036pwUCbN-yI"/>
+<div class="absolute top-3 left-3 px-2 py-1 bg-error text-white text-[10px] font-bold rounded-md flex items-center gap-1 shadow-md uppercase tracking-tight">
+                                    En Taller
+                                </div>
+</div>
+<div class="flex-1 p-md grid grid-cols-1 sm:grid-cols-2 gap-md items-center">
+<div class="space-y-sm">
+<div>
+<h4 class="text-body-base font-bold text-on-surface">Renault Clio Techno</h4>
+<p class="text-label-caps text-on-surface-variant mt-1">1289 KKY • 2021</p>
+</div>
+<div class="p-2.5 bg-error-container/20 border border-error/20 rounded-lg animate-pulse-soft">
+<div class="flex items-center gap-2 text-error font-bold text-[11px]">
+<span class="material-symbols-outlined text-[16px]">warning</span>
+                                            FALLO TRANSMISIÓN
+                                        </div>
+<p class="text-[10px] text-on-surface-variant mt-1 leading-snug">Reparación en curso. Listo en ~48h.</p>
+</div>
+</div>
+<div class="flex flex-col gap-2">
+<button class="w-full py-2 bg-surface-container-low text-on-surface-variant border border-outline-variant rounded-lg text-[11px] font-bold uppercase hover:bg-surface-container-high transition-colors">Ver Expediente</button>
+<button class="w-full py-2 bg-outline-variant/20 text-on-surface-variant/30 font-bold rounded-lg text-[11px] uppercase cursor-not-allowed">Desbloquear</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Side Column: Tools & Alerts -->
+<div class="space-y-gutter">
+<!-- Premium Quick Assignment -->
+<div class="bg-surface-container-lowest p-gutter rounded-xl shadow-sm border border-outline-variant/50">
+<div class="flex items-center gap-sm mb-md pb-sm border-b border-outline-variant/30">
+<div class="p-2 bg-primary/10 rounded-lg text-primary">
+<span class="material-symbols-outlined text-[20px]">assignment_ind</span>
+</div>
+<h4 class="text-body-base font-bold text-on-surface">Asignación Rápida</h4>
+</div>
+<div class="space-y-gutter">
+<div class="space-y-2">
+<label class="text-[11px] font-bold text-on-surface-variant uppercase tracking-wider block">Seleccionar Profesor</label>
+<div class="relative">
+<select class="w-full bg-surface-container-low border-outline-variant rounded-xl text-body-sm py-3 px-4 appearance-none focus:ring-2 focus:ring-primary focus:border-primary transition-all">
+<option>Lucía Fernández (Libre)</option>
+<option>Roberto Gómez (Libre)</option>
+<option>Marta Soler (Próx. 15min)</option>
+</select>
+<span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none">expand_more</span>
+</div>
+</div>
+<div class="space-y-2">
+<label class="text-[11px] font-bold text-on-surface-variant uppercase tracking-wider block">Vehículo Disponible</label>
+<div class="relative">
+<select class="w-full bg-surface-container-low border-outline-variant rounded-xl text-body-sm py-3 px-4 appearance-none focus:ring-2 focus:ring-primary focus:border-primary transition-all">
+<option>4521 LVB - Seat Ibiza</option>
+<option>2290 BBC - Kia Rio</option>
+</select>
+<span class="material-symbols-outlined absolute right-4 top-1/2 -translate-y-1/2 text-on-surface-variant pointer-events-none">expand_more</span>
+</div>
+</div>
+<button class="w-full bg-primary text-on-primary font-bold py-4 rounded-xl shadow-lg hover:shadow-primary/30 hover:-translate-y-0.5 active:translate-y-0 transition-all text-body-sm uppercase tracking-widest mt-2">
+                            Confirmar Asignación
+                        </button>
+</div>
+</div>
+<!-- Interactive Maintenance Alerts -->
+<div class="bg-surface-container-lowest p-gutter rounded-xl shadow-sm border border-outline-variant/50">
+<div class="flex justify-between items-center mb-md">
+<h4 class="text-[11px] font-bold text-on-surface-variant uppercase tracking-wider">Alertas Pendientes</h4>
+<span class="flex h-2.5 w-2.5 rounded-full bg-error animate-ping"></span>
+</div>
+<div class="space-y-3">
+<div class="group flex gap-md p-3 bg-surface-container-low rounded-xl items-center cursor-pointer hover:bg-surface-container-high transition-all border border-transparent hover:border-outline-variant">
+<div class="w-12 h-12 min-w-[48px] rounded-full bg-tertiary-container/10 flex items-center justify-center text-tertiary-container animate-pulse-soft">
+<span class="material-symbols-outlined text-[24px]">tire_repair</span>
+</div>
+<div class="flex-1 overflow-hidden">
+<p class="text-body-sm font-bold text-on-surface truncate">Cambio Neumáticos</p>
+<p class="text-[11px] text-on-surface-variant mt-0.5">Seat Ibiza • <span class="text-error font-bold">URGENTE</span></p>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:translate-x-1 transition-transform">chevron_right</span>
+</div>
+<div class="group flex gap-md p-3 bg-surface-container-low rounded-xl items-center cursor-pointer hover:bg-surface-container-high transition-all border border-transparent hover:border-outline-variant">
+<div class="w-12 h-12 min-w-[48px] rounded-full bg-error-container/20 flex items-center justify-center text-error">
+<span class="material-symbols-outlined text-[24px]">verified</span>
+</div>
+<div class="flex-1 overflow-hidden">
+<p class="text-body-sm font-bold text-on-surface truncate">Vencimiento ITV</p>
+<p class="text-[11px] text-on-surface-variant mt-0.5">VW ID.3 • <span class="text-error font-bold">Quedan 12 días</span></p>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant group-hover:translate-x-1 transition-transform">chevron_right</span>
+</div>
+</div>
+</div>
+<!-- Usage Analytics Dark Card -->
+<div class="bg-inverse-surface text-surface p-gutter rounded-xl shadow-xl overflow-hidden relative group">
+<div class="absolute top-0 right-0 w-32 h-32 bg-primary/10 rounded-full blur-3xl -mr-16 -mt-16 group-hover:bg-primary/20 transition-colors"></div>
+<p class="text-[10px] font-bold text-surface-variant mb-1 uppercase tracking-widest relative z-10">Consumo Medio Flota</p>
+<div class="flex items-end justify-between relative z-10">
+<div>
+<h5 class="text-headline-md font-bold text-white leading-none">5.2 L/100km</h5>
+<p class="text-[11px] text-green-400 font-medium flex items-center gap-1 mt-1">
+<span class="material-symbols-outlined text-[14px]">arrow_downward</span>
+                                0.4 vs mes anterior
+                            </p>
+</div>
+<div class="bg-green-500/10 p-2 rounded-full">
+<span class="material-symbols-outlined text-green-400 text-[28px]">trending_down</span>
+</div>
+</div>
+<div class="mt-gutter flex items-end gap-1.5 h-16 relative z-10">
+<div class="flex-1 bg-white/10 rounded-t-sm h-[40%] hover:bg-white/30 transition-colors"></div>
+<div class="flex-1 bg-white/10 rounded-t-sm h-[60%] hover:bg-white/30 transition-colors"></div>
+<div class="flex-1 bg-white/10 rounded-t-sm h-[35%] hover:bg-white/30 transition-colors"></div>
+<div class="flex-1 bg-white/10 rounded-t-sm h-[75%] hover:bg-white/30 transition-colors"></div>
+<div class="flex-1 bg-white/10 rounded-t-sm h-[55%] hover:bg-white/30 transition-colors"></div>
+<div class="flex-1 bg-primary rounded-t-sm h-[90%] shadow-[0_0_15px_rgba(0,119,176,0.5)]"></div>
+</div>
+</div>
+</div>
+</section>
+</div>
+</main>
+</body></html>

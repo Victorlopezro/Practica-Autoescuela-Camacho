@@ -1,0 +1,409 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-variant": "#d3e4fe",
+                        "secondary-fixed-dim": "#b9c3ff",
+                        "on-surface-variant": "#3e4850",
+                        "surface-container-high": "#dce9ff",
+                        "on-secondary-container": "#20358b",
+                        "secondary": "#4558ae",
+                        "on-secondary-fixed-variant": "#2b3f94",
+                        "primary": "#00628c",
+                        "surface": "#f8f9ff",
+                        "on-tertiary-fixed-variant": "#653e00",
+                        "surface-container": "#e5eeff",
+                        "on-secondary": "#ffffff",
+                        "on-error": "#ffffff",
+                        "primary-fixed": "#c8e6ff",
+                        "on-primary-fixed-variant": "#004c6d",
+                        "tertiary-container": "#a36700",
+                        "surface-container-highest": "#d3e4fe",
+                        "surface-container-low": "#eff4ff",
+                        "primary-fixed-dim": "#87ceff",
+                        "error": "#ba1a1a",
+                        "tertiary": "#825100",
+                        "error-container": "#ffdad6",
+                        "on-secondary-fixed": "#001256",
+                        "background": "#f8f9ff",
+                        "tertiary-fixed-dim": "#ffb95f",
+                        "on-tertiary-fixed": "#2a1700",
+                        "on-primary": "#ffffff",
+                        "surface-dim": "#cbdbf5",
+                        "inverse-on-surface": "#eaf1ff",
+                        "surface-container-lowest": "#ffffff",
+                        "secondary-container": "#90a3ff",
+                        "inverse-primary": "#87ceff",
+                        "on-surface": "#0b1c30",
+                        "on-primary-container": "#fcfcff",
+                        "surface-tint": "#006590",
+                        "primary-container": "#007cb0",
+                        "outline-variant": "#bec8d1",
+                        "on-tertiary": "#ffffff",
+                        "on-background": "#0b1c30",
+                        "on-error-container": "#93000a",
+                        "secondary-fixed": "#dde1ff",
+                        "tertiary-fixed": "#ffddb8",
+                        "on-primary-fixed": "#001e2e",
+                        "outline": "#6f7881",
+                        "surface-bright": "#f8f9ff",
+                        "on-tertiary-container": "#fffbff",
+                        "inverse-surface": "#213145"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "sm": "1rem",
+                        "lg": "2.5rem",
+                        "xs": "0.5rem",
+                        "xl": "4rem",
+                        "md": "1.5rem",
+                        "gutter": "1.5rem",
+                        "container-max": "1280px",
+                        "base": "4px"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Inter"],
+                        "display-lg": ["Inter"],
+                        "display-lg-mobile": ["Inter"],
+                        "label-caps": ["Inter"],
+                        "body-base": ["Inter"],
+                        "body-sm": ["Inter"]
+                    },
+                    "fontSize": {
+                        "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "display-lg-mobile": ["36px", {"lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "label-caps": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "body-base": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .calendar-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+        }
+        .time-column {
+            width: 80px;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(8px);
+            border: 1px solid #E2E8F0;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background font-body-base antialiased">
+<!-- NavigationDrawer (Shared Component) -->
+<nav class="hidden md:flex flex-col h-screen py-md px-sm w-[280px] h-full fixed left-0 top-0 bg-surface-container-lowest dark:bg-inverse-surface shadow-sm z-50">
+<div class="mb-xl px-xs">
+<span class="text-headline-md font-headline-md font-bold text-primary dark:text-primary-fixed">Autoescuela Camacho</span>
+</div>
+<div class="space-y-xs">
+<a class="flex items-center gap-sm px-sm py-xs rounded-lg transition-colors duration-150 text-on-surface-variant dark:text-surface-variant hover:text-on-surface hover:bg-surface-container-high dark:hover:bg-on-surface-variant/10" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="text-label-caps font-label-caps">Dashboard</span>
+</a>
+<a class="flex items-center gap-sm px-sm py-xs rounded-lg transition-colors duration-150 text-on-surface-variant dark:text-surface-variant hover:text-on-surface hover:bg-surface-container-high dark:hover:bg-on-surface-variant/10" href="#">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+<span class="text-label-caps font-label-caps">Alumnos</span>
+</a>
+<a class="flex items-center gap-sm px-sm py-xs rounded-lg transition-colors duration-150 text-on-surface-variant dark:text-surface-variant hover:text-on-surface hover:bg-surface-container-high dark:hover:bg-on-surface-variant/10" href="#">
+<span class="material-symbols-outlined" data-icon="badge">badge</span>
+<span class="text-label-caps font-label-caps">Profesores</span>
+</a>
+<a class="flex items-center gap-sm px-sm py-xs rounded-lg transition-colors duration-150 text-on-surface-variant dark:text-surface-variant hover:text-on-surface hover:bg-surface-container-high dark:hover:bg-on-surface-variant/10" href="#">
+<span class="material-symbols-outlined" data-icon="directions_car">directions_car</span>
+<span class="text-label-caps font-label-caps">Flota</span>
+</a>
+<a class="flex items-center gap-sm px-sm py-xs rounded-lg transition-colors duration-150 text-primary dark:text-inverse-primary font-bold bg-secondary-container/20 dark:bg-secondary/20 scale-[0.99] transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="calendar_month">calendar_month</span>
+<span class="text-label-caps font-label-caps">Horarios</span>
+</a>
+<a class="flex items-center gap-sm px-sm py-xs rounded-lg transition-colors duration-150 text-on-surface-variant dark:text-surface-variant hover:text-on-surface hover:bg-surface-container-high dark:hover:bg-on-surface-variant/10" href="#">
+<span class="material-symbols-outlined" data-icon="payments">payments</span>
+<span class="text-label-caps font-label-caps">Finanzas</span>
+</a>
+<a class="flex items-center gap-sm px-sm py-xs rounded-lg transition-colors duration-150 text-on-surface-variant dark:text-surface-variant hover:text-on-surface hover:bg-surface-container-high dark:hover:bg-on-surface-variant/10" href="#">
+<span class="material-symbols-outlined" data-icon="query_stats">query_stats</span>
+<span class="text-label-caps font-label-caps">IA/Analítica</span>
+</a>
+<a class="flex items-center gap-sm px-sm py-xs rounded-lg transition-colors duration-150 text-on-surface-variant dark:text-surface-variant hover:text-on-surface hover:bg-surface-container-high dark:hover:bg-on-surface-variant/10" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="text-label-caps font-label-caps">Configuración</span>
+</a>
+</div>
+</nav>
+<!-- TopAppBar (Shared Component) -->
+<header class="flex justify-between items-center px-lg h-16 w-full md:ml-[280px] md:w-[calc(100%-280px)] fixed top-0 right-0 z-40 bg-surface/80 dark:bg-inverse-surface/80 backdrop-blur-md">
+<div class="flex items-center gap-md">
+<span class="material-symbols-outlined text-primary md:hidden" data-icon="menu">menu</span>
+<h1 class="text-headline-md font-headline-md font-bold text-on-surface dark:text-on-secondary-fixed">Centro de Horarios</h1>
+</div>
+<div class="flex items-center gap-md">
+<div class="relative hidden sm:block">
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline" data-icon="search">search</span>
+<input class="pl-10 pr-4 py-2 bg-surface-container-low border border-outline-variant rounded-lg text-body-sm focus:ring-2 focus:ring-primary focus:outline-none w-64" placeholder="Buscar clase o alumno..." type="text"/>
+</div>
+<div class="flex items-center gap-xs">
+<div class="w-8 h-8 rounded-full bg-primary-fixed flex items-center justify-center text-on-primary-fixed">
+<span class="material-symbols-outlined text-[20px]" data-icon="account_circle">account_circle</span>
+</div>
+<span class="hidden md:block text-label-caps text-on-surface">Admin Perfil</span>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="pt-24 pb-12 px-sm md:px-lg md:ml-[280px] min-h-screen">
+<!-- Controls & Toggles Row -->
+<section class="mb-lg flex flex-col lg:flex-row justify-between gap-md items-start lg:items-center">
+<div class="flex flex-wrap gap-sm">
+<div class="flex bg-surface-container p-1 rounded-xl shadow-sm border border-outline-variant/30">
+<button class="px-md py-xs bg-white shadow-sm rounded-lg text-label-caps text-primary">Semana</button>
+<button class="px-md py-xs rounded-lg text-label-caps text-on-surface-variant hover:bg-surface-container-high">Mes</button>
+<button class="px-md py-xs rounded-lg text-label-caps text-on-surface-variant hover:bg-surface-container-high">Agenda</button>
+</div>
+<div class="flex items-center gap-xs px-md py-xs bg-white rounded-xl border border-outline-variant/30 shadow-sm">
+<span class="material-symbols-outlined text-secondary" data-icon="chevron_left">chevron_left</span>
+<span class="text-body-base font-semibold">14 - 20 de Octubre, 2024</span>
+<span class="material-symbols-outlined text-secondary" data-icon="chevron_right">chevron_right</span>
+</div>
+</div>
+<div class="flex flex-wrap gap-md items-center">
+<div class="flex items-center gap-md">
+<label class="flex items-center cursor-pointer gap-xs">
+<div class="relative inline-block w-10 h-5 align-middle select-none transition duration-200 ease-in">
+<input checked="" class="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 border-primary appearance-none cursor-pointer right-0" type="checkbox"/>
+<label class="toggle-label block overflow-hidden h-5 rounded-full bg-primary-container cursor-pointer"></label>
+</div>
+<span class="text-label-caps">Profesores</span>
+</label>
+<label class="flex items-center cursor-pointer gap-xs">
+<div class="relative inline-block w-10 h-5 align-middle select-none transition duration-200 ease-in">
+<input checked="" class="toggle-checkbox absolute block w-5 h-5 rounded-full bg-white border-4 border-outline appearance-none cursor-pointer left-0" type="checkbox"/>
+<label class="toggle-label block overflow-hidden h-5 rounded-full bg-surface-container-highest cursor-pointer"></label>
+</div>
+<span class="text-label-caps">Vehículos</span>
+</label>
+</div>
+<button class="flex items-center gap-xs px-md py-2 bg-primary text-white rounded-lg font-semibold hover:opacity-90 transition-opacity">
+<span class="material-symbols-outlined text-[20px]" data-icon="add">add</span>
+<span class="text-body-sm">Nueva Clase</span>
+</button>
+</div>
+</section>
+<!-- Main Calendar / Drag-and-Drop Area -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-lg">
+<!-- Left Side: Conflict Alerts & Resource List -->
+<aside class="lg:col-span-3 space-y-lg">
+<!-- Conflict Resolution Card -->
+<div class="p-md rounded-xl bg-error-container/30 border border-error/20">
+<div class="flex items-center gap-xs mb-sm text-error">
+<span class="material-symbols-outlined text-[20px]" data-icon="warning">warning</span>
+<h3 class="text-label-caps font-bold">Conflictos Detectados (2)</h3>
+</div>
+<div class="space-y-sm">
+<div class="p-sm bg-white rounded-lg border-l-4 border-error shadow-sm">
+<p class="text-body-sm font-semibold mb-1">Solapamiento: Juan P.</p>
+<p class="text-xs text-on-surface-variant">Profesor Carlos asignado a dos coches (C-01, C-04) a las 10:00h.</p>
+<button class="mt-xs text-xs text-primary font-bold hover:underline">Resolver ahora</button>
+</div>
+<div class="p-sm bg-white rounded-lg border-l-4 border-error shadow-sm">
+<p class="text-body-sm font-semibold mb-1">Coche en Taller: V-09</p>
+<p class="text-xs text-on-surface-variant">El vehículo asignado para la clase de las 16:30h no está disponible.</p>
+<button class="mt-xs text-xs text-primary font-bold hover:underline">Reasignar flota</button>
+</div>
+</div>
+</div>
+<!-- Teacher Availability -->
+<div class="p-md rounded-xl glass-card">
+<h3 class="text-label-caps mb-md text-on-surface-variant">Profesores Disponibles</h3>
+<div class="space-y-md">
+<div class="flex items-center justify-between p-sm hover:bg-surface-container-low rounded-lg border border-transparent hover:border-outline-variant/30 cursor-grab active:cursor-grabbing">
+<div class="flex items-center gap-sm">
+<div class="w-8 h-8 rounded-full bg-secondary-fixed flex items-center justify-center text-on-secondary-fixed text-xs font-bold">CP</div>
+<div>
+<p class="text-body-sm font-semibold">Carlos Pérez</p>
+<p class="text-xs text-on-surface-variant">B, B+E, C</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-outline" data-icon="drag_indicator">drag_indicator</span>
+</div>
+<div class="flex items-center justify-between p-sm hover:bg-surface-container-low rounded-lg border border-transparent hover:border-outline-variant/30 cursor-grab active:cursor-grabbing">
+<div class="flex items-center gap-sm">
+<div class="w-8 h-8 rounded-full bg-tertiary-fixed flex items-center justify-center text-on-tertiary-fixed text-xs font-bold">MG</div>
+<div>
+<p class="text-body-sm font-semibold">María García</p>
+<p class="text-xs text-on-surface-variant">A1, A2, A</p>
+</div>
+</div>
+<span class="material-symbols-outlined text-outline" data-icon="drag_indicator">drag_indicator</span>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Calendar View -->
+<div class="lg:col-span-9 glass-card rounded-xl overflow-hidden flex flex-col">
+<!-- Header -->
+<div class="calendar-grid bg-surface-container-low border-b border-outline-variant/30">
+<div class="time-column border-r border-outline-variant/30"></div>
+<div class="p-sm text-center border-r border-outline-variant/30">
+<p class="text-xs text-on-surface-variant uppercase font-bold">Lun</p>
+<p class="text-headline-md font-bold text-primary">14</p>
+</div>
+<div class="p-sm text-center border-r border-outline-variant/30">
+<p class="text-xs text-on-surface-variant uppercase font-bold">Mar</p>
+<p class="text-headline-md font-bold text-on-surface">15</p>
+</div>
+<div class="p-sm text-center border-r border-outline-variant/30">
+<p class="text-xs text-on-surface-variant uppercase font-bold">Mié</p>
+<p class="text-headline-md font-bold text-on-surface">16</p>
+</div>
+<div class="p-sm text-center border-r border-outline-variant/30">
+<p class="text-xs text-on-surface-variant uppercase font-bold">Jue</p>
+<p class="text-headline-md font-bold text-on-surface">17</p>
+</div>
+<div class="p-sm text-center border-r border-outline-variant/30">
+<p class="text-xs text-on-surface-variant uppercase font-bold">Vie</p>
+<p class="text-headline-md font-bold text-on-surface">18</p>
+</div>
+<div class="p-sm text-center">
+<p class="text-xs text-on-surface-variant uppercase font-bold">Sáb</p>
+<p class="text-headline-md font-bold text-on-surface">19</p>
+</div>
+</div>
+<!-- Body (Scrollable) -->
+<div class="flex-1 overflow-y-auto max-h-[600px] relative">
+<div class="calendar-grid min-h-full">
+<!-- Time Markers -->
+<div class="time-column border-r border-outline-variant/30 flex flex-col">
+<div class="h-20 p-2 text-[10px] text-on-surface-variant border-b border-outline-variant/10 text-right pr-3 font-bold">08:00</div>
+<div class="h-20 p-2 text-[10px] text-on-surface-variant border-b border-outline-variant/10 text-right pr-3 font-bold">09:00</div>
+<div class="h-20 p-2 text-[10px] text-on-surface-variant border-b border-outline-variant/10 text-right pr-3 font-bold">10:00</div>
+<div class="h-20 p-2 text-[10px] text-on-surface-variant border-b border-outline-variant/10 text-right pr-3 font-bold">11:00</div>
+<div class="h-20 p-2 text-[10px] text-on-surface-variant border-b border-outline-variant/10 text-right pr-3 font-bold">12:00</div>
+<div class="h-20 p-2 text-[10px] text-on-surface-variant border-b border-outline-variant/10 text-right pr-3 font-bold">13:00</div>
+<div class="h-20 p-2 text-[10px] text-on-surface-variant border-b border-outline-variant/10 text-right pr-3 font-bold">14:00</div>
+</div>
+<!-- Days Cells (Repeat for each day) -->
+<div class="relative border-r border-outline-variant/10 min-h-full">
+<!-- Class Entry -->
+<div class="absolute top-[80px] left-1 right-1 h-[78px] bg-primary-container/20 border-l-4 border-primary rounded-r-lg p-2 overflow-hidden shadow-sm hover:z-10 transition-all hover:scale-[1.02]">
+<div class="flex justify-between items-start">
+<p class="text-xs font-bold text-primary truncate">Práctica: Ana López</p>
+<span class="material-symbols-outlined text-xs text-primary" data-icon="more_vert">more_vert</span>
+</div>
+<p class="text-[10px] text-on-primary-fixed-variant">C-02 • María G.</p>
+</div>
+<div class="h-20 border-b border-outline-variant/10"></div>
+<div class="h-20 border-b border-outline-variant/10"></div>
+<div class="h-20 border-b border-outline-variant/10"></div>
+<div class="h-20 border-b border-outline-variant/10"></div>
+<div class="h-20 border-b border-outline-variant/10"></div>
+</div>
+<div class="relative border-r border-outline-variant/10">
+<!-- Class Entry Conflict -->
+<div class="absolute top-[160px] left-1 right-1 h-[78px] bg-error-container/20 border-l-4 border-error rounded-r-lg p-2 overflow-hidden shadow-sm">
+<p class="text-xs font-bold text-error truncate">Práctica: Roberto S.</p>
+<p class="text-[10px] text-on-error-container">Conflicto de flota</p>
+</div>
+<div class="h-20 border-b border-outline-variant/10"></div>
+<div class="h-20 border-b border-outline-variant/10"></div>
+<div class="h-20 border-b border-outline-variant/10"></div>
+<div class="h-20 border-b border-outline-variant/10"></div>
+<div class="h-20 border-b border-outline-variant/10"></div>
+</div>
+<div class="relative border-r border-outline-variant/10">
+<div class="h-20 border-b border-outline-variant/10"></div>
+<div class="h-20 border-b border-outline-variant/10"></div>
+<div class="h-20 border-b border-outline-variant/10"></div>
+<div class="h-20 border-b border-outline-variant/10"></div>
+<div class="h-20 border-b border-outline-variant/10"></div>
+</div>
+<div class="relative border-r border-outline-variant/10">
+<div class="h-20 border-b border-outline-variant/10"></div>
+<div class="h-20 border-b border-outline-variant/10"></div>
+<div class="h-20 border-b border-outline-variant/10"></div>
+<div class="h-20 border-b border-outline-variant/10"></div>
+<div class="h-20 border-b border-outline-variant/10"></div>
+</div>
+<div class="relative border-r border-outline-variant/10">
+<div class="h-20 border-b border-outline-variant/10"></div>
+<div class="h-20 border-b border-outline-variant/10"></div>
+<div class="h-20 border-b border-outline-variant/10"></div>
+<div class="h-20 border-b border-outline-variant/10"></div>
+<div class="h-20 border-b border-outline-variant/10"></div>
+</div>
+<div class="relative">
+<div class="h-20 border-b border-outline-variant/10"></div>
+<div class="h-20 border-b border-outline-variant/10"></div>
+<div class="h-20 border-b border-outline-variant/10"></div>
+<div class="h-20 border-b border-outline-variant/10"></div>
+<div class="h-20 border-b border-outline-variant/10"></div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Mobile Agenda View (Visible on mobile only) -->
+<section class="mt-lg block lg:hidden space-y-md">
+<h2 class="text-headline-md font-bold">Agenda de hoy</h2>
+<div class="space-y-sm">
+<div class="p-md bg-white rounded-xl shadow-sm border border-outline-variant/30 flex gap-md items-center">
+<div class="text-center w-12">
+<p class="text-xs text-on-surface-variant font-bold uppercase">08:00</p>
+<p class="text-[10px] text-outline">60 min</p>
+</div>
+<div class="h-10 w-[2px] bg-primary"></div>
+<div class="flex-1">
+<p class="text-body-base font-bold">Ana López - Práctica B</p>
+<p class="text-body-sm text-on-surface-variant">María García • SEAT Ibiza (C-02)</p>
+</div>
+<span class="material-symbols-outlined text-outline" data-icon="chevron_right">chevron_right</span>
+</div>
+<div class="p-md bg-white rounded-xl shadow-sm border border-outline-variant/30 flex gap-md items-center border-l-4 border-l-error">
+<div class="text-center w-12">
+<p class="text-xs text-error font-bold uppercase">10:00</p>
+<p class="text-[10px] text-outline">60 min</p>
+</div>
+<div class="h-10 w-[2px] bg-error"></div>
+<div class="flex-1">
+<p class="text-body-base font-bold text-error">Roberto S. - Conflicto</p>
+<p class="text-body-sm text-on-surface-variant">Sin vehículo disponible</p>
+</div>
+<span class="material-symbols-outlined text-error" data-icon="error">error</span>
+</div>
+</div>
+</section>
+</main>
+<!-- Contextual FAB (Shared Component Strategy) -->
+<button class="fixed bottom-8 right-8 w-14 h-14 bg-primary text-white rounded-full shadow-lg flex items-center justify-center hover:scale-105 active:scale-95 transition-transform md:hidden z-50">
+<span class="material-symbols-outlined" data-icon="calendar_add_on">calendar_add_on</span>
+</button>
+</body></html>

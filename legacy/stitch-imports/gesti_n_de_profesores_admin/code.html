@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+
+<html lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Gestión de Profesores - Autoescuela Camacho</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-variant": "#d3e4fe",
+                    "secondary-fixed-dim": "#b9c3ff",
+                    "on-surface-variant": "#3e4850",
+                    "surface-container-high": "#dce9ff",
+                    "on-secondary-container": "#20358b",
+                    "secondary": "#4558ae",
+                    "on-secondary-fixed-variant": "#2b3f94",
+                    "primary": "#00628c",
+                    "surface": "#f8f9ff",
+                    "on-tertiary-fixed-variant": "#653e00",
+                    "surface-container": "#e5eeff",
+                    "on-secondary": "#ffffff",
+                    "on-error": "#ffffff",
+                    "primary-fixed": "#c8e6ff",
+                    "on-primary-fixed-variant": "#004c6d",
+                    "tertiary-container": "#a36700",
+                    "surface-container-highest": "#d3e4fe",
+                    "surface-container-low": "#eff4ff",
+                    "primary-fixed-dim": "#87ceff",
+                    "error": "#ba1a1a",
+                    "tertiary": "#825100",
+                    "error-container": "#ffdad6",
+                    "on-secondary-fixed": "#001256",
+                    "background": "#f8f9ff",
+                    "tertiary-fixed-dim": "#ffb95f",
+                    "on-tertiary-fixed": "#2a1700",
+                    "on-primary": "#ffffff",
+                    "surface-dim": "#cbdbf5",
+                    "inverse-on-surface": "#eaf1ff",
+                    "surface-container-lowest": "#ffffff",
+                    "secondary-container": "#90a3ff",
+                    "inverse-primary": "#87ceff",
+                    "on-surface": "#0b1c30",
+                    "on-primary-container": "#fcfcff",
+                    "surface-tint": "#006590",
+                    "primary-container": "#007cb0",
+                    "outline-variant": "#bec8d1",
+                    "on-tertiary": "#ffffff",
+                    "on-background": "#0b1c30",
+                    "on-error-container": "#93000a",
+                    "secondary-fixed": "#dde1ff",
+                    "tertiary-fixed": "#ffddb8",
+                    "on-primary-fixed": "#001e2e",
+                    "outline": "#6f7881",
+                    "surface-bright": "#f8f9ff",
+                    "on-tertiary-container": "#fffbff",
+                    "inverse-surface": "#213145"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "sm": "1rem",
+                    "lg": "2.5rem",
+                    "xs": "0.5rem",
+                    "xl": "4rem",
+                    "md": "1.5rem",
+                    "gutter": "1.5rem",
+                    "container-max": "1280px",
+                    "base": "4px"
+            },
+            "fontFamily": {
+                    "headline-md": ["Inter"],
+                    "display-lg": ["Inter"],
+                    "label-caps": ["Inter"],
+                    "body-base": ["Inter"],
+                    "body-sm": ["Inter"]
+            },
+            "fontSize": {
+                    "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "label-caps": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "body-base": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background">
+<!-- Navigation Drawer -->
+<aside class="w-[280px] h-full fixed left-0 top-0 bg-surface-container-lowest dark:bg-inverse-surface shadow-sm flex flex-col py-md px-sm z-50">
+<div class="mb-xl px-sm">
+<h1 class="text-headline-md font-headline-md font-bold text-primary dark:text-primary-fixed">Autoescuela Camacho</h1>
+</div>
+<nav class="flex-1 space-y-xs">
+<a class="flex items-center gap-sm px-md py-sm rounded-lg text-on-surface-variant dark:text-surface-variant hover:text-on-surface hover:bg-surface-container-high dark:hover:bg-on-surface-variant/10 transition-colors duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="text-label-caps font-label-caps">Dashboard</span>
+</a>
+<a class="flex items-center gap-sm px-md py-sm rounded-lg text-on-surface-variant dark:text-surface-variant hover:text-on-surface hover:bg-surface-container-high dark:hover:bg-on-surface-variant/10 transition-colors duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+<span class="text-label-caps font-label-caps">Alumnos</span>
+</a>
+<a class="flex items-center gap-sm px-md py-sm rounded-lg text-primary dark:text-inverse-primary font-bold bg-secondary-container/20 dark:bg-secondary/20 scale-[0.99] transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="badge">badge</span>
+<span class="text-label-caps font-label-caps">Profesores</span>
+</a>
+<a class="flex items-center gap-sm px-md py-sm rounded-lg text-on-surface-variant dark:text-surface-variant hover:text-on-surface hover:bg-surface-container-high dark:hover:bg-on-surface-variant/10 transition-colors duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="directions_car">directions_car</span>
+<span class="text-label-caps font-label-caps">Flota</span>
+</a>
+<a class="flex items-center gap-sm px-md py-sm rounded-lg text-on-surface-variant dark:text-surface-variant hover:text-on-surface hover:bg-surface-container-high dark:hover:bg-on-surface-variant/10 transition-colors duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="calendar_month">calendar_month</span>
+<span class="text-label-caps font-label-caps">Horarios</span>
+</a>
+<a class="flex items-center gap-sm px-md py-sm rounded-lg text-on-surface-variant dark:text-surface-variant hover:text-on-surface hover:bg-surface-container-high dark:hover:bg-on-surface-variant/10 transition-colors duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="payments">payments</span>
+<span class="text-label-caps font-label-caps">Finanzas</span>
+</a>
+<a class="flex items-center gap-sm px-md py-sm rounded-lg text-on-surface-variant dark:text-surface-variant hover:text-on-surface hover:bg-surface-container-high dark:hover:bg-on-surface-variant/10 transition-colors duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="query_stats">query_stats</span>
+<span class="text-label-caps font-label-caps">IA/Analítica</span>
+</a>
+<a class="flex items-center gap-sm px-md py-sm rounded-lg text-on-surface-variant dark:text-surface-variant hover:text-on-surface hover:bg-surface-container-high dark:hover:bg-on-surface-variant/10 transition-colors duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="text-label-caps font-label-caps">Configuración</span>
+</a>
+</nav>
+</aside>
+<!-- Top App Bar -->
+<header class="w-[calc(100%-280px)] fixed top-0 right-0 z-40 bg-surface/80 dark:bg-inverse-surface/80 backdrop-blur-md flex justify-between items-center px-lg h-16 ml-[280px]">
+<div class="flex items-center gap-md">
+<span class="material-symbols-outlined text-on-surface" data-icon="search">search</span>
+<h2 class="text-headline-md font-headline-md font-bold text-primary dark:text-primary-fixed">Gestión de Profesores</h2>
+</div>
+<div class="flex items-center gap-md">
+<div class="w-10 h-10 rounded-full bg-primary-container overflow-hidden border-2 border-primary/20">
+<img alt="Admin" data-alt="A professional headshot of a middle-aged man with a confident and friendly expression, wearing a tailored navy suit and white shirt. The lighting is soft and corporate, creating a clean, modern aesthetic that fits a high-end educational SaaS environment. The background is a blurred, brightly lit office interior with cool blue tones." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBwdGotvnjqhJXZwr8pi97P9BzXbTa25N1Q1SGDBWtRtCC8RB4vBXz04PQwOPY_ugqfbWIz20x7BewdvYvlbMoW1nMzy3g02j2I1EqGvnPpbPWi8A5hZrsifeHrGM02_T0gi72UphjRfbedARAMqbI2ZJL_P6NQyJGp_j6exCxrnb6MESgkAJ6GA_34afKe4BMXdQ8wWVapkbXmhuPd6_pzozOqlRpzmAGxWQBVfySj_5gGU8xyT6WmPSfKCHj8lurygK3fyVBUMiA"/>
+</div>
+</div>
+</header>
+<!-- Main Content -->
+<main class="ml-[280px] pt-24 px-lg pb-lg">
+<!-- Analytics Summary Bento Grid -->
+<section class="grid grid-cols-1 md:grid-cols-4 gap-md mb-lg">
+<div class="col-span-1 md:col-span-2 bg-surface-container-lowest p-md rounded-xl border border-outline-variant shadow-sm flex flex-col justify-between">
+<div>
+<p class="text-label-caps font-label-caps text-on-surface-variant mb-xs">RENDIMIENTO GLOBAL</p>
+<h3 class="text-display-lg font-display-lg text-primary">84.2%</h3>
+<p class="text-body-sm font-body-sm text-on-surface-variant mt-xs">Tasa de aprobados este mes (+4.2% vs prev.)</p>
+</div>
+<div class="h-12 flex items-end gap-1 mt-md">
+<div class="flex-1 bg-primary-container h-[60%] rounded-t-sm"></div>
+<div class="flex-1 bg-primary-container h-[75%] rounded-t-sm"></div>
+<div class="flex-1 bg-primary-container h-[90%] rounded-t-sm"></div>
+<div class="flex-1 bg-primary h-[100%] rounded-t-sm"></div>
+<div class="flex-1 bg-primary-container h-[85%] rounded-t-sm"></div>
+<div class="flex-1 bg-primary-container h-[70%] rounded-t-sm"></div>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-md rounded-xl border border-outline-variant shadow-sm">
+<p class="text-label-caps font-label-caps text-on-surface-variant mb-xs">HORAS IMPARTIDAS</p>
+<h3 class="text-headline-md font-headline-md text-on-surface">1,240h</h3>
+<div class="mt-md space-y-sm">
+<div class="flex justify-between text-body-sm font-body-sm">
+<span>Prácticas</span>
+<span class="font-bold">890h</span>
+</div>
+<div class="w-full bg-surface-container h-2 rounded-full overflow-hidden">
+<div class="bg-primary h-full w-[72%]"></div>
+</div>
+<div class="flex justify-between text-body-sm font-body-sm">
+<span>Teóricas</span>
+<span class="font-bold">350h</span>
+</div>
+<div class="w-full bg-surface-container h-2 rounded-full overflow-hidden">
+<div class="bg-secondary h-full w-[28%]"></div>
+</div>
+</div>
+</div>
+<div class="bg-primary p-md rounded-xl shadow-sm text-on-primary flex flex-col justify-center">
+<span class="material-symbols-outlined text-[40px] mb-xs" data-icon="rocket_launch">rocket_launch</span>
+<p class="text-headline-md font-headline-md">12</p>
+<p class="text-body-sm font-body-sm opacity-90">Profesores activos hoy con disponibilidad inmediata para nuevos alumnos.</p>
+<button class="mt-md bg-on-primary text-primary px-sm py-xs rounded-lg text-label-caps font-label-caps w-fit hover:bg-surface-variant transition-colors">ASIGNAR CLASES</button>
+</div>
+</section>
+<!-- Instructor List Section -->
+<section class="bg-surface-container-lowest rounded-xl border border-outline-variant shadow-sm overflow-hidden">
+<div class="px-md py-sm border-b border-outline-variant flex justify-between items-center bg-surface-container-low">
+<h3 class="text-headline-md font-headline-md text-on-surface">Listado de Instructores</h3>
+<div class="flex gap-sm">
+<button class="flex items-center gap-xs px-sm py-xs border border-outline rounded-lg text-label-caps font-label-caps hover:bg-surface transition-colors">
+<span class="material-symbols-outlined text-[18px]" data-icon="filter_list">filter_list</span>
+                        FILTRAR
+                    </button>
+<button class="bg-primary text-on-primary px-sm py-xs rounded-lg text-label-caps font-label-caps flex items-center gap-xs hover:opacity-90 transition-opacity">
+<span class="material-symbols-outlined text-[18px]" data-icon="add">add</span>
+                        NUEVO PROFESOR
+                    </button>
+</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full border-collapse">
+<thead class="bg-surface-container-low">
+<tr>
+<th class="px-md py-sm text-left text-label-caps font-label-caps text-on-surface-variant">INSTRUCTOR</th>
+<th class="px-md py-sm text-left text-label-caps font-label-caps text-on-surface-variant">ESTADO</th>
+<th class="px-md py-sm text-left text-label-caps font-label-caps text-on-surface-variant">RENDIMIENTO</th>
+<th class="px-md py-sm text-left text-label-caps font-label-caps text-on-surface-variant">HORAS/MES</th>
+<th class="px-md py-sm text-left text-label-caps font-label-caps text-on-surface-variant">DISPONIBILIDAD</th>
+<th class="px-md py-sm text-right text-label-caps font-label-caps text-on-surface-variant">ACCIONES</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-surface-container">
+<!-- Teacher Row 1 -->
+<tr class="hover:bg-surface-container-low/50 transition-colors">
+<td class="px-md py-md">
+<div class="flex items-center gap-sm">
+<div class="w-10 h-10 rounded-full bg-secondary-container flex items-center justify-center text-on-secondary-container font-bold overflow-hidden">
+<img alt="Profesor" data-alt="A close-up portrait of a friendly professional driving instructor in his late 30s. He is wearing a clean, branded white polo shirt with a subtle logo. The background is slightly out of focus, showing the interior of a modern car with bright natural daylight streaming through the windows. The overall tone is professional, instructional, and encouraging." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDJaMxRHP0sGdgXQ0MhPpPLVWyqlZV1uvR66qpHjduZV1HLT9zDbD62oBnb_aINGseDZWy_v5StO7xDiGEaOyWZ3PUQFaiYhyj6Wh0xHhOavisw41nfIDeXy1N0Lk9PRKSrQINBIvcqx7Dn0IHntWhfINuCVmu6IrbhQkONdj2qZrroFhq-4kPItnVMpDjHBnKNWI-HvRAETHMEn4LAb3QxW30PaIaNrQmpfn58sSF6M0FgnYdC68M122KY_BsvwveJ8LKQQmBl_sc"/>
+</div>
+<div>
+<p class="text-body-base font-bold text-on-surface">Javier Moreno</p>
+<p class="text-body-sm font-body-sm text-on-surface-variant">Permisos B, A2, C</p>
+</div>
+</div>
+</td>
+<td class="px-md py-md">
+<span class="bg-primary/10 text-primary px-xs py-[2px] rounded-full text-[10px] font-bold">ACTIVO</span>
+</td>
+<td class="px-md py-md">
+<div class="flex items-center gap-xs">
+<span class="text-body-base font-bold text-on-surface">92%</span>
+<span class="material-symbols-outlined text-tertiary text-[16px]" data-icon="trending_up">trending_up</span>
+</div>
+<p class="text-body-sm font-body-sm text-on-surface-variant">Ratio aprobación</p>
+</td>
+<td class="px-md py-md">
+<p class="text-body-base font-body-base text-on-surface">142h</p>
+</td>
+<td class="px-md py-md">
+<div class="flex gap-1">
+<div class="w-2 h-6 bg-primary rounded-sm" title="Lunes"></div>
+<div class="w-2 h-6 bg-primary rounded-sm" title="Martes"></div>
+<div class="w-2 h-6 bg-surface-variant rounded-sm" title="Miércoles"></div>
+<div class="w-2 h-6 bg-primary rounded-sm" title="Jueves"></div>
+<div class="w-2 h-6 bg-primary rounded-sm" title="Viernes"></div>
+<div class="w-2 h-6 bg-surface-variant rounded-sm" title="Sábado"></div>
+</div>
+</td>
+<td class="px-md py-md text-right">
+<div class="flex justify-end gap-xs">
+<button class="p-xs text-on-surface-variant hover:text-primary hover:bg-primary/10 rounded-lg transition-colors" title="Asignar Alumno">
+<span class="material-symbols-outlined" data-icon="person_add">person_add</span>
+</button>
+<button class="p-xs text-on-surface-variant hover:text-primary hover:bg-primary/10 rounded-lg transition-colors" title="Ver Perfil">
+<span class="material-symbols-outlined" data-icon="visibility">visibility</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Teacher Row 2 -->
+<tr class="hover:bg-surface-container-low/50 transition-colors">
+<td class="px-md py-md">
+<div class="flex items-center gap-sm">
+<div class="w-10 h-10 rounded-full bg-tertiary-container flex items-center justify-center text-on-tertiary-container font-bold overflow-hidden">
+<img alt="Profesor" data-alt="A high-quality studio portrait of a young female educator with a warm, approachable smile. She is wearing a professional light grey blazer and has her hair neatly styled. The lighting is balanced and crisp, with a soft gradient blue background that matches the corporate identity of a modern driving academy." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDJGT3xDs8Ue5ywJntAUZa3gW96iSVRodqDa-vbzuYQUJqRlJ_fw7j4Evi63OVTZIf8a--022gncKfn4V2EWt4p2-VHV2GGuVFaWJ38zLD8SZ_8d7SRKvpW-uufPvjr2V3kUTASJ0prx2lCRLa4UYYUVgtSB-k1moIuo0oT49M2V9dnP6gO0s1ZUbV5n-o0q_1gNb5UVub8rIV6rE8fk_-JJrgiK0p5CnYndx_5ZVtgyOG-QUGlVUTNgp51W5Vv502eMwQaKidt6mw"/>
+</div>
+<div>
+<p class="text-body-base font-bold text-on-surface">Elena García</p>
+<p class="text-body-sm font-body-sm text-on-surface-variant">Teórica &amp; Permiso B</p>
+</div>
+</div>
+</td>
+<td class="px-md py-md">
+<span class="bg-primary/10 text-primary px-xs py-[2px] rounded-full text-[10px] font-bold">ACTIVO</span>
+</td>
+<td class="px-md py-md">
+<div class="flex items-center gap-xs">
+<span class="text-body-base font-bold text-on-surface">78%</span>
+<span class="material-symbols-outlined text-outline text-[16px]" data-icon="trending_flat">trending_flat</span>
+</div>
+<p class="text-body-sm font-body-sm text-on-surface-variant">Ratio aprobación</p>
+</td>
+<td class="px-md py-md">
+<p class="text-body-base font-body-base text-on-surface">118h</p>
+</td>
+<td class="px-md py-md">
+<div class="flex gap-1">
+<div class="w-2 h-6 bg-primary rounded-sm"></div>
+<div class="w-2 h-6 bg-primary rounded-sm"></div>
+<div class="w-2 h-6 bg-primary rounded-sm"></div>
+<div class="w-2 h-6 bg-primary rounded-sm"></div>
+<div class="w-2 h-6 bg-primary rounded-sm"></div>
+<div class="w-2 h-6 bg-surface-variant rounded-sm"></div>
+</div>
+</td>
+<td class="px-md py-md text-right">
+<div class="flex justify-end gap-xs">
+<button class="p-xs text-on-surface-variant hover:text-primary hover:bg-primary/10 rounded-lg transition-colors">
+<span class="material-symbols-outlined" data-icon="person_add">person_add</span>
+</button>
+<button class="p-xs text-on-surface-variant hover:text-primary hover:bg-primary/10 rounded-lg transition-colors">
+<span class="material-symbols-outlined" data-icon="visibility">visibility</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Teacher Row 3 -->
+<tr class="hover:bg-surface-container-low/50 transition-colors">
+<td class="px-md py-md">
+<div class="flex items-center gap-sm">
+<div class="w-10 h-10 rounded-full bg-surface-container-highest flex items-center justify-center text-on-surface font-bold overflow-hidden">
+<img alt="Profesor" data-alt="A portrait of an experienced driving school instructor with graying hair and a professional, calm demeanor. He is wearing a dark blue zip-up fleece with a small embroidered logo. He is standing in front of a white driving school vehicle with blue stripes, during a bright overcast day. The visual style is reliable and efficient." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDDXywkX63iM9KlpWCeTr6Ic2H7gm6dDMuWe7gOGNPhrjIyi7armDfF1ocBb3Gx0Q1fTBT45mw1jBtWaNrPOHRou9gT00emyZ-6x1uGmIMCuYvMdqUPINGyLmbwe3-RyjJyX4zvD4e6S6MnKbnp6IcgQOIr8557Ew_9Xrfi7u36erkV-ArlRvTM2K5KWFQOqRpu6UNTk769EDxRxFmcbE61QQszmrWEG5Mq25_HG1S_lIhHhWcqevWM8wdHSH592xx1LooiRcquoNE"/>
+</div>
+<div>
+<p class="text-body-base font-bold text-on-surface">Ricardo Sanz</p>
+<p class="text-body-sm font-body-sm text-on-surface-variant">Permisos C, D, E</p>
+</div>
+</div>
+</td>
+<td class="px-md py-md">
+<span class="bg-error/10 text-error px-xs py-[2px] rounded-full text-[10px] font-bold">BAJA TEMP.</span>
+</td>
+<td class="px-md py-md">
+<div class="flex items-center gap-xs">
+<span class="text-body-base font-bold text-on-surface">88%</span>
+<span class="material-symbols-outlined text-tertiary text-[16px]" data-icon="trending_up">trending_up</span>
+</div>
+<p class="text-body-sm font-body-sm text-on-surface-variant">Ratio aprobación</p>
+</td>
+<td class="px-md py-md">
+<p class="text-body-base font-body-base text-on-surface">0h</p>
+</td>
+<td class="px-md py-md">
+<div class="flex gap-1">
+<div class="w-2 h-6 bg-surface-variant rounded-sm"></div>
+<div class="w-2 h-6 bg-surface-variant rounded-sm"></div>
+<div class="w-2 h-6 bg-surface-variant rounded-sm"></div>
+<div class="w-2 h-6 bg-surface-variant rounded-sm"></div>
+<div class="w-2 h-6 bg-surface-variant rounded-sm"></div>
+<div class="w-2 h-6 bg-surface-variant rounded-sm"></div>
+</div>
+</td>
+<td class="px-md py-md text-right">
+<div class="flex justify-end gap-xs">
+<button class="p-xs text-on-surface-variant opacity-30 cursor-not-allowed">
+<span class="material-symbols-outlined" data-icon="person_add">person_add</span>
+</button>
+<button class="p-xs text-on-surface-variant hover:text-primary hover:bg-primary/10 rounded-lg transition-colors">
+<span class="material-symbols-outlined" data-icon="visibility">visibility</span>
+</button>
+</div>
+</td>
+</tr>
+<!-- Teacher Row 4 -->
+<tr class="hover:bg-surface-container-low/50 transition-colors">
+<td class="px-md py-md">
+<div class="flex items-center gap-sm">
+<div class="w-10 h-10 rounded-full bg-secondary-container flex items-center justify-center text-on-secondary-container font-bold overflow-hidden">
+<img alt="Profesor" data-alt="A professional business portrait of a middle-aged woman with glasses, smiling warmly. She is wearing a smart navy blue dress and a small silver necklace. The background is a minimalist, modern office with soft white walls and abundant natural light. The aesthetic is clean and corporate, emphasizing reliability and professional expertise." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBYhpkBxi11GKBPGvPp0UgkAa3MzqoiBbFIHYO6hvb_94yr5-8LrGGTtP9kpfugbGQRMkGNbjxdYiejIT-jQrRoQgaT098_kCOXD4RjDaV3b6HXK0ozRN1zmjgkFnAf9zq_tBgJircVhODtlv6ZYeS25TA4DkeFMrjRmRUZqYXuiTpzKqak-uPu4LIkU6w598dacQVJAWLUvjwlK2mOMurnFTJ-mp0EjQUdbtqlt5Q6WYWCcGjYJAlN3V8m8y5aIiRdwkUNRvJHdNM"/>
+</div>
+<div>
+<p class="text-body-base font-bold text-on-surface">Marta Beltrán</p>
+<p class="text-body-sm font-body-sm text-on-surface-variant">Permiso B &amp; CAP</p>
+</div>
+</div>
+</td>
+<td class="px-md py-md">
+<span class="bg-primary/10 text-primary px-xs py-[2px] rounded-full text-[10px] font-bold">ACTIVO</span>
+</td>
+<td class="px-md py-md">
+<div class="flex items-center gap-xs">
+<span class="text-body-base font-bold text-on-surface">95%</span>
+<span class="material-symbols-outlined text-tertiary text-[16px]" data-icon="stars" style="font-variation-settings: 'FILL' 1;">stars</span>
+</div>
+<p class="text-body-sm font-body-sm text-on-surface-variant">Ratio aprobación</p>
+</td>
+<td class="px-md py-md">
+<p class="text-body-base font-body-base text-on-surface">156h</p>
+</td>
+<td class="px-md py-md">
+<div class="flex gap-1">
+<div class="w-2 h-6 bg-primary rounded-sm"></div>
+<div class="w-2 h-6 bg-primary rounded-sm"></div>
+<div class="w-2 h-6 bg-primary rounded-sm"></div>
+<div class="w-2 h-6 bg-primary rounded-sm"></div>
+<div class="w-2 h-6 bg-primary rounded-sm"></div>
+<div class="w-2 h-6 bg-primary rounded-sm"></div>
+</div>
+</td>
+<td class="px-md py-md text-right">
+<div class="flex justify-end gap-xs">
+<button class="p-xs text-on-surface-variant hover:text-primary hover:bg-primary/10 rounded-lg transition-colors">
+<span class="material-symbols-outlined" data-icon="person_add">person_add</span>
+</button>
+<button class="p-xs text-on-surface-variant hover:text-primary hover:bg-primary/10 rounded-lg transition-colors">
+<span class="material-symbols-outlined" data-icon="visibility">visibility</span>
+</button>
+</div>
+</td>
+</tr>
+</tbody>
+</table>
+</div>
+<!-- Pagination -->
+<div class="px-md py-sm border-t border-outline-variant flex justify-between items-center bg-surface-container-low">
+<p class="text-body-sm font-body-sm text-on-surface-variant">Mostrando 4 de 24 profesores</p>
+<div class="flex gap-xs">
+<button class="w-8 h-8 flex items-center justify-center rounded-lg border border-outline-variant hover:bg-surface transition-colors">
+<span class="material-symbols-outlined text-[18px]" data-icon="chevron_left">chevron_left</span>
+</button>
+<button class="w-8 h-8 flex items-center justify-center rounded-lg bg-primary text-on-primary font-bold text-body-sm">1</button>
+<button class="w-8 h-8 flex items-center justify-center rounded-lg border border-outline-variant hover:bg-surface transition-colors font-body-sm">2</button>
+<button class="w-8 h-8 flex items-center justify-center rounded-lg border border-outline-variant hover:bg-surface transition-colors font-body-sm">3</button>
+<button class="w-8 h-8 flex items-center justify-center rounded-lg border border-outline-variant hover:bg-surface transition-colors">
+<span class="material-symbols-outlined text-[18px]" data-icon="chevron_right">chevron_right</span>
+</button>
+</div>
+</div>
+</section>
+<!-- Availability Map / Secondary Dashboard Section -->
+<section class="mt-lg grid grid-cols-1 md:grid-cols-3 gap-md">
+<div class="md:col-span-1 bg-surface-container-lowest p-md rounded-xl border border-outline-variant shadow-sm">
+<h4 class="text-label-caps font-label-caps text-on-surface-variant mb-md">RECURSOS ASIGNADOS</h4>
+<div class="space-y-md">
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-primary" data-icon="directions_car">directions_car</span>
+<span class="text-body-base font-body-base text-on-surface">Vehículos en uso</span>
+</div>
+<span class="text-body-base font-bold text-on-surface">18/22</span>
+</div>
+<div class="w-full bg-surface-container h-2 rounded-full">
+<div class="bg-primary h-full w-[81%] rounded-full"></div>
+</div>
+<div class="flex items-center justify-between pt-sm">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-secondary" data-icon="school">school</span>
+<span class="text-body-base font-body-base text-on-surface">Aulas teóricas</span>
+</div>
+<span class="text-body-base font-bold text-on-surface">4/5</span>
+</div>
+<div class="w-full bg-surface-container h-2 rounded-full">
+<div class="bg-secondary h-full w-[80%] rounded-full"></div>
+</div>
+</div>
+<button class="w-full mt-lg py-sm border-2 border-primary/20 text-primary rounded-lg text-label-caps font-label-caps hover:bg-primary/5 transition-colors">OPTIMIZAR RUTAS</button>
+</div>
+<div class="md:col-span-2 bg-surface-container-lowest p-md rounded-xl border border-outline-variant shadow-sm relative overflow-hidden group">
+<div class="absolute inset-0 bg-cover bg-center grayscale opacity-10" style="background-image: url('https://lh3.googleusercontent.com/aida-public/AB6AXuAU0Hh1wtMRFPVZrBhlPbzFFdo3fQ_dA5HW_GOVCQJUuR4mzdPZ7oGAuRATzUAsdSMkENiw7cJCahh0XwPSuFy2AyLqefWo_2JoH2Q09kcuWgD4uRS_uRcQHfstyDhaYW4MpcDFGUuZZGou2ApG95y71qsS1qyFM42iXC4lG2i-p-cDeXuCdmfoslfkXjLyXWr_UrTx5jI0fi1ivpRUWj6jD60XiWTrIe1D_jWJcNXY9ykYzpHimEB26vnFyrX1vG0CfiOMavKUfAw')"></div>
+<div class="relative z-10 h-full flex flex-col justify-between">
+<div>
+<h4 class="text-label-caps font-label-caps text-on-surface-variant mb-xs">ANÁLISIS DE COBERTURA</h4>
+<p class="text-body-base font-body-base text-on-surface-variant">Distribución actual de profesores en zona metropolitana.</p>
+</div>
+<div class="mt-md bg-white/60 backdrop-blur-sm p-sm rounded-lg border border-outline-variant/30 w-fit">
+<div class="flex items-center gap-md">
+<div class="flex items-center gap-xs">
+<div class="w-3 h-3 bg-primary rounded-full"></div>
+<span class="text-body-sm font-body-sm text-on-surface">Zona Norte (8)</span>
+</div>
+<div class="flex items-center gap-xs">
+<div class="w-3 h-3 bg-secondary rounded-full"></div>
+<span class="text-body-sm font-body-sm text-on-surface">Centro (12)</span>
+</div>
+<div class="flex items-center gap-xs">
+<div class="w-3 h-3 bg-tertiary rounded-full"></div>
+<span class="text-body-sm font-body-sm text-on-surface">Zona Sur (4)</span>
+</div>
+</div>
+</div>
+</div>
+<div class="absolute right-[-20px] bottom-[-20px] opacity-10 group-hover:scale-110 transition-transform duration-500">
+<span class="material-symbols-outlined text-[160px]" data-icon="map">map</span>
+</div>
+</div>
+</section>
+</main>
+<!-- Contextual FAB - Restricted to Top Level Screens -->
+<button class="fixed bottom-lg right-lg w-14 h-14 bg-primary text-on-primary rounded-full shadow-lg flex items-center justify-center hover:scale-105 transition-transform z-50">
+<span class="material-symbols-outlined" data-icon="add">add</span>
+</button>
+</body></html>

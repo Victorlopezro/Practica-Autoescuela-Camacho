@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Autoescuela Camacho - Login</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-bright": "#f8f9ff",
+                        "on-primary-fixed": "#001e2e",
+                        "inverse-on-surface": "#eaf1ff",
+                        "error-container": "#ffdad6",
+                        "on-tertiary-container": "#fffbff",
+                        "background": "#f8f9ff",
+                        "surface-container": "#e5eeff",
+                        "on-surface": "#0b1c30",
+                        "outline-variant": "#bec8d1",
+                        "on-primary": "#ffffff",
+                        "surface-container-high": "#dce9ff",
+                        "on-tertiary-fixed-variant": "#653e00",
+                        "on-error": "#ffffff",
+                        "surface-dim": "#cbdbf5",
+                        "on-tertiary-fixed": "#2a1700",
+                        "tertiary-fixed": "#ffddb8",
+                        "on-secondary-container": "#20358b",
+                        "on-background": "#0b1c30",
+                        "secondary-fixed-dim": "#b9c3ff",
+                        "on-error-container": "#93000a",
+                        "surface-container-lowest": "#ffffff",
+                        "on-tertiary": "#ffffff",
+                        "primary": "#00628c",
+                        "on-secondary-fixed-variant": "#2b3f94",
+                        "primary-fixed": "#c8e6ff",
+                        "surface-variant": "#d3e4fe",
+                        "on-secondary-fixed": "#001256",
+                        "on-primary-fixed-variant": "#004c6d",
+                        "primary-fixed-dim": "#87ceff",
+                        "tertiary": "#825100",
+                        "inverse-surface": "#213145",
+                        "outline": "#6f7881",
+                        "secondary-fixed": "#dde1ff",
+                        "on-surface-variant": "#3e4850",
+                        "on-primary-container": "#fcfcff",
+                        "inverse-primary": "#87ceff",
+                        "primary-container": "#007cb0",
+                        "on-secondary": "#ffffff",
+                        "surface-container-highest": "#d3e4fe",
+                        "surface": "#f8f9ff",
+                        "error": "#ba1a1a",
+                        "surface-container-low": "#eff4ff",
+                        "secondary": "#4558ae",
+                        "tertiary-fixed-dim": "#ffb95f",
+                        "secondary-container": "#90a3ff",
+                        "tertiary-container": "#a36700",
+                        "surface-tint": "#006590"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "base": "4px",
+                        "sm": "1rem",
+                        "lg": "2.5rem",
+                        "gutter": "1.5rem",
+                        "container-max": "1280px",
+                        "xs": "0.5rem",
+                        "xl": "4rem",
+                        "md": "1.5rem"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Inter"],
+                        "display-lg-mobile": ["Inter"],
+                        "body-base": ["Inter"],
+                        "label-caps": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "display-lg": ["Inter"]
+                    },
+                    "fontSize": {
+                        "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "display-lg-mobile": ["36px", {"lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "body-base": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "label-caps": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f9ff;
+        }
+        .login-card-shadow {
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background min-h-screen flex flex-col items-center">
+<!-- Hero / Logo Section -->
+<header class="w-full flex flex-col items-center pt-xl pb-lg px-gutter">
+<div class="mb-sm">
+<div class="w-20 h-20 bg-primary flex items-center justify-center rounded-xl shadow-lg">
+<span class="material-symbols-outlined text-white text-[48px]" data-icon="directions_car">directions_car</span>
+</div>
+</div>
+<h1 class="font-headline-md text-headline-md text-primary tracking-tight">Autoescuela Camacho</h1>
+<p class="font-body-sm text-body-sm text-on-surface-variant mt-xs">Portal del Estudiante</p>
+</header>
+<!-- Login Form Section -->
+<main class="w-full max-w-md px-gutter flex-grow">
+<div class="bg-surface-container-lowest login-card-shadow rounded-xl p-lg border border-outline-variant/30">
+<div class="mb-lg">
+<h2 class="font-display-lg-mobile text-display-lg-mobile text-on-surface mb-xs">Bienvenido de nuevo</h2>
+<p class="font-body-base text-body-base text-on-surface-variant">Introduce tus credenciales para acceder a tu panel</p>
+</div>
+<form class="space-y-md">
+<!-- Username/Email Field -->
+<div class="flex flex-col gap-xs">
+<label class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider" for="username">Email o Usuario</label>
+<div class="relative flex items-center">
+<span class="material-symbols-outlined absolute left-3 text-outline" data-icon="person">person</span>
+<input class="w-full pl-10 pr-4 py-3 bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all outline-none font-body-base text-body-base" id="username" name="username" placeholder="ejemplo@correo.com" type="text"/>
+</div>
+</div>
+<!-- Password Field -->
+<div class="flex flex-col gap-xs">
+<label class="font-label-caps text-label-caps text-on-surface-variant uppercase tracking-wider" for="password">Contraseña</label>
+<div class="relative flex items-center">
+<span class="material-symbols-outlined absolute left-3 text-outline" data-icon="lock">lock</span>
+<input class="w-full pl-10 pr-12 py-3 bg-white border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary focus:border-primary transition-all outline-none font-body-base text-body-base" id="password" name="password" placeholder="••••••••" type="password"/>
+<button class="absolute right-3 text-primary flex items-center justify-center hover:bg-surface-container rounded-full p-1 transition-colors" type="button">
+<span class="material-symbols-outlined text-[20px]" data-icon="visibility">visibility</span>
+</button>
+</div>
+<div class="flex justify-end mt-xs">
+<a class="font-body-sm text-body-sm text-primary font-semibold hover:underline" href="#">¿Has olvidado tu contraseña?</a>
+</div>
+</div>
+<!-- Login Button -->
+<button class="w-full bg-primary text-white font-headline-md text-headline-md py-4 rounded-lg shadow-md active:scale-[0.98] transition-transform flex items-center justify-center gap-2 mt-sm" type="submit">
+                    Iniciar sesión
+                    <span class="material-symbols-outlined" data-icon="login">login</span>
+</button>
+</form>
+</div>
+<!-- Informative Content for Students (Modern SaaS Pattern) -->
+<div class="mt-lg grid grid-cols-1 gap-md">
+<div class="flex items-center gap-md p-md bg-surface-container-low rounded-xl border border-outline-variant/20">
+<div class="w-10 h-10 bg-secondary-container text-on-secondary-container flex items-center justify-center rounded-lg">
+<span class="material-symbols-outlined" data-icon="assignment">assignment</span>
+</div>
+<div>
+<h3 class="font-body-base text-body-base font-bold text-on-surface">Tests Actualizados</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Accede a las últimas preguntas de la DGT.</p>
+</div>
+</div>
+</div>
+</main>
+<!-- Footer Section (Mapped from Shared Components) -->
+<footer class="w-full mt-xl mb-md px-gutter">
+<div class="max-w-container-max mx-auto flex flex-col items-center gap-md py-lg border-t border-outline-variant/30">
+<div class="flex flex-wrap justify-center gap-gutter">
+<a class="font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-colors" href="#">Política de Privacidad</a>
+<a class="font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-colors" href="#">Términos de Servicio</a>
+<a class="font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-colors" href="#">Soporte</a>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant text-center opacity-80">
+                © 2024 Autoescuela Camacho. Todos los derechos reservados.
+            </p>
+<div class="w-full max-w-[320px] h-[180px] rounded-xl overflow-hidden mt-sm relative">
+<img alt="Autoescuela Camacho Facility" class="w-full h-full object-cover" data-alt="A professional and modern driving school classroom with high-tech simulators and clean, minimalist interior design. The lighting is bright and airy, following a light-mode aesthetic with soft blue and white tones. Students are engaged in learning with digital tools in a serene, instructional environment that reflects corporate efficiency and reliability." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBdBUE0X_IAT0T1_pQpz1lgLv_ZBkatNZCY6GpPXVvlZxIjdSFmRBAN66JaSooezlYL_nRhbmN2xf75toqWOBTKxxAN-yRVjZi9Pmtgwp6IYG4gxV4rzEJBI8pFTslXnaysVw1mt3YSWVQYXUVXlQM5P-IEdXIs7CDKgy7-IdLeL4Afq1meneqxKgS1G8-uK2VtfvFvoxCDatYpAEVANTvtCj1e6dhfykdvqf2If_Bp4r86ip-_P7FkQv4Y1sR4adxrLn75aJNdbAQ"/>
+<div class="absolute inset-0 bg-gradient-to-t from-on-primary-fixed/60 to-transparent flex items-end p-sm">
+<p class="text-white font-label-caps text-label-caps">Instalaciones Modernas</p>
+</div>
+</div>
+</div>
+</footer>
+</body></html>

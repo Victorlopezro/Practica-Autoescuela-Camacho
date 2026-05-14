@@ -1,0 +1,407 @@
+<!DOCTYPE html>
+
+<html lang="es-ES"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f9ff;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary-container": "#20358b",
+                        "primary": "#00628c",
+                        "on-secondary-fixed-variant": "#2b3f94",
+                        "surface-container-high": "#dce9ff",
+                        "error-container": "#ffdad6",
+                        "secondary": "#4558ae",
+                        "on-tertiary-container": "#fffbff",
+                        "on-primary-fixed": "#001e2e",
+                        "surface-dim": "#cbdbf5",
+                        "on-primary-fixed-variant": "#004c6d",
+                        "inverse-on-surface": "#eaf1ff",
+                        "secondary-container": "#90a3ff",
+                        "surface-bright": "#f8f9ff",
+                        "tertiary-fixed-dim": "#ffb95f",
+                        "surface-variant": "#d3e4fe",
+                        "surface-container-lowest": "#ffffff",
+                        "primary-fixed-dim": "#87ceff",
+                        "primary-fixed": "#c8e6ff",
+                        "on-surface-variant": "#3e4850",
+                        "on-primary-container": "#fcfcff",
+                        "on-primary": "#ffffff",
+                        "primary-container": "#007cb0",
+                        "secondary-fixed": "#dde1ff",
+                        "surface": "#f8f9ff",
+                        "on-tertiary": "#ffffff",
+                        "inverse-primary": "#87ceff",
+                        "tertiary-container": "#a36700",
+                        "on-tertiary-fixed": "#2a1700",
+                        "on-error-container": "#93000a",
+                        "error": "#ba1a1a",
+                        "on-surface": "#0b1c30",
+                        "secondary-fixed-dim": "#b9c3ff",
+                        "on-secondary": "#ffffff",
+                        "tertiary-fixed": "#ffddb8",
+                        "on-background": "#0b1c30",
+                        "surface-container-highest": "#d3e4fe",
+                        "outline-variant": "#bec8d1",
+                        "on-secondary-fixed": "#001256",
+                        "on-error": "#ffffff",
+                        "background": "#f8f9ff",
+                        "inverse-surface": "#213145",
+                        "surface-tint": "#006590",
+                        "surface-container-low": "#eff4ff",
+                        "surface-container": "#e5eeff",
+                        "outline": "#6f7881",
+                        "on-tertiary-fixed-variant": "#653e00",
+                        "tertiary": "#825100"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "xl": "4rem",
+                        "gutter": "1.5rem",
+                        "sm": "1rem",
+                        "base": "4px",
+                        "md": "1.5rem",
+                        "lg": "2.5rem",
+                        "container-max": "1280px",
+                        "xs": "0.5rem"
+                    },
+                    "fontFamily": {
+                        "body-base": ["Inter"],
+                        "display-lg-mobile": ["Inter"],
+                        "display-lg": ["Inter"],
+                        "label-caps": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "body-sm": ["Inter"]
+                    },
+                    "fontSize": {
+                        "body-base": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "display-lg-mobile": ["36px", {"lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "label-caps": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background">
+<!-- NavigationDrawer -->
+<nav class="w-[280px] h-full fixed left-0 top-0 hidden md:block bg-on-secondary-fixed-variant shadow-md flex flex-col py-md z-50">
+<div class="px-6 mb-8">
+<h1 class="text-headline-md font-headline-md font-bold text-white">Autoescuela Camacho</h1>
+<p class="text-white/60 font-body-sm text-body-sm">Student Portal</p>
+</div>
+<div class="flex flex-col gap-1 flex-grow">
+<a class="flex items-center gap-3 px-4 py-3 text-surface-container-high hover:bg-white/10 rounded-lg mx-2 transition-colors active:scale-95 duration-150" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-body-base text-body-base">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 bg-primary text-white rounded-lg mx-2 transition-colors active:scale-95 duration-150" href="#">
+<span class="material-symbols-outlined">directions_car</span>
+<span class="font-body-base text-body-base">Practical</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-surface-container-high hover:bg-white/10 rounded-lg mx-2 transition-colors active:scale-95 duration-150" href="#">
+<span class="material-symbols-outlined">school</span>
+<span class="font-body-base text-body-base">Theoretical</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-surface-container-high hover:bg-white/10 rounded-lg mx-2 transition-colors active:scale-95 duration-150" href="#">
+<span class="material-symbols-outlined">assignment</span>
+<span class="font-body-base text-body-base">Exams</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-surface-container-high hover:bg-white/10 rounded-lg mx-2 transition-colors active:scale-95 duration-150" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-body-base text-body-base">Settings</span>
+</a>
+</div>
+<div class="px-6 mt-auto border-t border-white/10 pt-4">
+<div class="flex items-center gap-3">
+<img alt="User profile photo" class="w-10 h-10 rounded-full border-2 border-primary" data-alt="A professional headshot of a middle-aged man with a friendly expression, wearing a clean white shirt. The background is a soft, out-of-focus modern office setting. The lighting is bright and natural, maintaining a high-end corporate SaaS aesthetic consistent with the Blue and White brand palette." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA9BRhvIEWwNpd9PICO-7L4kCQn2VuRZyrMBBa5jNgWXNGij9Fb1F14KNE_49g5ZedwGH2oDy3bsWgW0qSP3xr6Ythcxh2kkM1e1ihq8ufKqynkVGr4o2ZEO1-OtylFG8YjN6lufdHQWSBFUvy9jFsowvnnUe6Su4u4yGRA7CuOCTQiWKLgPji7MKEWaF4M6UqNC18HZR72hUhZqHkEC_B-Zhva00I9j5MXvoDTS-4mp_TfxsPvOmrRBFQVcb4F5hHkTNV9DSByn04"/>
+<div>
+<p class="text-white font-bold text-body-sm">Admin Camacho</p>
+<p class="text-white/40 text-[10px]">v2.1.0</p>
+</div>
+</div>
+</div>
+</nav>
+<!-- Main Content Wrapper -->
+<div class="md:ml-[280px] min-h-screen flex flex-col">
+<!-- TopAppBar -->
+<header class="w-full sticky top-0 z-40 bg-surface/80 backdrop-blur-md border-b border-outline-variant/30 flex justify-between items-center px-gutter h-16">
+<div class="flex items-center gap-4">
+<span class="material-symbols-outlined md:hidden text-primary">menu</span>
+<h2 class="text-headline-md font-headline-md font-bold text-primary">Gestión de Flota</h2>
+</div>
+<div class="flex items-center gap-4">
+<div class="hidden md:flex items-center bg-surface-container rounded-full px-4 py-1.5 focus-within:ring-2 focus-within:ring-primary transition-all">
+<span class="material-symbols-outlined text-on-surface-variant text-sm mr-2">search</span>
+<input class="bg-transparent border-none text-body-sm focus:ring-0 w-48 text-on-surface" placeholder="Buscar vehículo..." type="text"/>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant">notifications</span>
+</div>
+</header>
+<!-- Canvas -->
+<main class="flex-grow p-gutter md:p-lg max-w-container-max w-full mx-auto">
+<!-- Quick Stats Bento Grid -->
+<section class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-lg">
+<div class="bg-white p-6 rounded-xl border border-outline-variant/30 shadow-sm flex flex-col justify-between">
+<span class="material-symbols-outlined text-primary mb-2">directions_car</span>
+<div>
+<p class="text-label-caps font-label-caps text-on-surface-variant">TOTAL FLOTA</p>
+<h3 class="text-headline-md font-headline-md text-on-surface">24</h3>
+</div>
+</div>
+<div class="bg-white p-6 rounded-xl border border-outline-variant/30 shadow-sm flex flex-col justify-between">
+<span class="material-symbols-outlined text-green-600 mb-2">check_circle</span>
+<div>
+<p class="text-label-caps font-label-caps text-on-surface-variant">DISPONIBLES</p>
+<h3 class="text-headline-md font-headline-md text-on-surface">18</h3>
+</div>
+</div>
+<div class="bg-white p-6 rounded-xl border border-outline-variant/30 shadow-sm flex flex-col justify-between">
+<span class="material-symbols-outlined text-tertiary mb-2">engineering</span>
+<div>
+<p class="text-label-caps font-label-caps text-on-surface-variant">EN TALLER</p>
+<h3 class="text-headline-md font-headline-md text-on-surface">3</h3>
+</div>
+</div>
+<div class="bg-white p-6 rounded-xl border border-outline-variant/30 shadow-sm flex flex-col justify-between border-l-4 border-l-error">
+<span class="material-symbols-outlined text-error mb-2">warning</span>
+<div>
+<p class="text-label-caps font-label-caps text-on-surface-variant">ALERTAS CRÍTICAS</p>
+<h3 class="text-headline-md font-headline-md text-on-surface">2</h3>
+</div>
+</div>
+</section>
+<!-- Maintenance Alerts -->
+<section class="mb-lg">
+<div class="bg-error-container/40 border border-error/20 p-4 rounded-xl flex items-center gap-4">
+<div class="bg-error text-white p-2 rounded-lg">
+<span class="material-symbols-outlined">priority_high</span>
+</div>
+<div class="flex-grow">
+<h4 class="font-bold text-on-error-container text-body-base">Alerta de mantenimiento: Toyota Yaris (4432-LMN)</h4>
+<p class="text-body-sm text-on-error-container/80">Revisión de frenos obligatoria vencida hace 3 días. Vehículo marcado como "No Operativo".</p>
+</div>
+<button class="px-4 py-2 bg-error text-white rounded-lg text-body-sm font-bold shadow-sm hover:opacity-90 transition-opacity">
+                        Gestionar
+                    </button>
+</div>
+</section>
+<!-- Vehicle List (Cards) -->
+<div class="flex justify-between items-center mb-sm">
+<h3 class="font-headline-md text-headline-md text-on-surface">Listado de Vehículos</h3>
+<div class="flex gap-2">
+<button class="p-2 border border-outline-variant rounded-lg hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined">filter_list</span>
+</button>
+<button class="bg-primary text-white px-4 py-2 rounded-lg flex items-center gap-2 font-bold text-body-sm shadow-md hover:opacity-90 transition-opacity">
+<span class="material-symbols-outlined text-sm">add</span>
+                        Añadir Vehículo
+                    </button>
+</div>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+<!-- Vehicle Card 1 -->
+<div class="bg-white rounded-xl border border-outline-variant/30 shadow-sm overflow-hidden flex flex-col md:flex-row">
+<div class="md:w-48 h-48 md:h-auto relative">
+<img alt="White driving school car" class="w-full h-full object-cover" data-alt="A modern white compact car parked in a well-lit urban environment with driving school decals on the doors. The scene is bright and professional, emphasizing cleanliness and reliability. The lighting is crisp, morning sun, casting soft shadows, following the modern corporate aesthetic of the driving school portal." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDgx3pC8w1upyawnq1e_e1xvj8LK-7Z9UiIoO4G91STObebdTEUDPep_gl-nKgnFA3r53lR4qViCHOTuA-ThFWWDi2mIXn6VKBbVJO5nbStwGAh22XjJ3PtmqJj4jQrhDbuPvseUP8djq8idMtm42x7clAh3pZ5PQnnYHRNukNFplieBW6c2Rc2CJdLHd4u90z5Ok7--kgJJb1ektgQd4K8eUwB1czRJSBTd0Wkxtma-rcaiFZdRXPR_8fGc1ERd72CRRbqcxWgpTs"/>
+<div class="absolute top-2 left-2 bg-on-surface/80 text-white text-[10px] px-2 py-1 rounded font-bold uppercase tracking-wider">Manual</div>
+</div>
+<div class="flex-grow p-6">
+<div class="flex justify-between items-start mb-4">
+<div>
+<h4 class="font-bold text-headline-md text-on-surface">Seat Ibiza 2023</h4>
+<p class="text-body-sm text-on-surface-variant font-mono">1234-KBC</p>
+</div>
+<span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border border-green-200">Disponible</span>
+</div>
+<div class="space-y-4">
+<!-- Fuel/Battery -->
+<div>
+<div class="flex justify-between mb-1">
+<span class="text-label-caps font-label-caps text-on-surface-variant">Combustible</span>
+<span class="text-label-caps font-label-caps text-on-surface">82%</span>
+</div>
+<div class="w-full bg-surface-container rounded-full h-1.5">
+<div class="bg-primary h-1.5 rounded-full" style="width: 82%"></div>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-on-surface-variant text-md">speed</span>
+<span class="text-body-sm text-on-surface">45.200 km</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-on-surface-variant text-md">calendar_today</span>
+<span class="text-body-sm text-on-surface">ITV: Oct 2024</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Vehicle Card 2 -->
+<div class="bg-white rounded-xl border border-outline-variant/30 shadow-sm overflow-hidden flex flex-col md:flex-row">
+<div class="md:w-48 h-48 md:h-auto relative">
+<img alt="Electric vehicle charging" class="w-full h-full object-cover" data-alt="A sleek electric hatchback car plugged into a modern charging station in a bright, futuristic parking facility. The lighting is cool and blue-toned, highlighting the technological aspect of the vehicle. The overall composition is clean and minimalist, perfectly fitting the Instructional and Efficient brand identity." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAwqfVbEWmH_f2AnLAfyEOLnzqQlEs3-xHK0vCR01-GZP8AVQA8u-1b3w4J4kLA8vUJKbov57xRX_N0xvCKX1Xy86zHtr_LzV9zePoP_FPt9TuAG8mswhcoVCNE5YuFEUkZVVb2nPRAHeOctQvZOpp-lEOPE-d355eixiL_Zs3t7xcKc_pX6FoCCafSJcJh4kbmG_qzKyEeqCwqCh_bLA0Aupof7_k_YBcPt88hPFffs95yfM6ij_TL0C7heKrPwPJMHYvix8PAO0Y"/>
+<div class="absolute top-2 left-2 bg-tertiary text-white text-[10px] px-2 py-1 rounded font-bold uppercase tracking-wider">Eléctrico</div>
+</div>
+<div class="flex-grow p-6">
+<div class="flex justify-between items-start mb-4">
+<div>
+<h4 class="font-bold text-headline-md text-on-surface">Tesla Model 3</h4>
+<p class="text-body-sm text-on-surface-variant font-mono">8821-MMX</p>
+</div>
+<span class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border border-blue-200">En Uso</span>
+</div>
+<div class="space-y-4">
+<div>
+<div class="flex justify-between mb-1">
+<span class="text-label-caps font-label-caps text-on-surface-variant">Batería</span>
+<span class="text-label-caps font-label-caps text-on-surface">34%</span>
+</div>
+<div class="w-full bg-surface-container rounded-full h-1.5">
+<div class="bg-tertiary-container h-1.5 rounded-full" style="width: 34%"></div>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-on-surface-variant text-md">person</span>
+<span class="text-body-sm text-on-surface">Prof. Carlos S.</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-on-surface-variant text-md">timer</span>
+<span class="text-body-sm text-on-surface">Libre en 45m</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Vehicle Card 3 (Maintenance) -->
+<div class="bg-white rounded-xl border border-outline-variant/30 shadow-sm overflow-hidden flex flex-col md:flex-row opacity-80">
+<div class="md:w-48 h-48 md:h-auto relative grayscale">
+<img alt="Car in repair" class="w-full h-full object-cover" data-alt="Close up of a car engine undergoing maintenance in a professional, clean garage setting. Tools are neatly organized in the background. The lighting is bright and industrial, emphasizing reliability and care. The image is presented with a slight desaturation to indicate the vehicle's non-operational status." src="https://lh3.googleusercontent.com/aida-public/AB6AXuC6vjODYqDB6fufkTgKSjOX8aBE0jDkCu8DFJMB-3csVIU13-iWRo9tvJBJUUSwYyVUzxx7NxIICOWnFbOpJ-3UbqrAOUPTDtoagiWERKWpLdc0Z_vT8F17u0fuJYGV108LtA2d2MEGnB06b2YT2yfhY_0XRTVaCHPRbzbrXFCoXpHD3QIf9PoroDXedS32OY_6B9u4R0h-HdY4M6QyKNnv43I0RUV14QGA8duVDrghMpoDV52sIicgdIezpknrqoF2-1Gup_SzcbM"/>
+<div class="absolute inset-0 bg-on-surface/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-white text-4xl">build</span>
+</div>
+</div>
+<div class="flex-grow p-6 bg-surface-container-low/30">
+<div class="flex justify-between items-start mb-4">
+<div>
+<h4 class="font-bold text-headline-md text-on-surface">Toyota Yaris Hybrid</h4>
+<p class="text-body-sm text-on-surface-variant font-mono">4432-LMN</p>
+</div>
+<span class="bg-error-container text-on-error-container px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border border-error/20">Mantenimiento</span>
+</div>
+<div class="space-y-4">
+<div class="p-3 bg-error-container/50 rounded-lg border border-error/10">
+<p class="text-label-caps font-label-caps text-error mb-1">Motivo de ingreso</p>
+<p class="text-body-sm text-on-error-container font-bold">Cambio de pastillas de freno y revisión 50k</p>
+</div>
+<div class="flex items-center justify-between">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-on-surface-variant text-md">event</span>
+<span class="text-body-sm text-on-surface">Entrega est.: Mañana</span>
+</div>
+<button class="text-primary font-bold text-body-sm hover:underline">Ver Taller</button>
+</div>
+</div>
+</div>
+</div>
+<!-- Vehicle Card 4 -->
+<div class="bg-white rounded-xl border border-outline-variant/30 shadow-sm overflow-hidden flex flex-col md:flex-row">
+<div class="md:w-48 h-48 md:h-auto relative">
+<img alt="Driving school car" class="w-full h-full object-cover" data-alt="A clean, modern sedan with driving school branding, parked on a suburban street. The lighting is golden hour, warm and inviting. The scene conveys trust and professional training. The car is in pristine condition, showing the high standards of the fleet management portal." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCDUl5DQzcCoDxlk8rDT0sBYPv2HLFh7VX49O3qTdduRU1lEh_XxHx0uMkTjx7zI7V4QUdTI8xYYp6QQWhqkUqmdqPIg_lMs85PPCKkna07ShgtcecLzSUAwE5Bv8V7gN8K7ravvQSaFFVMeUYcCH5eAvNt23YRilzaeR4g0AMoC8xwUgXlVnpqT0e8PS-MFs-SSbB7O6_T1JDtLgCfTc6fYnCrrKqmDMr0gE83Lnf_fmcbefcCU5H6Jas0PvwZNTNqMVhrcHzxFDM"/>
+<div class="absolute top-2 left-2 bg-on-surface/80 text-white text-[10px] px-2 py-1 rounded font-bold uppercase tracking-wider">Automático</div>
+</div>
+<div class="flex-grow p-6">
+<div class="flex justify-between items-start mb-4">
+<div>
+<h4 class="font-bold text-headline-md text-on-surface">Volkswagen Polo</h4>
+<p class="text-body-sm text-on-surface-variant font-mono">9912-JHG</p>
+</div>
+<span class="bg-green-100 text-green-700 px-3 py-1 rounded-full text-[10px] font-bold uppercase tracking-widest border border-green-200">Disponible</span>
+</div>
+<div class="space-y-4">
+<div>
+<div class="flex justify-between mb-1">
+<span class="text-label-caps font-label-caps text-on-surface-variant">Combustible</span>
+<span class="text-label-caps font-label-caps text-on-surface">58%</span>
+</div>
+<div class="w-full bg-surface-container rounded-full h-1.5">
+<div class="bg-primary h-1.5 rounded-full" style="width: 58%"></div>
+</div>
+</div>
+<div class="grid grid-cols-2 gap-4">
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-on-surface-variant text-md">speed</span>
+<span class="text-body-sm text-on-surface">12.800 km</span>
+</div>
+<div class="flex items-center gap-2">
+<span class="material-symbols-outlined text-on-surface-variant text-md">calendar_today</span>
+<span class="text-body-sm text-on-surface">ITV: Ene 2025</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Footer -->
+<footer class="w-full py-xl bg-surface-container-low border-t border-outline-variant mt-lg">
+<div class="flex flex-col md:flex-row justify-between items-center px-gutter max-w-container-max mx-auto gap-4">
+<p class="text-body-sm text-on-surface-variant">© 2024 Autoescuela Camacho. Todos los derechos reservados.</p>
+<div class="flex gap-6">
+<a class="text-body-sm text-on-surface-variant hover:text-primary transition-colors cursor-pointer" href="#">Privacy Policy</a>
+<a class="text-body-sm text-on-surface-variant hover:text-primary transition-colors cursor-pointer" href="#">Terms of Service</a>
+<a class="text-body-sm text-on-surface-variant hover:text-primary transition-colors cursor-pointer" href="#">Contact Support</a>
+</div>
+</div>
+</footer>
+</div>
+<!-- BottomNavBar -->
+<nav class="fixed bottom-0 w-full md:hidden rounded-t-xl bg-surface border-t border-outline-variant/30 shadow-[0_-4px_10px_rgba(0,0,0,0.05)] flex justify-around items-center h-16 px-2 pb-safe z-50">
+<a class="flex flex-col items-center justify-center text-on-surface-variant active:bg-surface-container transition-transform scale-95" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="text-label-caps font-label-caps">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-primary font-bold active:bg-surface-container transition-transform scale-95" href="#">
+<span class="material-symbols-outlined">directions_car</span>
+<span class="text-label-caps font-label-caps">Lessons</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant active:bg-surface-container transition-transform scale-95" href="#">
+<span class="material-symbols-outlined">history_edu</span>
+<span class="text-label-caps font-label-caps">Exams</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant active:bg-surface-container transition-transform scale-95" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="text-label-caps font-label-caps">Profile</span>
+</a>
+</nav>
+</body></html>

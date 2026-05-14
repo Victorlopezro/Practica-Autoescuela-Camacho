@@ -1,0 +1,321 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary-fixed-dim": "#87ceff",
+                        "primary-container": "#007cb0",
+                        "primary": "#00628c",
+                        "on-surface-variant": "#3e4850",
+                        "surface-container-high": "#dce9ff",
+                        "primary-fixed": "#c8e6ff",
+                        "surface-dim": "#cbdbf5",
+                        "on-secondary-fixed": "#001256",
+                        "secondary-fixed-dim": "#b9c3ff",
+                        "on-error": "#ffffff",
+                        "background": "#f8f9ff",
+                        "secondary": "#4558ae",
+                        "tertiary-fixed": "#ffddb8",
+                        "on-primary": "#ffffff",
+                        "surface-container-highest": "#d3e4fe",
+                        "on-background": "#0b1c30",
+                        "tertiary-fixed-dim": "#ffb95f",
+                        "on-secondary-fixed-variant": "#2b3f94",
+                        "surface-variant": "#d3e4fe",
+                        "surface-container": "#e5eeff",
+                        "on-tertiary-fixed-variant": "#653e00",
+                        "on-tertiary": "#ffffff",
+                        "error": "#ba1a1a",
+                        "outline-variant": "#bec8d1",
+                        "surface-container-lowest": "#ffffff",
+                        "on-tertiary-fixed": "#2a1700",
+                        "on-error-container": "#93000a",
+                        "outline": "#6f7881",
+                        "tertiary": "#825100",
+                        "secondary-container": "#90a3ff",
+                        "inverse-primary": "#87ceff",
+                        "inverse-on-surface": "#eaf1ff",
+                        "surface-tint": "#006590",
+                        "inverse-surface": "#213145",
+                        "on-primary-fixed-variant": "#004c6d",
+                        "on-primary-fixed": "#001e2e",
+                        "on-secondary-container": "#20358b",
+                        "on-secondary": "#ffffff",
+                        "surface-bright": "#f8f9ff",
+                        "tertiary-container": "#a36700",
+                        "on-tertiary-container": "#fffbff",
+                        "on-surface": "#0b1c30",
+                        "error-container": "#ffdad6",
+                        "surface": "#f8f9ff",
+                        "secondary-fixed": "#dde1ff",
+                        "on-primary-container": "#fcfcff",
+                        "surface-container-low": "#eff4ff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "base": "4px",
+                        "container-max": "1280px",
+                        "sm": "1rem",
+                        "lg": "2.5rem",
+                        "xl": "4rem",
+                        "md": "1.5rem",
+                        "gutter": "1.5rem",
+                        "xs": "0.5rem"
+                    },
+                    "fontFamily": {
+                        "display-lg-mobile": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "label-caps": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "body-base": ["Inter"],
+                        "display-lg": ["Inter"]
+                    },
+                    "fontSize": {
+                        "display-lg-mobile": ["36px", {"lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "label-caps": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "body-base": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        body {
+            min-height: max(884px, 100dvh);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-surface antialiased min-h-screen flex flex-col">
+<!-- TopAppBar -->
+<header class="w-full sticky top-0 z-40 bg-surface/80 dark:bg-surface-dim/80 backdrop-blur-md border-b border-outline-variant/30 flex justify-between items-center px-gutter h-16 md:ml-[280px]">
+<div class="flex items-center gap-xs">
+<button class="material-symbols-outlined text-primary p-2">menu</button>
+<h1 class="font-headline-md text-headline-md text-primary dark:text-inverse-primary font-bold">Perfil</h1>
+</div>
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-on-surface-variant">search</span>
+</div>
+</header>
+<!-- Side Navigation (Desktop only) -->
+<aside class="w-[280px] h-full fixed left-0 top-0 hidden md:block bg-on-secondary-fixed-variant dark:bg-inverse-surface shadow-md flex flex-col py-md z-50">
+<div class="px-gutter mb-lg">
+<span class="text-headline-md font-headline-md font-bold text-white">Autoescuela Camacho</span>
+<p class="text-white/70 text-body-sm font-body-sm">Portal del Alumno</p>
+</div>
+<nav class="flex-1 space-y-1">
+<div class="flex items-center gap-3 px-4 py-3 text-surface-container-high hover:bg-white/10 rounded-lg mx-2 transition-colors cursor-pointer active:scale-95 duration-150">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-body-base text-body-base">Panel de Control</span>
+</div>
+<div class="flex items-center gap-3 px-4 py-3 text-surface-container-high hover:bg-white/10 rounded-lg mx-2 transition-colors cursor-pointer active:scale-95 duration-150">
+<span class="material-symbols-outlined">school</span>
+<span class="font-body-base text-body-base">Teórica</span>
+</div>
+<div class="flex items-center gap-3 px-4 py-3 text-surface-container-high hover:bg-white/10 rounded-lg mx-2 transition-colors cursor-pointer active:scale-95 duration-150">
+<span class="material-symbols-outlined">directions_car</span>
+<span class="font-body-base text-body-base">Práctica</span>
+</div>
+<div class="flex items-center gap-3 px-4 py-3 text-surface-container-high hover:bg-white/10 rounded-lg mx-2 transition-colors cursor-pointer active:scale-95 duration-150">
+<span class="material-symbols-outlined">assignment</span>
+<span class="font-body-base text-body-base">Exámenes</span>
+</div>
+<div class="flex items-center gap-3 px-4 py-3 bg-primary text-white rounded-lg mx-2 transition-colors cursor-pointer active:scale-95 duration-150">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">settings</span>
+<span class="font-body-base text-body-base">Configuración</span>
+</div>
+</nav>
+<div class="px-gutter pt-md border-t border-white/10">
+<div class="flex items-center gap-sm">
+<img alt="User profile photo" class="w-10 h-10 rounded-full border-2 border-primary-fixed" data-alt="A professional studio portrait of a young male student with a friendly smile, dressed in a clean white t-shirt. The background is a soft, out-of-focus azure blue that matches the corporate branding colors. The lighting is high-key and even, emphasizing clarity and reliability in a modern SaaS interface style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuANnPn80XCJYAakCUa8AbTk14v9kuTyFljQDBACGAXagMFdqGiFdwU2aa2fUx6A2CEk3A6XDC9YTKViViq6HjHv9j3NyBnNRhTyzIHVbcHmv7hJ0YELcsxinH8NGuH6eHYpKIkOJFDSViCSURqz5xF4dVfZbdh9n0-fExBD_WB4qtmLMQC4kPRo0felWz-1IgwmnY6HD1dBBfyOSePjrst3oEgpxjartW9Mb1IaApQGnYNC8b-G3bKBmZY_S7OZUKX-Nbc_20bfQnc"/>
+<div>
+<p class="text-white font-bold text-body-sm">Carlos Camacho</p>
+<p class="text-white/60 text-[10px]">v2.1.0</p>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Canvas -->
+<main class="flex-1 md:ml-[280px] p-gutter pb-32">
+<div class="max-w-3xl mx-auto space-y-lg">
+<!-- Hero Profile Card -->
+<section class="bg-surface-container-lowest rounded-xl border border-outline-variant/30 shadow-[0_2px_4px_rgba(0,0,0,0.05)] p-md flex flex-col items-center text-center">
+<div class="relative">
+<img alt="User profile photo" class="w-24 h-24 rounded-full border-4 border-surface-container shadow-sm object-cover" data-alt="Detailed close-up portrait of a student for a digital profile, featuring clean lighting and a minimalist aesthetic. The subject has a confident and approachable expression, set against a neutral, high-quality studio backdrop. The image uses a cool-toned color palette of blues and whites to integrate seamlessly with the modern corporate UI." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAXbgfpwfu1GXGRaHo-y9RegpOVXXLVlZBzdLld4iKaKmzX4D7HiSSDHa18ybgW02Ggzz-Dxn2t7OkydkjqOF1-NnBHzP6Klj0DXalTqMlc7gvGUuQ033izFnEtjrO-vU_5M4MPSSUdPUxjIb0l1jXjFkN86l8JML6JqwMRcElAZe53OKo4mqWUOdgfnu7wiYtrnCvfCI1aGx5RtNp--TYCftJB9vb77vB4xal5nLqxEvQtxbz5Sl1FpHlTj3NaEWag_wd5SbFSLXc"/>
+<button class="absolute bottom-0 right-0 bg-primary text-white p-2 rounded-full shadow-md active:scale-95 transition-transform">
+<span class="material-symbols-outlined text-[18px]">edit</span>
+</button>
+</div>
+<h2 class="mt-md font-headline-md text-headline-md text-on-surface">Carlos Camacho</h2>
+<div class="flex gap-xs mt-xs">
+<span class="px-3 py-1 bg-primary-fixed text-on-primary-fixed-variant font-label-caps text-label-caps rounded-full">ID Alumno: #82910</span>
+<span class="px-3 py-1 bg-secondary-container text-on-secondary-container font-label-caps text-label-caps rounded-full">Permiso Clase B</span>
+</div>
+</section>
+<!-- Personal Data & Documents Bento Grid -->
+<div class="grid grid-cols-1 md:grid-cols-2 gap-md">
+<!-- Personal Info -->
+<section class="bg-surface-container-lowest rounded-xl border border-outline-variant/30 p-md space-y-md">
+<h3 class="font-label-caps text-label-caps text-on-surface-variant flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">person</span> INFORMACIÓN PERSONAL
+                    </h3>
+<div class="space-y-sm">
+<div class="flex justify-between border-b border-outline-variant/10 pb-2">
+<span class="text-body-sm font-body-sm text-outline">Nombre Completo</span>
+<span class="text-body-sm font-body-sm text-on-surface font-semibold">Carlos Javier Camacho</span>
+</div>
+<div class="flex justify-between border-b border-outline-variant/10 pb-2">
+<span class="text-body-sm font-body-sm text-outline">Correo electrónico</span>
+<span class="text-body-sm font-body-sm text-on-surface font-semibold">carlos.c@example.com</span>
+</div>
+<div class="flex justify-between border-b border-outline-variant/10 pb-2">
+<span class="text-body-sm font-body-sm text-outline">Teléfono</span>
+<span class="text-body-sm font-body-sm text-on-surface font-semibold">+34 612 345 678</span>
+</div>
+</div>
+</section>
+<!-- Document Status -->
+<section class="bg-surface-container-lowest rounded-xl border border-outline-variant/30 p-md space-y-md">
+<h3 class="font-label-caps text-label-caps text-on-surface-variant flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">description</span> DOCUMENTACIÓN
+                    </h3>
+<div class="space-y-sm">
+<div class="flex items-center justify-between p-2 rounded-lg bg-surface-container-low">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-primary">badge</span>
+<span class="text-body-sm font-body-sm text-on-surface">DNI / NIE</span>
+</div>
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+<div class="flex items-center justify-between p-2 rounded-lg bg-surface-container-low">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-primary">medical_services</span>
+<span class="text-body-sm font-body-sm text-on-surface">Certificado Médico</span>
+</div>
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">check_circle</span>
+</div>
+<div class="flex items-center justify-between p-2 rounded-lg bg-error-container/20">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-error">photo_camera</span>
+<span class="text-body-sm font-body-sm text-on-surface">Foto Digital</span>
+</div>
+<span class="material-symbols-outlined text-error">pending</span>
+</div>
+</div>
+</section>
+</div>
+<!-- Settings Toggles -->
+<section class="bg-surface-container-lowest rounded-xl border border-outline-variant/30 p-md space-y-md">
+<h3 class="font-label-caps text-label-caps text-on-surface-variant flex items-center gap-2">
+<span class="material-symbols-outlined text-[18px]">settings</span> PREFERENCIAS Y SEGURIDAD
+                </h3>
+<div class="space-y-2">
+<!-- Toggle Item -->
+<div class="flex items-center justify-between py-3">
+<div class="flex items-center gap-md">
+<div class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center">
+<span class="material-symbols-outlined text-primary">dark_mode</span>
+</div>
+<div>
+<p class="text-body-base font-body-base font-semibold text-on-surface">Modo Oscuro</p>
+<p class="text-body-sm font-body-sm text-outline">Ajustar apariencia visual</p>
+</div>
+</div>
+<div class="w-12 h-6 bg-outline-variant rounded-full relative p-1 cursor-pointer">
+<div class="w-4 h-4 bg-white rounded-full transition-all"></div>
+</div>
+</div>
+<!-- Toggle Item Active -->
+<div class="flex items-center justify-between py-3 border-t border-outline-variant/10">
+<div class="flex items-center gap-md">
+<div class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center">
+<span class="material-symbols-outlined text-primary">notifications_active</span>
+</div>
+<div>
+<p class="text-body-base font-body-base font-semibold text-on-surface">Recordatorios de Clases</p>
+<p class="text-body-sm font-body-sm text-outline">Notificaciones para tus clases</p>
+</div>
+</div>
+<div class="w-12 h-6 bg-primary rounded-full relative p-1 cursor-pointer">
+<div class="w-4 h-4 bg-white rounded-full absolute right-1"></div>
+</div>
+</div>
+<!-- Toggle Item Active -->
+<div class="flex items-center justify-between py-3 border-t border-outline-variant/10">
+<div class="flex items-center gap-md">
+<div class="w-10 h-10 rounded-full bg-surface-container-high flex items-center justify-center">
+<span class="material-symbols-outlined text-primary">security</span>
+</div>
+<div>
+<p class="text-body-base font-body-base font-semibold text-on-surface">Seguridad de la Cuenta</p>
+<p class="text-body-sm font-body-sm text-outline">Autenticación en dos pasos</p>
+</div>
+</div>
+<div class="w-12 h-6 bg-primary rounded-full relative p-1 cursor-pointer">
+<div class="w-4 h-4 bg-white rounded-full absolute right-1"></div>
+</div>
+</div>
+</div>
+</section>
+<button class="w-full py-md bg-error-container text-error font-body-base text-body-base font-bold rounded-xl flex items-center justify-center gap-2 active:scale-[0.98] transition-transform">
+<span class="material-symbols-outlined">logout</span>
+                Cerrar sesión
+            </button>
+</div>
+</main>
+<!-- BottomNavBar (Mobile only) -->
+<nav class="fixed bottom-0 w-full md:hidden rounded-t-xl bg-surface dark:bg-inverse-surface border-t border-outline-variant/30 shadow-[0_-4px_10px_rgba(0,0,0,0.05)] flex justify-around items-center h-16 px-2 pb-safe z-50">
+<div class="flex flex-col items-center justify-center text-on-surface-variant active:bg-surface-container p-2 rounded-lg transition-transform scale-95">
+<span class="material-symbols-outlined">home</span>
+<span class="font-label-caps text-label-caps">Inicio</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant active:bg-surface-container p-2 rounded-lg transition-transform scale-95">
+<span class="material-symbols-outlined">directions_car</span>
+<span class="font-label-caps text-label-caps">Clases</span>
+</div>
+<div class="flex flex-col items-center justify-center text-on-surface-variant active:bg-surface-container p-2 rounded-lg transition-transform scale-95">
+<span class="material-symbols-outlined">history_edu</span>
+<span class="font-label-caps text-label-caps">Exámenes</span>
+</div>
+<div class="flex flex-col items-center justify-center text-primary font-bold active:bg-surface-container p-2 rounded-lg transition-transform scale-95">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">person</span>
+<span class="font-label-caps text-label-caps">Perfil</span>
+</div>
+</nav>
+<!-- Footer -->
+<footer class="w-full py-xl bg-surface-container-low dark:bg-surface-container-lowest border-t border-outline-variant md:ml-[280px] mt-auto">
+<div class="flex flex-col md:flex-row justify-between items-center px-gutter max-w-container-max mx-auto gap-md">
+<p class="text-body-base font-bold text-on-surface">Autoescuela Camacho</p>
+<div class="flex gap-md">
+<span class="text-on-surface-variant hover:text-primary font-body-sm text-body-sm cursor-pointer transition-colors">Política de Privacidad</span>
+<span class="text-on-surface-variant hover:text-primary font-body-sm text-body-sm cursor-pointer transition-colors">Términos de Servicio</span>
+<span class="text-on-surface-variant hover:text-primary font-body-sm text-body-sm cursor-pointer transition-colors">Atención al Alumno</span>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">© 2024 Autoescuela Camacho. Todos los derechos reservados.</p>
+</div>
+</footer>
+</body></html>

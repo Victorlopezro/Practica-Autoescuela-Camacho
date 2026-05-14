@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+
+<html lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "on-secondary-container": "#20358b",
+                      "primary": "#00628c",
+                      "on-secondary-fixed-variant": "#2b3f94",
+                      "surface-container-high": "#dce9ff",
+                      "error-container": "#ffdad6",
+                      "secondary": "#4558ae",
+                      "on-tertiary-container": "#fffbff",
+                      "on-primary-fixed": "#001e2e",
+                      "surface-dim": "#cbdbf5",
+                      "on-primary-fixed-variant": "#004c6d",
+                      "inverse-on-surface": "#eaf1ff",
+                      "secondary-container": "#90a3ff",
+                      "surface-bright": "#f8f9ff",
+                      "tertiary-fixed-dim": "#ffb95f",
+                      "surface-variant": "#d3e4fe",
+                      "surface-container-lowest": "#ffffff",
+                      "primary-fixed-dim": "#87ceff",
+                      "primary-fixed": "#c8e6ff",
+                      "on-surface-variant": "#3e4850",
+                      "on-primary-container": "#fcfcff",
+                      "on-primary": "#ffffff",
+                      "primary-container": "#007cb0",
+                      "secondary-fixed": "#dde1ff",
+                      "surface": "#f8f9ff",
+                      "on-tertiary": "#ffffff",
+                      "inverse-primary": "#87ceff",
+                      "tertiary-container": "#a36700",
+                      "on-tertiary-fixed": "#2a1700",
+                      "on-error-container": "#93000a",
+                      "error": "#ba1a1a",
+                      "on-surface": "#0b1c30",
+                      "secondary-fixed-dim": "#b9c3ff",
+                      "on-secondary": "#ffffff",
+                      "tertiary-fixed": "#ffddb8",
+                      "on-background": "#0b1c30",
+                      "surface-container-highest": "#d3e4fe",
+                      "outline-variant": "#bec8d1",
+                      "on-secondary-fixed": "#001256",
+                      "on-error": "#ffffff",
+                      "background": "#f8f9ff",
+                      "inverse-surface": "#213145",
+                      "surface-tint": "#006590",
+                      "surface-container-low": "#eff4ff",
+                      "surface-container": "#e5eeff",
+                      "outline": "#6f7881",
+                      "on-tertiary-fixed-variant": "#653e00",
+                      "tertiary": "#825100"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.25rem",
+                      "lg": "0.5rem",
+                      "xl": "0.75rem",
+                      "full": "9999px"
+              },
+              "spacing": {
+                      "xl": "4rem",
+                      "gutter": "1.5rem",
+                      "sm": "1rem",
+                      "base": "4px",
+                      "md": "1.5rem",
+                      "lg": "2.5rem",
+                      "container-max": "1280px",
+                      "xs": "0.5rem"
+              },
+              "fontFamily": {
+                      "body-base": ["Inter"],
+                      "display-lg-mobile": ["Inter"],
+                      "display-lg": ["Inter"],
+                      "label-caps": ["Inter"],
+                      "headline-md": ["Inter"],
+                      "body-sm": ["Inter"]
+              },
+              "fontSize": {
+                      "body-base": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                      "display-lg-mobile": ["36px", {"lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                      "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                      "label-caps": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                      "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                      "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}]
+              }
+            },
+          },
+        }
+    </script>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background font-body-base text-on-background">
+<!-- NavigationDrawer -->
+<aside class="w-[280px] h-full fixed left-0 top-0 hidden md:block bg-on-secondary-fixed-variant dark:bg-inverse-surface shadow-md z-50 flex flex-col h-full py-md">
+<div class="px-6 mb-lg">
+<h1 class="text-headline-md font-headline-md font-bold text-white">Autoescuela Camacho</h1>
+<p class="text-white/70 font-body-sm text-body-sm mt-1">Student Portal</p>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center gap-3 px-4 py-3 bg-primary text-white rounded-lg mx-2 transition-colors active:scale-95 duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="font-body-base text-body-base">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-surface-container-high hover:bg-white/10 rounded-lg mx-2 transition-colors active:scale-95 duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="school">school</span>
+<span class="font-body-base text-body-base">Theoretical</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-surface-container-high hover:bg-white/10 rounded-lg mx-2 transition-colors active:scale-95 duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="directions_car">directions_car</span>
+<span class="font-body-base text-body-base">Practical</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-surface-container-high hover:bg-white/10 rounded-lg mx-2 transition-colors active:scale-95 duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="assignment">assignment</span>
+<span class="font-body-base text-body-base">Exams</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-surface-container-high hover:bg-white/10 rounded-lg mx-2 transition-colors active:scale-95 duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="font-body-base text-body-base">Settings</span>
+</a>
+</nav>
+<div class="px-6 mt-auto">
+<div class="flex items-center gap-3 p-3 bg-white/5 rounded-xl border border-white/10">
+<div class="w-10 h-10 rounded-full overflow-hidden bg-surface-variant">
+<img alt="User profile photo" class="w-full h-full object-cover" data-alt="A professional headshot of a driving instructor with a friendly, expert appearance. He is wearing a clean navy polo shirt, set against a bright, modern office background with soft bokeh. The lighting is crisp and high-key, conveying reliability and instructional efficiency in a light-mode corporate aesthetic." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDMoHvIyEFLbZWLaTIHgViKm2elLntT0vdP6iUARLpl8yCo72J38LP76ISGa2mcxSlGgStAY0X6vI4y9d_BjIOePMpSv1SC6n5hpN_SxHBvRQ265MaOEQBcqOgI8iIi-hctxSzoziEjIn51yWavKhihBcBeRJxObtE1Q-PfZfXMkDRSTjHxUjcchLIlj7dIRCmh9krkRoKBZaNwug-PAaizcBwfSIzOz0HuNIUm6a9BcM7Dq0J4u_gvYJbAp026h7yTK2n7GLizkxg"/>
+</div>
+<div>
+<p class="text-white font-bold text-body-sm">Carlos García</p>
+<p class="text-white/60 text-xs">v2.1.0</p>
+</div>
+</div>
+</div>
+</aside>
+<!-- TopAppBar -->
+<header class="w-full sticky top-0 z-40 bg-surface/80 dark:bg-surface-dim/80 backdrop-blur-md border-b border-outline-variant/30 shadow-sm flex justify-between items-center px-gutter h-16 md:ml-[280px] md:w-[calc(100%-280px)]">
+<div class="flex items-center gap-4">
+<button class="md:hidden text-primary">
+<span class="material-symbols-outlined" data-icon="menu">menu</span>
+</button>
+<h2 class="font-headline-md text-headline-md font-bold text-primary dark:text-inverse-primary">Dashboard</h2>
+</div>
+<div class="flex items-center gap-sm">
+<div class="relative hidden sm:block">
+<input class="bg-surface-container-low border border-outline-variant rounded-full px-4 py-1.5 pl-10 text-body-sm focus:ring-2 focus:ring-primary outline-none transition-all" placeholder="Search..." type="text"/>
+<span class="material-symbols-outlined absolute left-3 top-1/2 -translate-y-1/2 text-outline" data-icon="search">search</span>
+</div>
+<button class="w-10 h-10 flex items-center justify-center text-on-surface-variant hover:bg-surface-container rounded-full transition-colors">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+</div>
+</header>
+<!-- Main Canvas -->
+<main class="md:ml-[280px] p-gutter min-h-[calc(100vh-64px)]">
+<div class="max-w-container-max mx-auto space-y-lg">
+<!-- Hero / Greeting -->
+<section>
+<h3 class="font-display-lg text-display-lg-mobile md:text-display-lg text-on-surface">¡Hola, Carlos!</h3>
+<p class="text-on-surface-variant font-body-base text-body-base">Aquí tienes el resumen de tu jornada para hoy, 24 de mayo.</p>
+</section>
+<!-- KPIs Section (Bento Style) -->
+<div class="grid grid-cols-1 md:grid-cols-3 gap-md">
+<div class="bg-white p-6 rounded-xl border border-outline-variant/30 shadow-[0_2px_4px_rgba(0,0,0,0.05)] flex items-center justify-between group hover:border-primary/30 transition-colors">
+<div>
+<p class="font-label-caps text-label-caps text-on-surface-variant mb-1 uppercase">Clases Hoy</p>
+<h4 class="text-display-lg-mobile font-bold text-primary">8</h4>
+<div class="flex items-center gap-1 text-on-tertiary-fixed-variant text-xs mt-2">
+<span class="material-symbols-outlined text-[14px]" data-icon="trending_up">trending_up</span>
+<span>2 más que ayer</span>
+</div>
+</div>
+<div class="w-14 h-14 bg-primary-fixed rounded-xl flex items-center justify-center text-primary">
+<span class="material-symbols-outlined text-[32px]" data-icon="calendar_today">calendar_today</span>
+</div>
+</div>
+<div class="bg-white p-6 rounded-xl border border-outline-variant/30 shadow-[0_2px_4px_rgba(0,0,0,0.05)] flex items-center justify-between group hover:border-primary/30 transition-colors">
+<div>
+<p class="font-label-caps text-label-caps text-on-surface-variant mb-1 uppercase">Alumnos Activos</p>
+<h4 class="text-display-lg-mobile font-bold text-on-surface">24</h4>
+<div class="flex items-center gap-1 text-on-surface-variant text-xs mt-2">
+<span class="material-symbols-outlined text-[14px]" data-icon="person">person</span>
+<span>3 en fase de examen</span>
+</div>
+</div>
+<div class="w-14 h-14 bg-surface-container-high rounded-xl flex items-center justify-center text-on-secondary-fixed-variant">
+<span class="material-symbols-outlined text-[32px]" data-icon="group">group</span>
+</div>
+</div>
+<div class="bg-white p-6 rounded-xl border border-outline-variant/30 shadow-[0_2px_4px_rgba(0,0,0,0.05)] flex items-center justify-between group hover:border-primary/30 transition-colors">
+<div>
+<p class="font-label-caps text-label-caps text-on-surface-variant mb-1 uppercase">Estado Vehículo</p>
+<h4 class="text-display-lg-mobile font-bold text-tertiary">Óptimo</h4>
+<div class="flex items-center gap-1 text-on-tertiary-fixed-variant text-xs mt-2">
+<span class="material-symbols-outlined text-[14px]" data-icon="build">build</span>
+<span>ITV en 45 días</span>
+</div>
+</div>
+<div class="w-14 h-14 bg-tertiary-fixed rounded-xl flex items-center justify-center text-tertiary">
+<span class="material-symbols-outlined text-[32px]" data-icon="directions_car">directions_car</span>
+</div>
+</div>
+</div>
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-lg">
+<!-- Main Schedule & Classes -->
+<div class="lg:col-span-8 space-y-md">
+<section class="bg-white rounded-xl border border-outline-variant/30 shadow-sm overflow-hidden">
+<div class="p-6 border-b border-outline-variant/20 flex justify-between items-center">
+<h3 class="font-headline-md text-headline-md text-on-surface">Próximas Clases</h3>
+<button class="text-primary font-label-caps text-label-caps hover:underline">Ver calendario completo</button>
+</div>
+<div class="divide-y divide-outline-variant/20">
+<!-- Class Item -->
+<div class="p-6 flex items-center gap-6 hover:bg-surface-container-low transition-colors cursor-pointer group">
+<div class="text-center min-w-[60px]">
+<p class="font-bold text-primary font-body-base text-body-base">08:00</p>
+<p class="text-on-surface-variant text-xs uppercase font-label-caps">45 min</p>
+</div>
+<div class="flex-1 flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-secondary-fixed overflow-hidden">
+<img alt="Student" class="w-full h-full object-cover" data-alt="Close-up portrait of a young woman smiling confidently, representing a student driver. The image is bright and airy with natural lighting, reflecting a positive learning environment. The aesthetic is clean and modern, consistent with high-end SaaS UI standards." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBmqGb1pEzI2tpVTTgIfYSVj7xlQ2fA101JD0kOqHeIrYDy6ljBeVswqo_Lj4xQR8zcYDZGK5PS78MqNKSfEg0mwz99k0Slpyk-SYjHIdFyA7v2bLPW44jripxr6mIzC5NC5k77RU31qu25W9GaJjoQtH5IVfGsI43Tm-mYvssAacnA6p2BGOYTjIMzg9chWwDcTNop7O0XhHBQI_6_dWPNqOFYQjdoOjIwDKkMA_sAG_kvR_9-00tYz-4GZ8kmmGpyR24vj_7zZKw"/>
+</div>
+<div>
+<h5 class="font-bold text-on-surface font-body-base text-body-base group-hover:text-primary transition-colors">Lucía Mendez</h5>
+<p class="text-on-surface-variant text-body-sm flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]" data-icon="location_on">location_on</span>
+                                            Punto de recogida: Puerta del Sol
+                                        </p>
+</div>
+</div>
+<div class="hidden sm:block">
+<span class="px-3 py-1 bg-primary-fixed-dim text-on-primary-fixed-variant rounded-full text-xs font-bold uppercase tracking-wider">Práctica 12</span>
+</div>
+<span class="material-symbols-outlined text-outline group-hover:translate-x-1 transition-transform" data-icon="chevron_right">chevron_right</span>
+</div>
+<!-- Class Item -->
+<div class="p-6 flex items-center gap-6 hover:bg-surface-container-low transition-colors cursor-pointer group">
+<div class="text-center min-w-[60px]">
+<p class="font-bold text-primary font-body-base text-body-base">09:00</p>
+<p class="text-on-surface-variant text-xs uppercase font-label-caps">45 min</p>
+</div>
+<div class="flex-1 flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-surface-container-high flex items-center justify-center text-primary font-bold">
+                                        JD
+                                    </div>
+<div>
+<h5 class="font-bold text-on-surface font-body-base text-body-base group-hover:text-primary transition-colors">Javier Domínguez</h5>
+<p class="text-on-surface-variant text-body-sm flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]" data-icon="location_on">location_on</span>
+                                            Punto de recogida: Plaza Mayor
+                                        </p>
+</div>
+</div>
+<div class="hidden sm:block">
+<span class="px-3 py-1 bg-tertiary-fixed text-on-tertiary-fixed-variant rounded-full text-xs font-bold uppercase tracking-wider">Simulacro</span>
+</div>
+<span class="material-symbols-outlined text-outline group-hover:translate-x-1 transition-transform" data-icon="chevron_right">chevron_right</span>
+</div>
+<!-- Class Item -->
+<div class="p-6 flex items-center gap-6 hover:bg-surface-container-low transition-colors cursor-pointer group">
+<div class="text-center min-w-[60px]">
+<p class="font-bold text-primary font-body-base text-body-base">10:30</p>
+<p class="text-on-surface-variant text-xs uppercase font-label-caps">90 min</p>
+</div>
+<div class="flex-1 flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-secondary-fixed overflow-hidden">
+<img alt="Student" class="w-full h-full object-cover" data-alt="Portrait of a male student driver, dressed in casual modern attire, looking focused and determined. The background shows a hint of a modern city street in soft focus. The lighting is natural and bright, maintaining a clean and professional instructional feel." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDzyf45LVEQbMmIAX1X5ysOLDrLz6EGZqLwM0TaKbis5ZBcKeUBJHqyDtEzZISWfQJjUudUsOZlCKOLdNT8JUYWM6tc3ePf-SxjOXbhgiS4e_JXHvIDE5IiqZGlfnvXgkieRaomJyNGBo3VFs6KPWjbrmro78BnYFjtLgMFlpxhTKIo6MjU6PoYf2oEB86H8qkolhBYtwhjSr8YCFHuOtoaKq_OihQLm7r8cpcqBV8wM8GYQGfoRCE2mquo5mkMCxJFIO72t_NAF7s"/>
+</div>
+<div>
+<h5 class="font-bold text-on-surface font-body-base text-body-base group-hover:text-primary transition-colors">Marcos Ruiz</h5>
+<p class="text-on-surface-variant text-body-sm flex items-center gap-1">
+<span class="material-symbols-outlined text-[16px]" data-icon="location_on">location_on</span>
+                                            Punto de recogida: Calle Alcalá, 12
+                                        </p>
+</div>
+</div>
+<div class="hidden sm:block">
+<span class="px-3 py-1 bg-primary-fixed-dim text-on-primary-fixed-variant rounded-full text-xs font-bold uppercase tracking-wider">Práctica 3</span>
+</div>
+<span class="material-symbols-outlined text-outline group-hover:translate-x-1 transition-transform" data-icon="chevron_right">chevron_right</span>
+</div>
+</div>
+</section>
+</div>
+<!-- Alerts & Schedule Overview (Sidebar Content) -->
+<div class="lg:col-span-4 space-y-md">
+<!-- Alerts Section -->
+<section class="bg-white rounded-xl border border-outline-variant/30 shadow-sm p-6 space-y-4">
+<h3 class="font-headline-md text-[20px] font-bold text-on-surface flex items-center gap-2">
+<span class="material-symbols-outlined text-error" data-icon="warning">warning</span>
+                            Alertas de Alumnos
+                        </h3>
+<div class="space-y-3">
+<div class="p-3 bg-error-container/40 rounded-lg border border-error-container flex gap-3">
+<span class="material-symbols-outlined text-error" data-icon="description">description</span>
+<div>
+<p class="font-bold text-on-error-container text-body-sm">Documentación caducada</p>
+<p class="text-on-surface-variant text-xs">Elena S. (DNI expira mañana)</p>
+</div>
+</div>
+<div class="p-3 bg-tertiary-fixed/30 rounded-lg border border-tertiary-fixed flex gap-3">
+<span class="material-symbols-outlined text-tertiary" data-icon="rate_review">rate_review</span>
+<div>
+<p class="font-bold text-on-tertiary-fixed-variant text-body-sm">Evaluación pendiente</p>
+<p class="text-on-surface-variant text-xs">Javier D. (Clase del 23/05)</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Compact Schedule Overview -->
+<section class="bg-on-secondary-fixed-variant rounded-xl shadow-md p-6 text-white">
+<div class="flex justify-between items-center mb-6">
+<h3 class="font-bold font-body-base text-body-base">Vista del Día</h3>
+<span class="text-xs font-label-caps opacity-70">24 MAY</span>
+</div>
+<div class="space-y-4 relative before:content-[''] before:absolute before:left-2 before:top-1 before:bottom-1 before:w-[2px] before:bg-white/20">
+<div class="relative pl-8">
+<div class="absolute left-0 top-1.5 w-4 h-4 rounded-full bg-primary ring-4 ring-white/10"></div>
+<p class="text-xs font-label-caps text-white/60">08:00 - 10:00</p>
+<p class="font-bold text-body-sm">Bloque Mañana (3 clases)</p>
+</div>
+<div class="relative pl-8">
+<div class="absolute left-0 top-1.5 w-4 h-4 rounded-full bg-tertiary ring-4 ring-white/10"></div>
+<p class="text-xs font-label-caps text-white/60">10:30 - 12:00</p>
+<p class="font-bold text-body-sm">Clase Doble: Marcos</p>
+</div>
+<div class="relative pl-8">
+<div class="absolute left-0 top-1.5 w-4 h-4 rounded-full bg-white/20"></div>
+<p class="text-xs font-label-caps text-white/60">12:00 - 13:00</p>
+<p class="font-bold text-body-sm">Descanso / Almuerzo</p>
+</div>
+<div class="relative pl-8">
+<div class="absolute left-0 top-1.5 w-4 h-4 rounded-full bg-primary ring-4 ring-white/10"></div>
+<p class="text-xs font-label-caps text-white/60">15:00 - 19:00</p>
+<p class="font-bold text-body-sm">Bloque Tarde (4 clases)</p>
+</div>
+</div>
+</section>
+</div>
+</div>
+</div>
+</main>
+<!-- Footer -->
+<footer class="md:ml-[280px] w-full py-xl bg-surface-container-low dark:bg-surface-container-lowest border-t border-outline-variant">
+<div class="flex flex-col md:flex-row justify-between items-center px-gutter max-w-container-max mx-auto gap-4">
+<div class="text-body-base font-bold text-on-surface">Autoescuela Camacho</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">© 2024 Autoescuela Camacho. Todos los derechos reservados.</p>
+<div class="flex gap-md">
+<a class="text-on-surface-variant hover:text-primary transition-colors font-body-sm text-body-sm" href="#">Privacy Policy</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors font-body-sm text-body-sm" href="#">Terms of Service</a>
+<a class="text-on-surface-variant hover:text-primary transition-colors font-body-sm text-body-sm" href="#">Contact Support</a>
+</div>
+</div>
+</footer>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="fixed bottom-0 w-full md:hidden rounded-t-xl bg-surface dark:bg-inverse-surface border-t border-outline-variant/30 shadow-[0_-4px_10px_rgba(0,0,0,0.05)] flex justify-around items-center h-16 px-2 pb-safe z-50">
+<a class="flex flex-col items-center justify-center text-primary font-bold transition-transform active:scale-95" href="#">
+<span class="material-symbols-outlined" data-icon="home">home</span>
+<span class="font-label-caps text-label-caps">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant transition-transform active:scale-95" href="#">
+<span class="material-symbols-outlined" data-icon="directions_car">directions_car</span>
+<span class="font-label-caps text-label-caps">Lessons</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant transition-transform active:scale-95" href="#">
+<span class="material-symbols-outlined" data-icon="history_edu">history_edu</span>
+<span class="font-label-caps text-label-caps">Exams</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant transition-transform active:scale-95" href="#">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="font-label-caps text-label-caps">Profile</span>
+</a>
+</nav>
+</body></html>

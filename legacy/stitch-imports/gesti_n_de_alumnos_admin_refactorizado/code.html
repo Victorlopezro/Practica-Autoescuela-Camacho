@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-tertiary": "#ffffff",
+                        "on-background": "#0b1c30",
+                        "on-error-container": "#93000a",
+                        "secondary-fixed": "#dde1ff",
+                        "primary-container": "#007cb0",
+                        "outline-variant": "#bec8d1",
+                        "on-primary-fixed": "#001e2e",
+                        "outline": "#6f7881",
+                        "surface-bright": "#f8f9ff",
+                        "on-tertiary-container": "#fffbff",
+                        "inverse-surface": "#213145",
+                        "tertiary-fixed": "#ffddb8",
+                        "on-tertiary-fixed": "#2a1700",
+                        "on-primary": "#ffffff",
+                        "surface-dim": "#cbdbf5",
+                        "tertiary-fixed-dim": "#ffb95f",
+                        "surface-tint": "#006590",
+                        "inverse-on-surface": "#eaf1ff",
+                        "surface-container-lowest": "#ffffff",
+                        "secondary-container": "#90a3ff",
+                        "inverse-primary": "#87ceff",
+                        "on-surface": "#0b1c30",
+                        "on-primary-container": "#fcfcff",
+                        "on-primary-fixed-variant": "#004c6d",
+                        "tertiary-container": "#a36700",
+                        "surface-container-highest": "#d3e4fe",
+                        "on-secondary": "#ffffff",
+                        "on-error": "#ffffff",
+                        "primary-fixed": "#c8e6ff",
+                        "tertiary": "#825100",
+                        "error-container": "#ffdad6",
+                        "on-secondary-fixed": "#001256",
+                        "background": "#f8f9ff",
+                        "surface-container-low": "#eff4ff",
+                        "primary-fixed-dim": "#87ceff",
+                        "error": "#ba1a1a",
+                        "on-surface-variant": "#3e4850",
+                        "surface-container-high": "#dce9ff",
+                        "on-secondary-container": "#20358b",
+                        "secondary": "#4558ae",
+                        "surface-variant": "#d3e4fe",
+                        "secondary-fixed-dim": "#b9c3ff",
+                        "surface-container": "#e5eeff",
+                        "on-secondary-fixed-variant": "#2b3f94",
+                        "primary": "#00628c",
+                        "surface": "#f8f9ff",
+                        "on-tertiary-fixed-variant": "#653e00"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "xs": "0.5rem",
+                        "xl": "4rem",
+                        "md": "1.5rem",
+                        "gutter": "1.5rem",
+                        "sm": "1rem",
+                        "lg": "2.5rem",
+                        "base": "4px",
+                        "container-max": "1280px"
+                    },
+                    "fontFamily": {
+                        "display-lg-mobile": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "display-lg": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "label-caps": ["Inter"],
+                        "body-base": ["Inter"]
+                    },
+                    "fontSize": {
+                        "display-lg-mobile": ["36px", {"lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "label-caps": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "body-base": ["16px", {"lineHeight": "24px", "fontWeight": "400"}]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            line-height: 1;
+            text-transform: none;
+            letter-spacing: normal;
+            word-wrap: normal;
+            white-space: nowrap;
+            direction: ltr;
+        }
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f9ff;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background min-h-screen pb-24">
+<!-- Top AppBar (Refactored for Mobile Context) -->
+<header class="bg-surface/80 backdrop-blur-md sticky top-0 z-40 flex justify-between items-center px-sm h-16 w-full">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-primary" data-icon="group">group</span>
+<h1 class="text-headline-md font-headline-md text-on-surface">Alumnos</h1>
+</div>
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined p-2 text-on-surface-variant hover:bg-surface-container-low rounded-full" data-icon="search">search</span>
+<div class="w-8 h-8 rounded-full bg-primary-container overflow-hidden border border-outline-variant">
+<img alt="Admin Profile" data-alt="A professional close-up portrait of a modern office administrator with a friendly expression. The background is a clean, blurred corporate environment with soft cool lighting and subtle blue accents, following a professional SaaS aesthetic. High-quality digital photography with a focus on professional approachability." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDg8CI-7epRHApmjSMqcP1FYnJT2v-m0gYqqGTDJvsdoI60ym_UGooMC1V0mydO14__vsAqx2bm-ik0rCVPE5SbwcWrD2rRpFVVwLSB4LdJIfsyK8Ms1ltsRHx1TDIPmJo3jj4mWksdIHGiK43SKJxQrCHKdLK8_sfPuYxgt-w9IiuzgKgWsoPPHUIU85Xc_2habZMQ-F4775s479i6IQcE2lmv18dIYkjHGoto0dSu-K0z72_3udSZHRoDV3c13p7HTRe9HwpUTGU"/>
+</div>
+</div>
+</header>
+<main class="px-sm py-md space-y-lg">
+<!-- Summary Stats Bento Grid (Mobile) -->
+<section class="grid grid-cols-2 gap-sm">
+<div class="col-span-2 bg-surface-container-lowest p-md rounded-xl shadow-sm border border-outline-variant/30 flex items-center justify-between">
+<div>
+<p class="text-label-caps font-label-caps text-on-surface-variant">TOTAL ALUMNOS</p>
+<p class="text-display-lg-mobile font-display-lg-mobile text-primary">248</p>
+</div>
+<div class="h-12 w-12 rounded-full bg-primary/10 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary text-[28px]" data-icon="person">person</span>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-md rounded-xl shadow-sm border border-outline-variant/30">
+<p class="text-label-caps font-label-caps text-on-surface-variant">ACTIVOS</p>
+<div class="flex items-baseline gap-xs">
+<p class="text-headline-md font-headline-md text-secondary">182</p>
+<span class="text-body-sm font-body-sm text-tertiary">↑ 4%</span>
+</div>
+</div>
+<div class="bg-surface-container-lowest p-md rounded-xl shadow-sm border border-outline-variant/30">
+<p class="text-label-caps font-label-caps text-on-surface-variant">EXÁMENES MES</p>
+<div class="flex items-baseline gap-xs">
+<p class="text-headline-md font-headline-md text-secondary">32</p>
+<span class="text-body-sm font-body-sm text-on-surface-variant italic">Próx. 12/10</span>
+</div>
+</div>
+</section>
+<!-- Filters Section -->
+<section class="space-y-sm">
+<div class="flex items-center justify-between">
+<h2 class="text-label-caps font-label-caps text-on-surface-variant">FILTRAR LISTADO</h2>
+<button class="text-primary text-body-sm font-body-sm flex items-center gap-xs">
+<span class="material-symbols-outlined text-[18px]" data-icon="tune">tune</span>
+                    Ver todos
+                </button>
+</div>
+<div class="flex gap-xs overflow-x-auto pb-xs no-scrollbar">
+<button class="px-md py-xs bg-primary text-on-primary rounded-full text-body-sm font-body-sm whitespace-nowrap">Todos</button>
+<button class="px-md py-xs bg-surface-container-high text-on-surface-variant rounded-full text-body-sm font-body-sm whitespace-nowrap border border-outline-variant/50">Teórica</button>
+<button class="px-md py-xs bg-surface-container-high text-on-surface-variant rounded-full text-body-sm font-body-sm whitespace-nowrap border border-outline-variant/50">Práctica</button>
+<button class="px-md py-xs bg-surface-container-high text-on-surface-variant rounded-full text-body-sm font-body-sm whitespace-nowrap border border-outline-variant/50">Examen</button>
+</div>
+</section>
+<!-- Student List -->
+<section class="space-y-sm">
+<!-- Student Card 1 -->
+<div class="bg-surface-container-lowest p-sm rounded-xl shadow-sm border border-outline-variant/30 flex items-center gap-sm">
+<div class="w-12 h-12 rounded-full overflow-hidden flex-shrink-0 bg-surface-dim">
+<img alt="Student" data-alt="Portrait of a young adult male student with a focused and enthusiastic expression. He is wearing casual modern clothing, set against a bright, minimalist studio background with soft diffuse lighting. The aesthetic is clean, professional, and optimistic, utilizing a light color palette consistent with a modern educational SaaS platform." src="https://lh3.googleusercontent.com/aida-public/AB6AXuDdTPNIMrO3iKL-CKwbF7gGDFKKTP8LFdBLhI0YI_vvr4AfSDcHuc9tOqsj4L3v2iq4vdr6WWS4EGK7XOqhPvESF5BCmdp6GZ0zeDZ1kufiugm_PhbfzVH0kVuuWdCjvZv0sbqm6DFRbYC4fdf9w2-A5lBLxAO_eVAFOmoUhTKb3US78vyLYYucR5yLYt7fQOOoksaNNXCQnfLsfxxrklS74o5kfoCbphYkwa27UxBXjnBX8Q2NuQ2RyT8Ppg54fIUhdH7ZJH3DIe8"/>
+</div>
+<div class="flex-grow">
+<div class="flex justify-between items-start">
+<h3 class="text-body-base font-body-base font-bold text-on-surface">Carlos Ruiz Mendez</h3>
+<span class="bg-tertiary-container/10 text-tertiary px-xs py-[2px] rounded text-label-caps font-label-caps">TEÓRICA</span>
+</div>
+<p class="text-body-sm font-body-sm text-on-surface-variant">Progreso: 85% • Matrícula B</p>
+</div>
+<button class="p-xs">
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="chevron_right">chevron_right</span>
+</button>
+</div>
+<!-- Student Card 2 -->
+<div class="bg-surface-container-lowest p-sm rounded-xl shadow-sm border border-outline-variant/30 flex items-center gap-sm">
+<div class="w-12 h-12 rounded-full overflow-hidden flex-shrink-0 bg-surface-dim">
+<img alt="Student" data-alt="Portrait of a young woman in her early twenties, smiling warmly. She has a smart-casual look and is positioned against a clean, neutral background with high-key lighting. The visual style is crisp and modern, reflecting an efficient and friendly digital learning environment with a palette of whites and soft blues." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCfx4Yjb5HGIKcXVvgAfiSGE2zsBQX8XSwkFhw8MQrvBt_KuubAg4QdLt9F05usnmhPy2-5TDIY88dh5z6EV6IrmnswOTVLaNV8HRbK_9tjVt0z2KP9tcZ7LiygnJDKGzAFP8ZpVerKHz8jfxssQd4rid8shwAXaSC3fWbWNxf6WPg2r2yWCZx8vS2odcT4l2ubqQhsCSg3tz9AJmXcMn2Lzz84Lyh4UplO_mjsVV341VM5mzDRxp0GxDMMd0NZjdHeuYEiKTlncVY"/>
+</div>
+<div class="flex-grow">
+<div class="flex justify-between items-start">
+<h3 class="text-body-base font-body-base font-bold text-on-surface">Elena García Sosa</h3>
+<span class="bg-primary-container/10 text-primary px-xs py-[2px] rounded text-label-caps font-label-caps">PRÁCTICA</span>
+</div>
+<p class="text-body-sm font-body-sm text-on-surface-variant">12 clases • Próxima: Mañana</p>
+</div>
+<button class="p-xs">
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="chevron_right">chevron_right</span>
+</button>
+</div>
+<!-- Student Card 3 -->
+<div class="bg-surface-container-lowest p-sm rounded-xl shadow-sm border border-outline-variant/30 flex items-center gap-sm">
+<div class="w-12 h-12 rounded-full overflow-hidden flex-shrink-0 bg-surface-dim">
+<img alt="Student" data-alt="Close-up profile of a male student with a calm and confident expression. He is set against a brightly lit, minimalist architectural space that suggests a modern school or office environment. The lighting is clean and professional, focusing on a clear, high-performance UI aesthetic with corporate blue accents." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBR1W5l2HxFz78vIW8-vaxzA2xOSXD2v6-DGXyyQCrkQShVTAvFfrzTLYMz5YPPhMl12RskQ6AWPctFAt9LjLzCep5TluRYmzuokBZW0BQrk-5NTMiubRyvFvPq3oEAggvOTODe8ma2_UFqfwADGsZKH_8EbuEZYQ2mPJLoHbENSXnauIvFzBRvbf2CCgYR-fpnSPWen1sC489mpNGF0GZOriUES2pzubZGXdG_4unU4z6eHSjzl5QqqORX6_mRuFs3Sh8KquU1ScA"/>
+</div>
+<div class="flex-grow">
+<div class="flex justify-between items-start">
+<h3 class="text-body-base font-body-base font-bold text-on-surface">Marcos López</h3>
+<span class="bg-error-container/20 text-error px-xs py-[2px] rounded text-label-caps font-label-caps">EXAMEN</span>
+</div>
+<p class="text-body-sm font-body-sm text-on-surface-variant">Fecha: 15 Oct • Circulación</p>
+</div>
+<button class="p-xs">
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="chevron_right">chevron_right</span>
+</button>
+</div>
+<!-- Student Card 4 -->
+<div class="bg-surface-container-lowest p-sm rounded-xl shadow-sm border border-outline-variant/30 flex items-center gap-sm">
+<div class="w-12 h-12 rounded-full overflow-hidden flex-shrink-0 bg-surface-dim">
+<img alt="Student" data-alt="Portrait of a middle-aged woman with a focused, determined look. She is dressed in a professional manner, framed by a soft-focus background that highlights her. The image uses natural, high-key lighting to maintain a bright and modern light-mode feel, consistent with an enterprise-grade driving school dashboard." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBVFGtZSyTBP6vZngmanihWKQkpiuTe_D2mIIUCwZ1gup_27q1q7Odmjkg7APJcs_QBpoUgxsg4cGGYlkgBpZtTx8jDL7On-B1IMZGJnDC7v5geIkdzML29Yem6JaCPqhHwBdNhToP7_3yMWqMDo-JIpZ_0zWNWKwh2yqyiH2MslOcoMc9Xu8STfLo_vsFXh9Zj0PxDpvXzXfNQAEOI7bL88_iYvKUjR-1QLS3-Tc688EkywHv4zwHYeFnTmicqzd7q-Io27pvwMv0"/>
+</div>
+<div class="flex-grow">
+<div class="flex justify-between items-start">
+<h3 class="text-body-base font-body-base font-bold text-on-surface">Sonia Ferrero</h3>
+<span class="bg-secondary-container/20 text-secondary px-xs py-[2px] rounded text-label-caps font-label-caps">RESERVA</span>
+</div>
+<p class="text-body-sm font-body-sm text-on-surface-variant">Pendiente asignación teórico</p>
+</div>
+<button class="p-xs">
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="chevron_right">chevron_right</span>
+</button>
+</div>
+</section>
+<!-- Search Bar Overlay (Visual Placeholder for Search intent) -->
+<div class="fixed bottom-24 right-sm left-sm bg-surface-container shadow-lg border border-outline-variant/50 rounded-full h-12 flex items-center px-md gap-sm">
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="search">search</span>
+<input class="bg-transparent border-none outline-none focus:ring-0 text-body-sm w-full placeholder:text-on-surface-variant" placeholder="Buscar por nombre o DNI..." type="text"/>
+</div>
+</main>
+<!-- Floating Action Button -->
+<button class="fixed bottom-24 right-sm w-14 h-14 bg-primary text-on-primary rounded-2xl shadow-xl flex items-center justify-center transition-transform active:scale-[0.95] z-50">
+<span class="material-symbols-outlined text-[28px]" data-icon="person_add">person_add</span>
+</button>
+<!-- Bottom Navigation Bar (Refactored from JSON for Mobile context) -->
+<nav class="fixed bottom-0 left-0 right-0 bg-surface-container-lowest border-t border-outline-variant/20 flex justify-around items-center h-20 px-xs pb-xs z-50">
+<div class="flex flex-col items-center justify-center w-16 text-on-surface-variant hover:text-on-surface">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="text-label-caps font-label-caps mt-1">Dash</span>
+</div>
+<div class="flex flex-col items-center justify-center w-16 text-primary font-bold">
+<div class="bg-secondary-container/20 px-md py-1 rounded-full mb-1">
+<span class="material-symbols-outlined" data-icon="group" data-weight="fill" style="font-variation-settings: 'FILL' 1;">group</span>
+</div>
+<span class="text-label-caps font-label-caps">Alumnos</span>
+</div>
+<div class="flex flex-col items-center justify-center w-16 text-on-surface-variant hover:text-on-surface">
+<span class="material-symbols-outlined" data-icon="calendar_month">calendar_month</span>
+<span class="text-label-caps font-label-caps mt-1">Citas</span>
+</div>
+<div class="flex flex-col items-center justify-center w-16 text-on-surface-variant hover:text-on-surface">
+<span class="material-symbols-outlined" data-icon="directions_car">directions_car</span>
+<span class="text-label-caps font-label-caps mt-1">Flota</span>
+</div>
+<div class="flex flex-col items-center justify-center w-16 text-on-surface-variant hover:text-on-surface">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="text-label-caps font-label-caps mt-1">Config</span>
+</div>
+</nav>
+</body></html>

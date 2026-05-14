@@ -1,0 +1,5 @@
+Azul principal: #049de1
+Azul oscuro: #182e84
+Blanco: #ffffff
+Negro:#000000
+Gris claro: #44444e

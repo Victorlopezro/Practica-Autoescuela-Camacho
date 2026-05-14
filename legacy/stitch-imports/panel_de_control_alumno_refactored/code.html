@@ -1,0 +1,432 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                "surface-variant": "#d3e4fe",
+                "primary-fixed": "#c8e6ff",
+                "on-secondary-fixed-variant": "#2b3f94",
+                "outline": "#6f7881",
+                "tertiary": "#825100",
+                "inverse-surface": "#213145",
+                "primary-fixed-dim": "#87ceff",
+                "on-secondary-fixed": "#001256",
+                "on-primary-fixed-variant": "#004c6d",
+                "tertiary-fixed-dim": "#ffb95f",
+                "secondary-container": "#90a3ff",
+                "surface-container-low": "#eff4ff",
+                "secondary": "#4558ae",
+                "surface-container-highest": "#d3e4fe",
+                "surface": "#f8f9ff",
+                "error": "#ba1a1a",
+                "primary-container": "#007cb0",
+                "on-secondary": "#ffffff",
+                "inverse-primary": "#87ceff",
+                "secondary-fixed": "#dde1ff",
+                "on-surface-variant": "#3e4850",
+                "on-primary-container": "#fcfcff",
+                "surface-tint": "#006590",
+                "tertiary-container": "#a36700",
+                "inverse-on-surface": "#eaf1ff",
+                "on-primary-fixed": "#001e2e",
+                "surface-bright": "#f8f9ff",
+                "on-primary": "#ffffff",
+                "outline-variant": "#bec8d1",
+                "surface-container": "#e5eeff",
+                "on-surface": "#0b1c30",
+                "on-tertiary-container": "#fffbff",
+                "background": "#f8f9ff",
+                "error-container": "#ffdad6",
+                "tertiary-fixed": "#ffddb8",
+                "surface-dim": "#cbdbf5",
+                "on-tertiary-fixed": "#2a1700",
+                "on-error": "#ffffff",
+                "on-tertiary-fixed-variant": "#653e00",
+                "surface-container-high": "#dce9ff",
+                "primary": "#00628c",
+                "on-tertiary": "#ffffff",
+                "surface-container-lowest": "#ffffff",
+                "secondary-fixed-dim": "#b9c3ff",
+                "on-error-container": "#93000a",
+                "on-secondary-container": "#20358b",
+                "on-background": "#0b1c30"
+            },
+            "borderRadius": {
+                "DEFAULT": "0.5rem",
+                "lg": "0.5rem",
+                "xl": "0.75rem",
+                "full": "9999px"
+            },
+            "spacing": {
+                "lg": "2.5rem",
+                "sm": "1rem",
+                "base": "4px",
+                "xl": "4rem",
+                "md": "1.5rem",
+                "xs": "0.5rem",
+                "container-max": "1280px",
+                "gutter": "1.5rem"
+            },
+            "fontFamily": {
+                "body-base": ["Inter"],
+                "headline-md": ["Inter"],
+                "display-lg-mobile": ["Inter"],
+                "body-sm": ["Inter"],
+                "label-caps": ["Inter"],
+                "display-lg": ["Inter"]
+            },
+            "fontSize": {
+                "body-base": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                "display-lg-mobile": ["36px", {"lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                "label-caps": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+        }
+        .skeleton {
+            background: linear-gradient(90deg, #f0f4f8 25%, #e2e8f0 50%, #f0f4f8 75%);
+            background-size: 200% 100%;
+            animation: skeleton-loading 1.5s infinite;
+        }
+        @keyframes skeleton-loading {
+            0% { background-position: 200% 0; }
+            100% { background-position: -200% 0; }
+        }
+        .transition-cubic {
+            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+        }
+        body {
+            min-height: 100dvh;
+            scroll-behavior: smooth;
+        }
+        .touch-target {
+            min-height: 48px;
+            min-width: 48px;
+        }
+        /* Design System Adjustments */
+        .rounded-ds { border-radius: 0.5rem; }
+    </style>
+</head>
+<body class="bg-background text-on-surface font-body-base">
+<!-- NavigationDrawer (Desktop Only) -->
+<aside class="w-[280px] h-full fixed left-0 top-0 hidden md:flex bg-on-secondary-fixed-variant dark:bg-inverse-surface shadow-md flex-col py-md z-50">
+<div class="px-md mb-lg">
+<h1 class="text-headline-md font-bold text-white">Autoescuela Camacho</h1>
+<p class="text-white/60 text-body-sm">Portal del Estudiante</p>
+</div>
+<nav class="flex-grow space-y-1">
+<a class="flex items-center gap-3 px-4 py-3 bg-primary text-white rounded-ds mx-2 transition-cubic active:scale-95" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="text-body-base">Panel de Control</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-surface-container-high hover:bg-white/10 rounded-ds mx-2 transition-cubic" href="#">
+<span class="material-symbols-outlined" data-icon="school">school</span>
+<span class="text-body-base">Teórica</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-surface-container-high hover:bg-white/10 rounded-ds mx-2 transition-cubic" href="#">
+<span class="material-symbols-outlined" data-icon="directions_car">directions_car</span>
+<span class="text-body-base">Práctica</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-surface-container-high hover:bg-white/10 rounded-ds mx-2 transition-cubic" href="#">
+<span class="material-symbols-outlined" data-icon="assignment">assignment</span>
+<span class="text-body-base">Exámenes</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-surface-container-high hover:bg-white/10 rounded-ds mx-2 transition-cubic" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="text-body-base">Configuración</span>
+</a>
+</nav>
+<div class="px-md mt-auto pt-md border-t border-white/10">
+<div class="flex items-center gap-3">
+<div class="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center text-on-primary-container font-bold">JD</div>
+<div>
+<p class="text-white font-bold text-body-sm">Juan Delgado</p>
+<p class="text-white/50 text-label-caps">ESTUDIANTE ACTIVO</p>
+</div>
+</div>
+</div>
+</aside>
+<!-- TopAppBar -->
+<header class="w-full sticky top-0 z-40 bg-surface/90 dark:bg-surface-dim/90 backdrop-blur-md border-b border-outline-variant/30 flex justify-between items-center px-gutter h-16 md:ml-[280px] md:w-[calc(100%-280px)]">
+<div class="flex items-center gap-4">
+<button class="md:hidden touch-target text-primary flex items-center justify-center">
+<span class="material-symbols-outlined" data-icon="menu">menu</span>
+</button>
+<h2 class="text-headline-md font-bold text-primary truncate">Panel de Control</h2>
+</div>
+<div class="flex items-center gap-2 md:gap-4">
+<div class="hidden sm:flex items-center bg-surface-container px-3 py-2 rounded-full border border-outline-variant/30 focus-within:ring-2 focus-within:ring-primary transition-cubic">
+<span class="material-symbols-outlined text-outline text-[20px]" data-icon="search">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-body-sm px-2 w-32 md:w-48" placeholder="Buscar..." type="text"/>
+</div>
+<button class="touch-target flex items-center justify-center rounded-full hover:bg-surface-container transition-cubic relative">
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="notifications">notifications</span>
+<span class="absolute top-3 right-3 w-2.5 h-2.5 bg-error border-2 border-surface rounded-full"></span>
+</button>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="md:ml-[280px] p-gutter max-w-container-max pb-24 md:pb-gutter mx-auto">
+<!-- Welcome Section -->
+<section class="mb-lg animate-in fade-in slide-in-from-bottom-4 duration-700">
+<h3 class="font-display-lg text-display-lg-mobile md:text-display-lg text-on-background mb-xs">¡Hola, Juan! 👋</h3>
+<p class="text-on-surface-variant text-body-base leading-relaxed">Estás progresando muy bien. Tu examen es en <span class="text-primary font-bold">12 días</span>.</p>
+</section>
+<!-- Bento Grid KPI Cards -->
+<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-sm mb-lg">
+<!-- Progress Card 1 -->
+<div class="bg-surface-container-lowest p-md rounded-ds border border-outline-variant shadow-sm hover:shadow-md transition-cubic group">
+<div class="flex justify-between items-start mb-md">
+<div>
+<p class="text-label-caps text-on-surface-variant mb-xs">PROGRESO TEÓRICO</p>
+<h4 class="text-headline-md font-bold text-primary">85%</h4>
+</div>
+<div class="bg-primary-container p-2.5 rounded-ds text-primary transition-cubic group-hover:scale-110">
+<span class="material-symbols-outlined" data-icon="school">school</span>
+</div>
+</div>
+<div class="w-full bg-surface-container-high h-2.5 rounded-full overflow-hidden">
+<div class="bg-primary h-full rounded-full transition-all duration-1000 ease-out" style="width: 85%"></div>
+</div>
+<p class="text-body-sm text-on-surface-variant mt-sm">24/30 módulos completados</p>
+</div>
+<!-- Progress Card 2 -->
+<div class="bg-surface-container-lowest p-md rounded-ds border border-outline-variant shadow-sm hover:shadow-md transition-cubic group">
+<div class="flex justify-between items-start mb-md">
+<div>
+<p class="text-label-caps text-on-surface-variant mb-xs">HORAS PRÁCTICAS</p>
+<h4 class="text-headline-md font-bold text-secondary">12 / 20</h4>
+</div>
+<div class="bg-secondary-container p-2.5 rounded-ds text-secondary transition-cubic group-hover:scale-110">
+<span class="material-symbols-outlined" data-icon="directions_car">directions_car</span>
+</div>
+</div>
+<div class="flex gap-2 mt-md">
+<div class="h-2 flex-grow rounded-full bg-secondary"></div>
+<div class="h-2 flex-grow rounded-full bg-secondary"></div>
+<div class="h-2 flex-grow rounded-full bg-secondary"></div>
+<div class="h-2 flex-grow rounded-full bg-surface-container-high"></div>
+<div class="h-2 flex-grow rounded-full bg-surface-container-high"></div>
+</div>
+<p class="text-body-sm text-on-surface-variant mt-sm">Próxima clase: Mañana, 16:00</p>
+</div>
+<!-- Exam Date Card -->
+<div class="bg-primary-container p-md rounded-ds border border-primary/20 shadow-sm transition-cubic group hover:shadow-md sm:col-span-2 md:col-span-1">
+<div class="flex justify-between items-start mb-md">
+<div class="text-on-primary-container">
+<p class="text-label-caps opacity-80 mb-xs">FECHA DE EXAMEN</p>
+<h4 class="text-headline-md font-bold">24 Oct, 2024</h4>
+</div>
+<div class="bg-white/30 p-2.5 rounded-ds text-on-primary-container transition-cubic group-hover:rotate-12">
+<span class="material-symbols-outlined" data-icon="event">event</span>
+</div>
+</div>
+<div class="flex items-center gap-2 mt-md text-on-primary-container">
+<span class="material-symbols-outlined text-[20px]" data-icon="timer">timer</span>
+<p class="text-body-sm font-semibold">12 días restantes</p>
+</div>
+<button class="mt-md w-full bg-surface-container-lowest text-primary font-bold py-3 rounded-ds text-body-sm transition-cubic active:scale-95 shadow-sm hover:shadow-md">
+                    Ver Plan de Estudios
+                </button>
+</div>
+</div>
+<!-- Secondary Grid: Stats & Calendar -->
+<div class="grid grid-cols-1 lg:grid-cols-3 gap-gutter items-start">
+<!-- Statistics: Progress Chart -->
+<div class="lg:col-span-2 bg-surface-container-lowest p-md rounded-ds border border-outline-variant shadow-sm transition-cubic">
+<div class="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-lg">
+<div>
+<h5 class="text-headline-md font-bold">Rendimiento Simulacros</h5>
+<p class="text-body-sm text-on-surface-variant">Nota media: <span class="font-semibold text-primary">28.5/30</span></p>
+</div>
+<div class="flex bg-surface-container p-1 rounded-ds">
+<button class="px-4 py-1.5 text-label-caps rounded-ds bg-white text-primary shadow-sm font-bold transition-cubic">Semanal</button>
+<button class="px-4 py-1.5 text-label-caps rounded-ds text-on-surface-variant hover:bg-white/50 transition-cubic">Mensual</button>
+</div>
+</div>
+<!-- Chart Area -->
+<div class="h-64 flex items-end gap-3 sm:gap-6 px-2 sm:px-6 relative mb-8">
+<div class="flex-1 bg-surface-container-high rounded-t-lg relative group h-[60%] transition-cubic">
+<div class="absolute inset-x-0 bottom-0 bg-primary/20 rounded-t-lg h-full group-hover:bg-primary/40 transition-cubic"></div>
+<span class="absolute -top-10 left-1/2 -translate-x-1/2 bg-on-surface text-white text-label-caps py-1 px-2 rounded opacity-0 group-hover:opacity-100 transition-opacity">22</span>
+</div>
+<div class="flex-1 bg-surface-container-high rounded-t-lg relative group h-[75%] transition-cubic">
+<div class="absolute inset-x-0 bottom-0 bg-primary/40 rounded-t-lg h-full group-hover:bg-primary/60 transition-cubic"></div>
+<span class="absolute -top-10 left-1/2 -translate-x-1/2 bg-on-surface text-white text-label-caps py-1 px-2 rounded opacity-0 group-hover:opacity-100 transition-opacity">26</span>
+</div>
+<div class="flex-1 bg-surface-container-high rounded-t-lg relative group h-[90%] transition-cubic">
+<div class="absolute inset-x-0 bottom-0 bg-primary/60 rounded-t-lg h-full group-hover:bg-primary/80 transition-cubic"></div>
+<span class="absolute -top-10 left-1/2 -translate-x-1/2 bg-on-surface text-white text-label-caps py-1 px-2 rounded opacity-0 group-hover:opacity-100 transition-opacity">29</span>
+</div>
+<div class="flex-1 bg-surface-container-high rounded-t-lg relative group h-[85%] transition-cubic">
+<div class="absolute inset-x-0 bottom-0 bg-primary/80 rounded-t-lg h-full group-hover:bg-primary transition-cubic"></div>
+<span class="absolute -top-10 left-1/2 -translate-x-1/2 bg-on-surface text-white text-label-caps py-1 px-2 rounded opacity-0 group-hover:opacity-100 transition-opacity">28</span>
+</div>
+<div class="flex-1 bg-primary rounded-t-lg relative group h-[95%] transition-cubic shadow-lg shadow-primary/20">
+<div class="absolute inset-x-0 bottom-0 bg-primary rounded-t-lg h-full"></div>
+<span class="absolute -top-10 left-1/2 -translate-x-1/2 bg-primary text-white text-label-caps font-bold py-1 px-2 rounded">30</span>
+</div>
+<!-- X-Axis Labels -->
+<div class="absolute -bottom-8 left-0 right-0 flex justify-around text-label-caps text-outline font-medium">
+<span>LUN</span><span>MAR</span><span>MIÉ</span><span>JUE</span><span>VIE</span>
+</div>
+</div>
+<div class="mt-8 flex justify-end">
+<a class="text-primary font-bold text-body-sm flex items-center gap-1.5 hover:translate-x-1 transition-cubic" href="#">
+                        Ver todos los tests <span class="material-symbols-outlined text-[18px]" data-icon="arrow_forward">arrow_forward</span>
+</a>
+</div>
+</div>
+<!-- Calendar Preview & Lessons -->
+<div class="bg-surface-container-lowest rounded-ds border border-outline-variant shadow-sm transition-cubic flex flex-col overflow-hidden">
+<div class="p-md bg-surface-container-low border-b border-outline-variant flex justify-between items-center">
+<h5 class="font-bold text-body-base">Próximas Clases</h5>
+<span class="text-primary text-label-caps font-bold">OCTUBRE</span>
+</div>
+<div class="divide-y divide-outline-variant/30">
+<div class="p-sm flex gap-4 items-center group cursor-pointer hover:bg-surface-container-low transition-cubic touch-target">
+<div class="text-center min-w-[48px] bg-surface-container rounded-ds py-1 transition-cubic group-hover:bg-primary/10">
+<p class="text-[10px] font-bold text-on-surface-variant uppercase">OCT</p>
+<p class="text-headline-md font-bold text-primary leading-none">14</p>
+</div>
+<div class="flex-grow">
+<p class="font-bold text-body-sm text-on-surface">Conducción Urbana</p>
+<p class="text-body-sm text-on-surface-variant">16:00 • Prof. Roberto</p>
+</div>
+<span class="material-symbols-outlined text-outline group-hover:text-primary transition-cubic" data-icon="chevron_right">chevron_right</span>
+</div>
+<div class="p-sm flex gap-4 items-center group cursor-pointer hover:bg-surface-container-low transition-cubic touch-target">
+<div class="text-center min-w-[48px] bg-surface-container rounded-ds py-1 transition-cubic group-hover:bg-primary/10">
+<p class="text-[10px] font-bold text-on-surface-variant uppercase">OCT</p>
+<p class="text-headline-md font-bold text-on-surface-variant leading-none">16</p>
+</div>
+<div class="flex-grow">
+<p class="font-bold text-body-sm text-on-surface">Aparcamiento</p>
+<p class="text-body-sm text-on-surface-variant">10:00 • Prof. Roberto</p>
+</div>
+<span class="material-symbols-outlined text-outline group-hover:text-primary transition-cubic" data-icon="chevron_right">chevron_right</span>
+</div>
+</div>
+<div class="p-sm">
+<button class="w-full py-3 bg-surface-container-highest text-primary font-bold rounded-ds text-body-sm transition-cubic hover:bg-primary hover:text-white active:scale-95 shadow-sm" id="book-btn" onclick="this.innerHTML='Procesando...'; this.classList.add('opacity-70'); setTimeout(() =&gt; { this.innerHTML='Reservar Nueva Clase'; this.classList.remove('opacity-70') }, 1500)">
+                        Reservar Nueva Clase
+                    </button>
+</div>
+</div>
+</div>
+<!-- Activity Feed Section -->
+<section class="mt-lg">
+<div class="flex items-center justify-between mb-md px-1">
+<h5 class="text-headline-md font-bold">Últimas Novedades</h5>
+<button class="text-primary text-body-sm font-bold hover:underline touch-target">Marcar como leído</button>
+</div>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-sm">
+<div class="glass-card p-sm rounded-ds border border-outline-variant flex gap-sm items-start hover:shadow-md transition-cubic cursor-pointer">
+<div class="bg-tertiary-container p-2.5 rounded-ds text-on-tertiary-container">
+<span class="material-symbols-outlined" data-icon="history_edu">history_edu</span>
+</div>
+<div>
+<p class="text-body-base font-bold">Resultado de Examen Publicado</p>
+<p class="text-body-sm text-on-surface-variant leading-snug mt-1">Has sacado un 30/30 en el módulo de Señalización. ¡Excelente!</p>
+<p class="text-[10px] font-bold text-outline mt-2 tracking-wider">HACE 2 HORAS</p>
+</div>
+</div>
+<div class="glass-card p-sm rounded-ds border border-outline-variant flex gap-sm items-start hover:shadow-md transition-cubic cursor-pointer">
+<div class="bg-primary-container p-2.5 rounded-ds text-on-primary-container">
+<span class="material-symbols-outlined" data-icon="chat">chat</span>
+</div>
+<div>
+<p class="text-body-base font-bold">Mensaje de Roberto</p>
+<p class="text-body-sm text-on-surface-variant leading-snug mt-1">"Buen trabajo en las glorietas hoy. Sigue así."</p>
+<p class="text-[10px] font-bold text-outline mt-2 tracking-wider">HACE 5 HORAS</p>
+</div>
+</div>
+<div class="glass-card p-sm rounded-ds border border-outline-variant flex gap-sm items-start hover:shadow-md transition-cubic cursor-pointer">
+<div class="bg-surface-container-highest p-2.5 rounded-ds text-on-surface">
+<span class="material-symbols-outlined" data-icon="payment">payment</span>
+</div>
+<div>
+<p class="text-body-base font-bold">Pago Confirmado</p>
+<p class="text-body-sm text-on-surface-variant leading-snug mt-1">El recibo #8821 por 5 clases extra ha sido procesado correctamente.</p>
+<p class="text-[10px] font-bold text-outline mt-2 tracking-wider">AYER</p>
+</div>
+</div>
+<div class="glass-card p-sm rounded-ds border border-outline-variant flex gap-sm items-start hover:shadow-md transition-cubic cursor-pointer group">
+<div class="bg-error-container p-2.5 rounded-ds text-on-error-container transition-cubic group-hover:scale-110">
+<span class="material-symbols-outlined" data-icon="assignment_late">assignment_late</span>
+</div>
+<div>
+<p class="text-body-base font-bold text-error">Documentación Pendiente</p>
+<p class="text-body-sm text-on-surface-variant leading-snug mt-1">Sube tu certificado médico para completar el trámite oficial.</p>
+<p class="text-[10px] font-bold text-outline mt-2 tracking-wider">HACE 2 DÍAS</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Course Banner -->
+<div class="mt-xl relative rounded-xl h-56 overflow-hidden group shadow-lg">
+<img alt="Clase de conducir" class="w-full h-full object-cover transition-transform duration-1000 group-hover:scale-110" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDZT4657g3QydD10rZQw2ne_VDcYLWXg4TLi26c_f3BXbw_olRQEkIwIBQao2WfSsai8zfKM1MOXVRNdC56V1j70JHaWTpX7KqPLLTJfUR9X4h73go5S1qo0qx5p6jaD-P_1n6MqitfWjlKBsbgq03Flv37mq1oCUnNAPSlMX7rWuMgJHrssvBZ-9Qzhp4cebWa1gRtyMyNpf6wuCmhJ6zckVzisYkSVNyl8Kqv9wXox0rkWzZ6DLHvcqq5oaDfpJ_wi1tbfmHHeEE"/>
+<div class="absolute inset-0 bg-gradient-to-r from-on-secondary-fixed-variant/95 via-on-secondary-fixed-variant/40 to-transparent flex flex-col justify-center px-lg text-white">
+<span class="bg-white/20 w-fit px-3 py-1 rounded-full text-label-caps font-bold mb-3 backdrop-blur-md">NUEVO MÓDULO</span>
+<h3 class="text-headline-md font-bold mb-xs">Perfeccionamiento en Autovía</h3>
+<p class="text-body-base mb-md max-w-sm opacity-90 leading-relaxed">Domina las incorporaciones y la conducción a alta velocidad con seguridad.</p>
+<button class="bg-white text-primary px-8 py-3 rounded-full font-bold w-fit hover:bg-primary-container transition-cubic shadow-lg active:scale-95 touch-target">Saber más</button>
+</div>
+</div>
+</main>
+<!-- BottomNavBar (Mobile Only) -->
+<nav class="fixed bottom-0 w-full md:hidden rounded-t-2xl bg-white/95 dark:bg-inverse-surface/95 backdrop-blur-md border-t border-outline-variant/30 shadow-[0_-8px_30px_rgba(0,0,0,0.08)] flex justify-around items-center h-20 px-2 pb-safe z-50">
+<a class="flex flex-col items-center justify-center text-primary transition-cubic touch-target flex-1" href="#">
+<span class="material-symbols-outlined" data-icon="home">home</span>
+<span class="text-[10px] font-bold uppercase tracking-tight">Inicio</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-cubic touch-target flex-1" href="#">
+<span class="material-symbols-outlined" data-icon="directions_car">directions_car</span>
+<span class="text-[10px] font-bold uppercase tracking-tight">Clases</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-cubic touch-target flex-1" href="#">
+<span class="material-symbols-outlined" data-icon="history_edu">history_edu</span>
+<span class="text-[10px] font-bold uppercase tracking-tight">Tests</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-cubic touch-target flex-1" href="#">
+<span class="material-symbols-outlined" data-icon="person">person</span>
+<span class="text-[10px] font-bold uppercase tracking-tight">Perfil</span>
+</a>
+</nav>
+<!-- Footer -->
+<footer class="md:ml-[280px] bg-surface-container-low border-t border-outline-variant w-full py-xl pb-32 md:pb-xl">
+<div class="flex flex-col md:flex-row justify-between items-start md:items-center px-gutter max-w-container-max mx-auto gap-md">
+<div>
+<span class="text-body-base font-bold text-on-surface">Autoescuela Camacho</span>
+<p class="text-body-sm text-on-surface-variant mt-1">© 2024 Todos los derechos reservados.</p>
+</div>
+<div class="flex flex-wrap gap-x-gutter gap-y-2">
+<a class="text-on-surface-variant hover:text-primary text-body-sm transition-cubic touch-target flex items-center" href="#">Privacidad</a>
+<a class="text-on-surface-variant hover:text-primary text-body-sm transition-cubic touch-target flex items-center" href="#">Términos</a>
+<a class="text-on-surface-variant hover:text-primary text-body-sm transition-cubic touch-target flex items-center" href="#">Soporte</a>
+</div>
+</div>
+</footer>
+</body></html>

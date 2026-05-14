@@ -1,0 +1,410 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "surface-variant": "#d3e4fe",
+                    "secondary-fixed-dim": "#b9c3ff",
+                    "on-surface-variant": "#3e4850",
+                    "surface-container-high": "#dce9ff",
+                    "on-secondary-container": "#20358b",
+                    "secondary": "#4558ae",
+                    "on-secondary-fixed-variant": "#2b3f94",
+                    "primary": "#00628c",
+                    "surface": "#f8f9ff",
+                    "on-tertiary-fixed-variant": "#653e00",
+                    "surface-container": "#e5eeff",
+                    "on-secondary": "#ffffff",
+                    "on-error": "#ffffff",
+                    "primary-fixed": "#c8e6ff",
+                    "on-primary-fixed-variant": "#004c6d",
+                    "tertiary-container": "#a36700",
+                    "surface-container-highest": "#d3e4fe",
+                    "surface-container-low": "#eff4ff",
+                    "primary-fixed-dim": "#87ceff",
+                    "error": "#ba1a1a",
+                    "tertiary": "#825100",
+                    "error-container": "#ffdad6",
+                    "on-secondary-fixed": "#001256",
+                    "background": "#f8f9ff",
+                    "tertiary-fixed-dim": "#ffb95f",
+                    "on-tertiary-fixed": "#2a1700",
+                    "on-primary": "#ffffff",
+                    "surface-dim": "#cbdbf5",
+                    "inverse-on-surface": "#eaf1ff",
+                    "surface-container-lowest": "#ffffff",
+                    "secondary-container": "#90a3ff",
+                    "inverse-primary": "#87ceff",
+                    "on-surface": "#0b1c30",
+                    "on-primary-container": "#fcfcff",
+                    "surface-tint": "#006590",
+                    "primary-container": "#007cb0",
+                    "outline-variant": "#bec8d1",
+                    "on-tertiary": "#ffffff",
+                    "on-background": "#0b1c30",
+                    "on-error-container": "#93000a",
+                    "secondary-fixed": "#dde1ff",
+                    "tertiary-fixed": "#ffddb8",
+                    "on-primary-fixed": "#001e2e",
+                    "outline": "#6f7881",
+                    "surface-bright": "#f8f9ff",
+                    "on-tertiary-container": "#fffbff",
+                    "inverse-surface": "#213145"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "sm": "1rem",
+                    "lg": "2.5rem",
+                    "xs": "0.5rem",
+                    "xl": "4rem",
+                    "md": "1.5rem",
+                    "gutter": "1.5rem",
+                    "container-max": "1280px",
+                    "base": "4px"
+            },
+            "fontFamily": {
+                    "headline-md": ["Inter"],
+                    "display-lg": ["Inter"],
+                    "display-lg-mobile": ["Inter"],
+                    "label-caps": ["Inter"],
+                    "body-base": ["Inter"],
+                    "body-sm": ["Inter"]
+            },
+            "fontSize": {
+                    "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "display-lg-mobile": ["36px", {"lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "label-caps": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "body-base": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        body { font-family: 'Inter', sans-serif; }
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.8);
+            backdrop-filter: blur(12px);
+            border: 1px solid #E2E8F0;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-surface">
+<!-- NavigationDrawer -->
+<aside class="w-[280px] h-full fixed left-0 top-0 bg-surface-container-lowest dark:bg-inverse-surface shadow-sm flex flex-col py-md px-sm z-50">
+<div class="mb-xl px-xs">
+<span class="text-headline-md font-headline-md font-bold text-primary dark:text-primary-fixed">Autoescuela Camacho</span>
+</div>
+<nav class="flex-grow space-y-xs">
+<a class="flex items-center gap-sm px-sm py-xs rounded-lg hover:bg-surface-container-high transition-colors duration-150 text-on-surface-variant" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="text-body-base font-body-base">Dashboard</span>
+</a>
+<a class="flex items-center gap-sm px-sm py-xs rounded-lg hover:bg-surface-container-high transition-colors duration-150 text-on-surface-variant" href="#">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+<span class="text-body-base font-body-base">Alumnos</span>
+</a>
+<a class="flex items-center gap-sm px-sm py-xs rounded-lg hover:bg-surface-container-high transition-colors duration-150 text-on-surface-variant" href="#">
+<span class="material-symbols-outlined" data-icon="badge">badge</span>
+<span class="text-body-base font-body-base">Profesores</span>
+</a>
+<a class="flex items-center gap-sm px-sm py-xs rounded-lg hover:bg-surface-container-high transition-colors duration-150 text-on-surface-variant" href="#">
+<span class="material-symbols-outlined" data-icon="directions_car">directions_car</span>
+<span class="text-body-base font-body-base">Flota</span>
+</a>
+<a class="flex items-center gap-sm px-sm py-xs rounded-lg hover:bg-surface-container-high transition-colors duration-150 text-on-surface-variant" href="#">
+<span class="material-symbols-outlined" data-icon="calendar_month">calendar_month</span>
+<span class="text-body-base font-body-base">Horarios</span>
+</a>
+<a class="flex items-center gap-sm px-sm py-xs rounded-lg hover:bg-surface-container-high transition-colors duration-150 text-on-surface-variant" href="#">
+<span class="material-symbols-outlined" data-icon="payments">payments</span>
+<span class="text-body-base font-body-base">Finanzas</span>
+</a>
+<a class="flex items-center gap-sm px-sm py-xs rounded-lg transition-transform scale-[0.99] text-primary dark:text-inverse-primary font-bold bg-secondary-container/20 dark:bg-secondary/20" href="#">
+<span class="material-symbols-outlined" data-icon="query_stats">query_stats</span>
+<span class="text-body-base font-body-base">IA/Analítica</span>
+</a>
+<a class="flex items-center gap-sm px-sm py-xs rounded-lg hover:bg-surface-container-high transition-colors duration-150 text-on-surface-variant" href="#">
+<span class="material-symbols-outlined" data-icon="settings">settings</span>
+<span class="text-body-base font-body-base">Configuración</span>
+</a>
+</nav>
+</aside>
+<!-- TopAppBar -->
+<header class="w-[calc(100%-280px)] fixed top-0 right-0 z-40 bg-surface/80 dark:bg-inverse-surface/80 backdrop-blur-md flex justify-between items-center px-lg h-16 ml-[280px]">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-primary" data-icon="search">search</span>
+<h1 class="text-headline-md font-headline-md text-on-surface">IA y Analítica</h1>
+</div>
+<div class="flex items-center gap-md">
+<div class="flex flex-col items-end">
+<span class="text-label-caps font-label-caps text-on-surface-variant">ESTADO DEL SISTEMA</span>
+<span class="text-body-sm font-body-sm text-tertiary font-bold uppercase tracking-wider">Optimizado</span>
+</div>
+<div class="w-10 h-10 rounded-full bg-primary-container flex items-center justify-center overflow-hidden border border-outline-variant">
+<img alt="Admin Profile" data-alt="A professional headshot of a mature business administrator in a modern office environment. The lighting is crisp and natural, highlighting a confident expression. The background is softly blurred, emphasizing the clean, minimalist aesthetic of the driving school's management interface." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAkbw0xkkdl7dM0GIlrVt8StVwX4NAPXLQYeTFBh_wGxi0oGIYl_UTfgQt9Q3uTHXuNniIkmkaEqbQldVKrSuwfvg6EyrWe_xWu9W7NH9iF8_H6PvJtK7PhT1CMtAjQM_dy6hUvlHrVwEHf8rZLTfyvnhISFSgcCMUbDBpuNbhqxWmF_usWFQt0VBtUNnOf_QLJVn6jvVBk7pLJCIn7WMGAubMnBsyn7v5ELqVSxB9TdCmz2Vk7ZgjZoXh_BiEq-rxknZTs15uzqws"/>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="ml-[280px] pt-16 p-lg">
+<div class="max-w-container-max mx-auto space-y-lg">
+<!-- Hero Stats Row: Forecast & Prediction -->
+<section class="grid grid-cols-1 lg:grid-cols-12 gap-gutter">
+<!-- Forecast Chart -->
+<div class="lg:col-span-8 glass-card rounded-xl p-md shadow-sm">
+<div class="flex justify-between items-center mb-md">
+<div>
+<h3 class="text-label-caps font-label-caps text-on-surface-variant mb-xs">PREDICCIÓN DE MATRÍCULAS</h3>
+<p class="text-headline-md font-headline-md text-on-surface">Pronóstico Próximo Trimestre</p>
+</div>
+<div class="flex items-center gap-xs bg-primary-fixed text-on-primary-fixed px-sm py-xs rounded-full">
+<span class="material-symbols-outlined text-sm" data-icon="trending_up">trending_up</span>
+<span class="text-label-caps font-label-caps">+14% vs Q2</span>
+</div>
+</div>
+<!-- Visualization Placeholder -->
+<div class="h-64 flex items-end justify-between gap-xs px-xs">
+<div class="w-full bg-surface-container rounded-t-lg transition-all hover:bg-primary-container" style="height: 45%;"></div>
+<div class="w-full bg-surface-container rounded-t-lg transition-all hover:bg-primary-container" style="height: 52%;"></div>
+<div class="w-full bg-surface-container rounded-t-lg transition-all hover:bg-primary-container" style="height: 60%;"></div>
+<div class="w-full bg-primary rounded-t-lg relative group" style="height: 78%;">
+<div class="absolute -top-10 left-1/2 -translate-x-1/2 bg-inverse-surface text-on-primary-container text-[10px] px-xs py-1 rounded hidden group-hover:block whitespace-nowrap">Predicho: 142 Alumnos</div>
+</div>
+<div class="w-full bg-primary/40 border-2 border-dashed border-primary rounded-t-lg" style="height: 85%;"></div>
+<div class="w-full bg-primary/40 border-2 border-dashed border-primary rounded-t-lg" style="height: 92%;"></div>
+</div>
+<div class="flex justify-between mt-sm text-label-caps font-label-caps text-outline">
+<span>ENE</span><span>FEB</span><span>MAR</span><span class="text-primary font-bold">ABR</span><span>MAY</span><span>JUN</span>
+</div>
+</div>
+<!-- AI Recommendation Summary -->
+<div class="lg:col-span-4 bg-primary text-on-primary rounded-xl p-md shadow-sm flex flex-col justify-between overflow-hidden relative">
+<div class="z-10">
+<span class="inline-flex items-center gap-xs bg-white/20 px-sm py-xs rounded-full text-[10px] font-bold mb-md">
+<span class="material-symbols-outlined text-xs" data-icon="auto_awesome">auto_awesome</span>
+                            IA RECOMENDACIÓN
+                        </span>
+<h4 class="text-headline-md font-headline-md mb-sm">Optimización de Flota</h4>
+<p class="text-body-sm font-body-sm opacity-90 leading-relaxed">
+                            Detectamos una demanda del 22% superior en turnos de tarde para el examen práctico. Recomendamos reasignar 2 vehículos del turno mañana para maximizar ingresos.
+                        </p>
+</div>
+<button class="mt-lg w-full bg-white text-primary font-bold py-sm rounded-lg flex items-center justify-center gap-sm hover:bg-primary-fixed transition-colors">
+                        Aplicar Ajustes
+                        <span class="material-symbols-outlined" data-icon="arrow_forward">arrow_forward</span>
+</button>
+<!-- Abstract Background Shape -->
+<div class="absolute -bottom-10 -right-10 w-40 h-40 bg-primary-container opacity-20 rounded-full blur-3xl"></div>
+</div>
+</section>
+<!-- Segmentation & Pass Prediction -->
+<section class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-gutter">
+<!-- Pass Rate Analytics -->
+<div class="glass-card rounded-xl p-md shadow-sm">
+<div class="flex items-center gap-sm mb-md">
+<div class="p-xs bg-tertiary-fixed rounded-lg">
+<span class="material-symbols-outlined text-tertiary" data-icon="fact_check">fact_check</span>
+</div>
+<h4 class="text-body-base font-bold">Probabilidad de Aprobado</h4>
+</div>
+<div class="space-y-md">
+<div>
+<div class="flex justify-between text-label-caps font-label-caps mb-xs">
+<span>TEÓRICO</span>
+<span class="text-primary">88%</span>
+</div>
+<div class="h-2 w-full bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-primary" style="width: 88%"></div>
+</div>
+</div>
+<div>
+<div class="flex justify-between text-label-caps font-label-caps mb-xs">
+<span>PRÁCTICO</span>
+<span class="text-secondary">72%</span>
+</div>
+<div class="h-2 w-full bg-surface-container rounded-full overflow-hidden">
+<div class="h-full bg-secondary" style="width: 72%"></div>
+</div>
+</div>
+<p class="text-[11px] text-on-surface-variant italic mt-sm">Basado en el rendimiento de los últimos 200 simulacros.</p>
+</div>
+</div>
+<!-- Demographic Segmentation -->
+<div class="glass-card rounded-xl p-md shadow-sm">
+<h4 class="text-label-caps font-label-caps text-on-surface-variant mb-md">SEGMENTACIÓN DE ALUMNOS</h4>
+<div class="flex items-center justify-around h-32">
+<div class="flex flex-col items-center">
+<div class="w-12 h-12 rounded-full border-4 border-primary border-t-transparent animate-spin-slow"></div>
+<span class="text-body-sm font-bold mt-sm">18-24</span>
+<span class="text-[10px] text-outline">65%</span>
+</div>
+<div class="flex flex-col items-center">
+<div class="w-12 h-12 rounded-full border-4 border-secondary border-t-transparent"></div>
+<span class="text-body-sm font-bold mt-sm">25-35</span>
+<span class="text-[10px] text-outline">22%</span>
+</div>
+<div class="flex flex-col items-center">
+<div class="w-12 h-12 rounded-full border-4 border-tertiary border-t-transparent"></div>
+<span class="text-body-sm font-bold mt-sm">35+</span>
+<span class="text-[10px] text-outline">13%</span>
+</div>
+</div>
+</div>
+<!-- Efficiency Score -->
+<div class="glass-card rounded-xl p-md shadow-sm flex flex-col justify-center items-center text-center">
+<h4 class="text-label-caps font-label-caps text-on-surface-variant mb-sm">PUNTUACIÓN DE EFICIENCIA</h4>
+<div class="text-[64px] font-bold text-on-surface leading-none mb-xs">9.4</div>
+<div class="text-label-caps font-bold text-tertiary tracking-widest">EXCELENTE</div>
+<p class="text-body-sm text-on-surface-variant mt-sm px-md">Tu escuela está un 15% por encima de la media regional en rapidez de obtención del carnet.</p>
+</div>
+</section>
+<!-- Detailed AI Recommendations Center -->
+<section class="glass-card rounded-xl overflow-hidden border border-outline-variant shadow-sm">
+<div class="bg-surface-container-low px-md py-sm border-b border-outline-variant flex justify-between items-center">
+<h3 class="text-body-base font-bold flex items-center gap-xs">
+<span class="material-symbols-outlined text-primary" data-icon="bolt">bolt</span>
+                        Centro de Recomendaciones Inteligentes
+                    </h3>
+<span class="text-label-caps font-label-caps text-outline">ACTUALIZADO HACE 4H</span>
+</div>
+<div class="divide-y divide-outline-variant">
+<!-- Recommendation 1 -->
+<div class="p-md flex gap-md hover:bg-surface-container-lowest transition-colors group">
+<div class="h-10 w-10 shrink-0 rounded-lg bg-error-container text-error flex items-center justify-center">
+<span class="material-symbols-outlined" data-icon="warning">warning</span>
+</div>
+<div class="flex-grow">
+<h5 class="text-body-base font-bold mb-xs">Alerta de Riesgo: Abandono Teórico</h5>
+<p class="text-body-sm text-on-surface-variant leading-relaxed">
+                                12 alumnos no han registrado actividad en la app de test durante los últimos 7 días. El sistema predice un 40% de probabilidad de abandono si no hay contacto en las próximas 48h.
+                            </p>
+</div>
+<button class="self-center bg-surface-container text-on-surface px-md py-xs rounded-lg font-bold text-body-sm group-hover:bg-primary group-hover:text-white transition-all">
+                            Enviar Recordatorio
+                        </button>
+</div>
+<!-- Recommendation 2 -->
+<div class="p-md flex gap-md hover:bg-surface-container-lowest transition-colors group">
+<div class="h-10 w-10 shrink-0 rounded-lg bg-primary-fixed text-primary flex items-center justify-center">
+<span class="material-symbols-outlined" data-icon="auto_graph">auto_graph</span>
+</div>
+<div class="flex-grow">
+<h5 class="text-body-base font-bold mb-xs">Oportunidad de Venta (Upselling)</h5>
+<p class="text-body-sm text-on-surface-variant leading-relaxed">
+                                Los alumnos que contratan el "Pack Intensivo" tras suspender el primer simulacro tienen un 90% de tasa de éxito. Identificados 15 candidatos este mes.
+                            </p>
+</div>
+<button class="self-center bg-surface-container text-on-surface px-md py-xs rounded-lg font-bold text-body-sm group-hover:bg-primary group-hover:text-white transition-all">
+                            Ver Candidatos
+                        </button>
+</div>
+<!-- Recommendation 3 -->
+<div class="p-md flex gap-md hover:bg-surface-container-lowest transition-colors group">
+<div class="h-10 w-10 shrink-0 rounded-lg bg-tertiary-fixed text-tertiary flex items-center justify-center">
+<span class="material-symbols-outlined" data-icon="calendar_today">calendar_today</span>
+</div>
+<div class="flex-grow">
+<h5 class="text-body-base font-bold mb-xs">Optimización de Calendario de Exámenes</h5>
+<p class="text-body-sm text-on-surface-variant leading-relaxed">
+                                Históricamente, la tasa de aprobado los jueves a las 10:00 AM es un 12% superior. Sugerimos priorizar esta franja para alumnos con ansiedad ante exámenes.
+                            </p>
+</div>
+<button class="self-center bg-surface-container text-on-surface px-md py-xs rounded-lg font-bold text-body-sm group-hover:bg-primary group-hover:text-white transition-all">
+                            Ajustar Horario
+                        </button>
+</div>
+</div>
+</section>
+<!-- Historical Comparison & Data Table -->
+<section class="glass-card rounded-xl p-md shadow-sm">
+<div class="flex justify-between items-center mb-lg">
+<h3 class="text-headline-md font-headline-md text-on-surface">Comparativa Histórica de Rendimiento</h3>
+<div class="flex border border-outline-variant rounded-lg overflow-hidden">
+<button class="px-md py-xs bg-surface-container-high font-bold text-body-sm">Mensual</button>
+<button class="px-md py-xs hover:bg-surface-container-low transition-colors text-body-sm">Anual</button>
+</div>
+</div>
+<div class="overflow-x-auto">
+<table class="w-full text-left">
+<thead>
+<tr class="border-b border-surface-container-high">
+<th class="pb-sm text-label-caps font-label-caps text-outline">MÉTRICA</th>
+<th class="pb-sm text-label-caps font-label-caps text-outline">PERIODO ACTUAL</th>
+<th class="pb-sm text-label-caps font-label-caps text-outline">PERIODO ANTERIOR</th>
+<th class="pb-sm text-label-caps font-label-caps text-outline">TENDENCIA</th>
+</tr>
+</thead>
+<tbody class="divide-y divide-surface-container-low">
+<tr class="hover:bg-surface-container-lowest transition-colors">
+<td class="py-md text-body-base font-bold">Nuevas Matrículas</td>
+<td class="py-md text-body-base">124</td>
+<td class="py-md text-body-base text-on-surface-variant">108</td>
+<td class="py-md text-primary flex items-center gap-xs">
+<span class="material-symbols-outlined text-sm" data-icon="arrow_upward">arrow_upward</span>
+                                    14.8%
+                                </td>
+</tr>
+<tr class="hover:bg-surface-container-lowest transition-colors">
+<td class="py-md text-body-base font-bold">Aprobados 1ª Convocatoria</td>
+<td class="py-md text-body-base">64%</td>
+<td class="py-md text-body-base text-on-surface-variant">68%</td>
+<td class="py-md text-error flex items-center gap-xs">
+<span class="material-symbols-outlined text-sm" data-icon="arrow_downward">arrow_downward</span>
+                                    4.0%
+                                </td>
+</tr>
+<tr class="hover:bg-surface-container-lowest transition-colors">
+<td class="py-md text-body-base font-bold">Uso del Simulador</td>
+<td class="py-md text-body-base">892h</td>
+<td class="py-md text-body-base text-on-surface-variant">610h</td>
+<td class="py-md text-primary flex items-center gap-xs">
+<span class="material-symbols-outlined text-sm" data-icon="arrow_upward">arrow_upward</span>
+                                    46.2%
+                                </td>
+</tr>
+<tr class="hover:bg-surface-container-lowest transition-colors">
+<td class="py-md text-body-base font-bold">Ingresos por Alumno</td>
+<td class="py-md text-body-base">785€</td>
+<td class="py-md text-body-base text-on-surface-variant">740€</td>
+<td class="py-md text-primary flex items-center gap-xs">
+<span class="material-symbols-outlined text-sm" data-icon="arrow_upward">arrow_upward</span>
+                                    6.1%
+                                </td>
+</tr>
+</tbody>
+</table>
+</div>
+</section>
+</div>
+</main>
+<!-- FAB: Only for core dashboard actions -->
+<button class="fixed bottom-lg right-lg w-14 h-14 bg-primary text-on-primary rounded-full shadow-lg flex items-center justify-center hover:scale-105 active:scale-95 transition-all z-50">
+<span class="material-symbols-outlined" data-icon="add">add</span>
+</button>
+</body></html>

@@ -1,0 +1,339 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "primary-fixed-dim": "#87ceff",
+                        "primary-container": "#007cb0",
+                        "primary": "#00628c",
+                        "on-surface-variant": "#3e4850",
+                        "surface-container-high": "#dce9ff",
+                        "primary-fixed": "#c8e6ff",
+                        "surface-dim": "#cbdbf5",
+                        "on-secondary-fixed": "#001256",
+                        "secondary-fixed-dim": "#b9c3ff",
+                        "on-error": "#ffffff",
+                        "background": "#f8f9ff",
+                        "secondary": "#4558ae",
+                        "tertiary-fixed": "#ffddb8",
+                        "on-primary": "#ffffff",
+                        "surface-container-highest": "#d3e4fe",
+                        "on-background": "#0b1c30",
+                        "tertiary-fixed-dim": "#ffb95f",
+                        "on-secondary-fixed-variant": "#2b3f94",
+                        "surface-variant": "#d3e4fe",
+                        "surface-container": "#e5eeff",
+                        "on-tertiary-fixed-variant": "#653e00",
+                        "on-tertiary": "#ffffff",
+                        "error": "#ba1a1a",
+                        "outline-variant": "#bec8d1",
+                        "surface-container-lowest": "#ffffff",
+                        "on-tertiary-fixed": "#2a1700",
+                        "on-error-container": "#93000a",
+                        "outline": "#6f7881",
+                        "tertiary": "#825100",
+                        "secondary-container": "#90a3ff",
+                        "inverse-primary": "#87ceff",
+                        "inverse-on-surface": "#eaf1ff",
+                        "surface-tint": "#006590",
+                        "inverse-surface": "#213145",
+                        "on-primary-fixed-variant": "#004c6d",
+                        "on-primary-fixed": "#001e2e",
+                        "on-secondary-container": "#20358b",
+                        "on-secondary": "#ffffff",
+                        "surface-bright": "#f8f9ff",
+                        "tertiary-container": "#a36700",
+                        "on-tertiary-container": "#fffbff",
+                        "on-surface": "#0b1c30",
+                        "error-container": "#ffdad6",
+                        "surface": "#f8f9ff",
+                        "secondary-fixed": "#dde1ff",
+                        "on-primary-container": "#fcfcff",
+                        "surface-container-low": "#eff4ff"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "base": "4px",
+                        "container-max": "1280px",
+                        "sm": "1rem",
+                        "lg": "2.5rem",
+                        "xl": "4rem",
+                        "md": "1.5rem",
+                        "gutter": "1.5rem",
+                        "xs": "0.5rem"
+                    },
+                    "fontFamily": {
+                        "display-lg-mobile": ["Inter"],
+                        "body-sm": ["Inter"],
+                        "label-caps": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "body-base": ["Inter"],
+                        "display-lg": ["Inter"]
+                    },
+                    "fontSize": {
+                        "display-lg-mobile": ["36px", {"lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}],
+                        "label-caps": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "body-base": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background font-body-base antialiased">
+<!-- Top App Bar (Mobile) -->
+<header class="w-full sticky top-0 z-40 bg-surface/80 backdrop-blur-md flex justify-between items-center px-gutter h-16 md:ml-[280px]">
+<div class="flex items-center gap-xs">
+<span class="material-symbols-outlined text-primary">directions_car</span>
+<h1 class="font-headline-md text-headline-md font-bold text-primary">Practical Progress</h1>
+</div>
+<button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined text-on-surface-variant">notifications</span>
+</button>
+</header>
+<main class="max-w-container-max mx-auto pb-32 px-gutter md:ml-[280px] pt-sm">
+<!-- Summary Card -->
+<section class="mb-lg">
+<div class="bg-white rounded-xl p-md border border-outline-variant/30 shadow-[0_2px_4px_rgba(0,0,0,0.05)]">
+<div class="flex justify-between items-center mb-sm">
+<span class="font-label-caps text-label-caps text-on-surface-variant">OVERALL READINESS</span>
+<span class="font-headline-md text-headline-md text-primary font-bold">78%</span>
+</div>
+<div class="w-full bg-surface-container rounded-full h-3 mb-base">
+<div class="bg-primary h-3 rounded-full" style="width: 78%"></div>
+</div>
+<p class="font-body-sm text-body-sm text-on-surface-variant">You're making great progress! Focus on your highway transitions to reach 85%.</p>
+</div>
+</section>
+<!-- Skill Progress Bars (Bento Style) -->
+<section class="grid grid-cols-1 gap-md mb-lg">
+<h2 class="font-label-caps text-label-caps text-on-surface-variant">DRIVING SKILLSET</h2>
+<div class="grid grid-cols-1 md:grid-cols-2 gap-md">
+<!-- Skill Card 1 -->
+<div class="bg-white p-md rounded-xl border border-outline-variant/30 shadow-sm">
+<div class="flex justify-between items-start mb-sm">
+<div>
+<span class="material-symbols-outlined text-tertiary mb-xs">published_with_changes</span>
+<h3 class="font-body-base font-bold">Roundabouts</h3>
+</div>
+<span class="text-on-surface-variant font-label-caps text-label-caps">Advanced</span>
+</div>
+<div class="w-full bg-surface-container rounded-full h-2 mb-xs">
+<div class="bg-tertiary-container h-2 rounded-full" style="width: 90%"></div>
+</div>
+</div>
+<!-- Skill Card 2 -->
+<div class="bg-white p-md rounded-xl border border-outline-variant/30 shadow-sm">
+<div class="flex justify-between items-start mb-sm">
+<div>
+<span class="material-symbols-outlined text-primary mb-xs">vertical_align_center</span>
+<h3 class="font-body-base font-bold">Parallel Parking</h3>
+</div>
+<span class="text-on-surface-variant font-label-caps text-label-caps">Intermediate</span>
+</div>
+<div class="w-full bg-surface-container rounded-full h-2 mb-xs">
+<div class="bg-primary h-2 rounded-full" style="width: 65%"></div>
+</div>
+</div>
+<!-- Skill Card 3 -->
+<div class="bg-white p-md rounded-xl border border-outline-variant/30 shadow-sm">
+<div class="flex justify-between items-start mb-sm">
+<div>
+<span class="material-symbols-outlined text-tertiary mb-xs">speed</span>
+<h3 class="font-body-base font-bold">Highway Driving</h3>
+</div>
+<span class="text-on-surface-variant font-label-caps text-label-caps">Learning</span>
+</div>
+<div class="w-full bg-surface-container rounded-full h-2 mb-xs">
+<div class="bg-tertiary-container h-2 rounded-full" style="width: 40%"></div>
+</div>
+</div>
+<!-- Skill Card 4 -->
+<div class="bg-white p-md rounded-xl border border-outline-variant/30 shadow-sm">
+<div class="flex justify-between items-start mb-sm">
+<div>
+<span class="material-symbols-outlined text-primary mb-xs">emergency_home</span>
+<h3 class="font-body-base font-bold">Emergency Stop</h3>
+</div>
+<span class="text-on-surface-variant font-label-caps text-label-caps">Mastered</span>
+</div>
+<div class="w-full bg-surface-container rounded-full h-2 mb-xs">
+<div class="bg-primary h-2 rounded-full" style="width: 100%"></div>
+</div>
+</div>
+</div>
+</section>
+<!-- Weak Points Analysis -->
+<section class="mb-lg">
+<h2 class="font-label-caps text-label-caps text-on-surface-variant mb-sm">WEAK POINTS ANALYSIS</h2>
+<div class="bg-white rounded-xl overflow-hidden border border-outline-variant/30 shadow-sm">
+<div class="p-md flex items-start gap-md border-b border-outline-variant/10">
+<div class="bg-error-container p-xs rounded-lg text-error">
+<span class="material-symbols-outlined">visibility</span>
+</div>
+<div>
+<h4 class="font-body-base font-bold">Mirror checks</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Missing interior mirror check before braking in 30% of instances.</p>
+</div>
+</div>
+<div class="p-md flex items-start gap-md">
+<div class="bg-tertiary-fixed p-xs rounded-lg text-tertiary">
+<span class="material-symbols-outlined">network_ping</span>
+</div>
+<div>
+<h4 class="font-body-base font-bold">Signal timing</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Tendency to signal slightly late when exiting roundabouts.</p>
+</div>
+</div>
+</div>
+</section>
+<!-- Milestone Achievements -->
+<section class="mb-lg">
+<h2 class="font-label-caps text-label-caps text-on-surface-variant mb-sm">MILESTONE ACHIEVEMENTS</h2>
+<div class="flex gap-sm overflow-x-auto pb-sm no-scrollbar">
+<!-- Badge 1 -->
+<div class="flex-shrink-0 bg-white p-sm rounded-xl border border-outline-variant/30 shadow-sm w-32 flex flex-col items-center text-center">
+<div class="w-12 h-12 bg-primary-fixed rounded-full flex items-center justify-center mb-xs">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">nightlight_round</span>
+</div>
+<span class="font-label-caps text-[10px] leading-tight font-bold">First Night Drive</span>
+</div>
+<!-- Badge 2 -->
+<div class="flex-shrink-0 bg-white p-sm rounded-xl border border-outline-variant/30 shadow-sm w-32 flex flex-col items-center text-center">
+<div class="w-12 h-12 bg-tertiary-fixed rounded-full flex items-center justify-center mb-xs">
+<span class="material-symbols-outlined text-tertiary" style="font-variation-settings: 'FILL' 1;">verified</span>
+</div>
+<span class="font-label-caps text-[10px] leading-tight font-bold">Perfect Stop</span>
+</div>
+<!-- Badge 3 -->
+<div class="flex-shrink-0 bg-white p-sm rounded-xl border border-outline-variant/30 shadow-sm w-32 flex flex-col items-center text-center grayscale opacity-50">
+<div class="w-12 h-12 bg-surface-container rounded-full flex items-center justify-center mb-xs">
+<span class="material-symbols-outlined text-outline">speed</span>
+</div>
+<span class="font-label-caps text-[10px] leading-tight font-bold">Highway Ace</span>
+</div>
+</div>
+</section>
+<!-- Instructor Evaluations Timeline -->
+<section class="mb-lg">
+<h2 class="font-label-caps text-label-caps text-on-surface-variant mb-sm">INSTRUCTOR EVALUATIONS</h2>
+<div class="relative pl-gutter">
+<!-- Timeline Line -->
+<div class="absolute left-[11px] top-0 bottom-0 w-[2px] bg-outline-variant/30"></div>
+<!-- Timeline Item 1 -->
+<div class="relative mb-lg">
+<div class="absolute -left-[23px] top-1 w-4 h-4 rounded-full border-2 border-primary bg-white"></div>
+<div class="bg-white p-md rounded-xl border border-outline-variant/30 shadow-sm">
+<div class="flex justify-between items-center mb-xs">
+<span class="font-label-caps text-label-caps text-primary">OCT 12, 2023</span>
+<span class="font-body-sm text-body-sm font-bold">Grade: B+</span>
+</div>
+<h4 class="font-body-base font-bold mb-xs">Instructor: Carlos R.</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant italic">"Excellent control in heavy traffic today. Mirror checks are improving, but watch your blind spot on lane merges."</p>
+</div>
+</div>
+<!-- Timeline Item 2 -->
+<div class="relative mb-lg">
+<div class="absolute -left-[23px] top-1 w-4 h-4 rounded-full border-2 border-tertiary bg-white"></div>
+<div class="bg-white p-md rounded-xl border border-outline-variant/30 shadow-sm">
+<div class="flex justify-between items-center mb-xs">
+<span class="font-label-caps text-label-caps text-tertiary">OCT 08, 2023</span>
+<span class="font-body-sm text-body-sm font-bold">Grade: A-</span>
+</div>
+<h4 class="font-body-base font-bold mb-xs">Instructor: Elena M.</h4>
+<p class="font-body-sm text-body-sm text-on-surface-variant italic">"Mastered the emergency stop sequence. Very responsive to verbal cues."</p>
+</div>
+</div>
+</div>
+</section>
+</main>
+<!-- Navigation Drawer (Desktop - Predicted Shared Component) -->
+<aside class="w-[280px] h-full fixed left-0 top-0 hidden md:block bg-on-secondary-fixed-variant dark:bg-inverse-surface shadow-md flex flex-col py-md overflow-y-auto">
+<div class="px-gutter mb-lg">
+<h2 class="text-headline-md font-headline-md font-bold text-white">Autoescuela Camacho</h2>
+<p class="text-white/60 text-body-sm">Student Portal</p>
+</div>
+<nav class="flex-1 space-y-xs">
+<a class="flex items-center gap-3 px-4 py-3 text-surface-container-high hover:bg-white/10 rounded-lg mx-2 transition-colors" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-body-base">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-surface-container-high hover:bg-white/10 rounded-lg mx-2 transition-colors" href="#">
+<span class="material-symbols-outlined">school</span>
+<span class="font-body-base">Theoretical</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 bg-primary text-white rounded-lg mx-2 transition-colors" href="#">
+<span class="material-symbols-outlined">directions_car</span>
+<span class="font-body-base font-bold">Practical</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-surface-container-high hover:bg-white/10 rounded-lg mx-2 transition-colors" href="#">
+<span class="material-symbols-outlined">assignment</span>
+<span class="font-body-base">Exams</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-surface-container-high hover:bg-white/10 rounded-lg mx-2 transition-colors" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-body-base">Settings</span>
+</a>
+</nav>
+<div class="px-gutter mt-auto pt-md border-t border-white/10">
+<div class="flex items-center gap-sm">
+<img class="w-10 h-10 rounded-full border border-white/20" data-alt="Close up portrait of a young man with a friendly expression in a high-key studio setting. He is a driving student, clean-cut, representing the target demographic of Autoescuela Camacho. The lighting is soft and professional, emphasizing a modern and reliable brand identity." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBhh-wWa5skoxBzn5av_0jWSfGh58b_rkfpbMp-Ragu4eNmxJYnq30Ry7EevW1PxHUg4v1yqBbfxpzwox0Dc02AHHJsNhaOIMafW-tDQJoVslaZCNah3nSmpL7R3eL6SnulaJAd0kp_DmScczc3omrpJzhdihTvoHMB8zIgQKNhJpJXOdLKZPRvmk2WWVnKNfQSW8d5PPF4bwkE-l2Cpo4Lk-MspKNJFoeqfFWze4vTSnqqn2yan5PVANuA-veY_s3u4Hc6aEb9pxY"/>
+<div>
+<p class="text-white font-bold text-body-base">Mario Gomez</p>
+<p class="text-white/60 text-body-sm">License Type B</p>
+</div>
+</div>
+</div>
+</aside>
+<!-- Bottom Nav Bar (Mobile - Shared Component) -->
+<nav class="fixed bottom-0 w-full md:hidden bg-surface dark:bg-inverse-surface border-t border-outline-variant/30 shadow-[0_-4px_10px_rgba(0,0,0,0.05)] rounded-t-xl z-50 flex justify-around items-center h-16 px-2 pb-safe">
+<a class="flex flex-col items-center justify-center text-on-surface-variant font-label-caps text-label-caps active:scale-95 transition-transform" href="#">
+<span class="material-symbols-outlined">home</span>
+<span>Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-primary font-bold font-label-caps text-label-caps active:scale-95 transition-transform" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">directions_car</span>
+<span>Lessons</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant font-label-caps text-label-caps active:scale-95 transition-transform" href="#">
+<span class="material-symbols-outlined">history_edu</span>
+<span>Exams</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant font-label-caps text-label-caps active:scale-95 transition-transform" href="#">
+<span class="material-symbols-outlined">person</span>
+<span>Profile</span>
+</a>
+</nav>
+<!-- Optional FAB (Only for Lessons screens) -->
+<button class="fixed bottom-20 right-gutter w-14 h-14 bg-primary text-white rounded-full shadow-lg flex items-center justify-center active:scale-95 transition-transform md:hidden">
+<span class="material-symbols-outlined" style="font-size: 32px;">add</span>
+</button>
+</body></html>

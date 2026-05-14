@@ -1,0 +1,419 @@
+<!DOCTYPE html>
+
+<html lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary-container": "#20358b",
+                        "primary": "#00628c",
+                        "on-secondary-fixed-variant": "#2b3f94",
+                        "surface-container-high": "#dce9ff",
+                        "error-container": "#ffdad6",
+                        "secondary": "#4558ae",
+                        "on-tertiary-container": "#fffbff",
+                        "on-primary-fixed": "#001e2e",
+                        "surface-dim": "#cbdbf5",
+                        "on-primary-fixed-variant": "#004c6d",
+                        "inverse-on-surface": "#eaf1ff",
+                        "secondary-container": "#90a3ff",
+                        "surface-bright": "#f8f9ff",
+                        "tertiary-fixed-dim": "#ffb95f",
+                        "surface-variant": "#d3e4fe",
+                        "surface-container-lowest": "#ffffff",
+                        "primary-fixed-dim": "#87ceff",
+                        "primary-fixed": "#c8e6ff",
+                        "on-surface-variant": "#3e4850",
+                        "on-primary-container": "#fcfcff",
+                        "on-primary": "#ffffff",
+                        "primary-container": "#007cb0",
+                        "secondary-fixed": "#dde1ff",
+                        "surface": "#f8f9ff",
+                        "on-tertiary": "#ffffff",
+                        "inverse-primary": "#87ceff",
+                        "tertiary-container": "#a36700",
+                        "on-tertiary-fixed": "#2a1700",
+                        "on-error-container": "#93000a",
+                        "error": "#ba1a1a",
+                        "on-surface": "#0b1c30",
+                        "secondary-fixed-dim": "#b9c3ff",
+                        "on-secondary": "#ffffff",
+                        "tertiary-fixed": "#ffddb8",
+                        "on-background": "#0b1c30",
+                        "surface-container-highest": "#d3e4fe",
+                        "outline-variant": "#bec8d1",
+                        "on-secondary-fixed": "#001256",
+                        "on-error": "#ffffff",
+                        "background": "#f8f9ff",
+                        "inverse-surface": "#213145",
+                        "surface-tint": "#006590",
+                        "surface-container-low": "#eff4ff",
+                        "surface-container": "#e5eeff",
+                        "outline": "#6f7881",
+                        "on-tertiary-fixed-variant": "#653e00",
+                        "tertiary": "#825100"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "xl": "4rem",
+                        "gutter": "1.5rem",
+                        "sm": "1rem",
+                        "base": "4px",
+                        "md": "1.5rem",
+                        "lg": "2.5rem",
+                        "container-max": "1280px",
+                        "xs": "0.5rem"
+                    },
+                    "fontFamily": {
+                        "body-base": ["Inter"],
+                        "display-lg": ["Inter"],
+                        "label-caps": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "body-sm": ["Inter"]
+                    },
+                    "fontSize": {
+                        "body-base": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "label-caps": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            line-height: 1;
+            text-transform: none;
+            letter-spacing: normal;
+            word-wrap: normal;
+            white-space: nowrap;
+            direction: ltr;
+        }
+        .timeline-grid {
+            display: grid;
+            grid-template-columns: 72px 1fr;
+        }
+        @media (max-width: 768px) {
+            .timeline-grid {
+                grid-template-columns: 60px 1fr;
+            }
+        }
+        /* High contrast focus rings for accessibility */
+        :focus-visible {
+            outline: 3px solid #00628c;
+            outline-offset: 2px;
+        }
+        /* Mobile scroll behavior */
+        .safe-bottom-padding {
+            padding-bottom: calc(4rem + env(safe-area-inset-bottom));
+        }
+    </style>
+</head>
+<body class="bg-background font-body-base text-on-background antialiased">
+<!-- Navigation Drawer (Desktop) -->
+<aside class="bg-on-secondary-fixed-variant dark:bg-inverse-surface w-[280px] h-full fixed left-0 top-0 hidden md:flex shadow-md flex-col py-md z-50">
+<div class="px-6 mb-lg">
+<h1 class="text-headline-md font-headline-md font-bold text-white">Autoescuela Camacho</h1>
+<p class="text-white/60 text-body-sm">Portal del Instructor</p>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center gap-3 px-4 py-3 bg-primary text-white rounded-lg mx-2 transition-transform active:scale-95 duration-150" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span>Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-surface-container-high hover:bg-white/10 rounded-lg mx-2 transition-colors" href="#">
+<span class="material-symbols-outlined">school</span>
+<span>Teórico</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-surface-container-high hover:bg-white/10 rounded-lg mx-2 transition-colors" href="#">
+<span class="material-symbols-outlined">directions_car</span>
+<span>Práctico</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-surface-container-high hover:bg-white/10 rounded-lg mx-2 transition-colors" href="#">
+<span class="material-symbols-outlined">assignment</span>
+<span>Exámenes</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-surface-container-high hover:bg-white/10 rounded-lg mx-2 transition-colors" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span>Ajustes</span>
+</a>
+</nav>
+<div class="px-6 mt-auto">
+<div class="flex items-center gap-3 py-4 border-t border-white/10">
+<img alt="Foto de perfil del instructor" class="w-10 h-10 rounded-full bg-white/20 object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCGRqnGm630ZszxM7m4tKXu02ogLJ1bELuoLm9X5dCxUL3zu3L6xtWZK52BzM635uHIDZAKgrSYqGi9nluErZn1lWe7zTrqIVwf1NEZ4BRXNsE9Aajj6-YOfR5VhiKcs661_UAsdbw_l4ak0hJDPXS49kf5VkDIl6PT4Q8eWa9qzD-gH5-Vi8FdRugpsHtLzWWXhGMXZEGV84YyYux-4nxm0sb3FK36GlNQAl_EzdUQUXX3O3rsMTyXH9SigMstZIoomGUA3BreG2U"/>
+<div>
+<p class="text-white font-bold text-body-sm">Carlos Instructor</p>
+<p class="text-white/60 text-[10px] tracking-wider uppercase">v2.1.0</p>
+</div>
+</div>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="md:ml-[280px] min-h-screen flex flex-col">
+<!-- Top App Bar -->
+<header class="w-full sticky top-0 z-40 bg-surface/90 backdrop-blur-md border-b border-outline-variant/30 flex justify-between items-center px-gutter h-16">
+<div class="flex items-center gap-3">
+<button aria-label="Abrir menú" class="md:hidden p-2 hover:bg-surface-container rounded-full focus:ring-2 focus:ring-primary">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<h2 class="font-headline-md text-headline-md font-bold text-primary truncate max-w-[200px] sm:max-w-none">Agenda Diaria</h2>
+</div>
+<div class="flex items-center gap-3">
+<div class="hidden sm:flex items-center bg-surface-container px-4 py-2 rounded-full border border-outline-variant/30 focus-within:ring-2 focus-within:ring-primary group">
+<span class="material-symbols-outlined text-on-surface-variant group-focus-within:text-primary mr-2">search</span>
+<input class="bg-transparent border-none p-0 focus:ring-0 text-body-sm w-40" placeholder="Buscar alumno..." type="text"/>
+</div>
+<div aria-checked="true" class="flex items-center gap-3 bg-surface-container-high px-3 py-1.5 rounded-full border border-outline-variant/50 cursor-pointer group active:bg-surface-container-highest transition-colors" role="switch" tabindex="0">
+<span class="text-[10px] font-bold text-on-surface tracking-wider">DISPONIBLE</span>
+<div class="w-10 h-5 bg-primary rounded-full relative transition-all shadow-inner">
+<div class="w-3.5 h-3.5 bg-white rounded-full absolute right-0.5 top-0.5 shadow-sm"></div>
+</div>
+</div>
+</div>
+</header>
+<!-- Content Canvas -->
+<section class="p-4 sm:p-gutter max-w-container-max mx-auto w-full flex-1 space-y-gutter safe-bottom-padding">
+<!-- Date Selector & Controls -->
+<div class="flex flex-col md:flex-row justify-between items-start md:items-center gap-4">
+<div>
+<h3 class="font-headline-md text-headline-md text-on-surface">Hoy, 24 de Mayo 2024</h3>
+<p class="text-on-surface-variant text-body-sm flex items-center gap-2">
+<span class="inline-block w-2 h-2 rounded-full bg-primary"></span>
+                        8 Clases programadas • 2 Espacios libres
+                    </p>
+</div>
+<div class="flex items-center bg-white shadow-sm border border-outline-variant rounded-xl p-1 w-full md:w-auto">
+<button class="flex-1 md:flex-none px-4 py-2 hover:bg-surface-container rounded-lg text-body-sm font-semibold transition-colors focus:ring-2 focus:ring-primary">Ayer</button>
+<button class="flex-1 md:flex-none px-4 py-2 bg-primary text-white rounded-lg text-body-sm font-semibold shadow-md focus:ring-2 focus:ring-primary">Hoy</button>
+<button class="flex-1 md:flex-none px-4 py-2 hover:bg-surface-container rounded-lg text-body-sm font-semibold transition-colors focus:ring-2 focus:ring-primary">Mañana</button>
+<button aria-label="Seleccionar fecha" class="ml-1 p-2 hover:bg-surface-container rounded-lg focus:ring-2 focus:ring-primary">
+<span class="material-symbols-outlined">calendar_month</span>
+</button>
+</div>
+</div>
+<!-- Dashboard Grid -->
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-gutter items-start">
+<!-- Main Timeline View -->
+<div class="lg:col-span-8 bg-white border border-outline-variant rounded-2xl shadow-sm overflow-hidden flex flex-col">
+<div class="p-4 bg-surface border-b border-outline-variant flex justify-between items-center sticky top-0 z-20">
+<span class="font-label-caps text-on-surface-variant">HORARIO DE CLASES</span>
+<div class="flex gap-4">
+<span class="flex items-center gap-1.5 text-[11px] text-on-surface font-bold">
+<span class="w-2.5 h-2.5 rounded-full bg-primary ring-2 ring-primary/20"></span> PRÁCTICA
+                            </span>
+<span class="flex items-center gap-1.5 text-[11px] text-on-surface font-bold">
+<span class="w-2.5 h-2.5 rounded-full bg-tertiary ring-2 ring-tertiary/20"></span> EXAMEN
+                            </span>
+</div>
+</div>
+<!-- Scrollable Timeline -->
+<div class="flex-1 divide-y divide-outline-variant/30">
+<!-- 08:00 Slot (Practice) -->
+<div class="timeline-grid min-h-[110px] hover:bg-surface-container-low transition-colors group cursor-pointer">
+<div class="flex flex-col items-center justify-center border-r border-outline-variant/30 bg-surface/20">
+<span class="text-label-caps font-bold text-on-surface">08:00</span>
+<span class="text-[10px] font-semibold text-outline">AM</span>
+</div>
+<div class="p-3 sm:p-4">
+<div class="bg-primary-fixed-dim/20 border-l-[6px] border-primary rounded-xl p-3.5 relative group-hover:shadow-md transition-all active:scale-[0.99] touch-manipulation">
+<div class="flex justify-between items-start mb-2 gap-2">
+<h4 class="font-bold text-on-surface text-body-base leading-tight">Javier Moreno Ruíz</h4>
+<span class="shrink-0 bg-primary/10 text-primary border border-primary/20 text-[10px] font-black px-2.5 py-1 rounded-full uppercase tracking-tight">Permiso B</span>
+</div>
+<div class="flex flex-wrap items-center gap-x-4 gap-y-1 text-on-surface-variant text-body-sm font-medium">
+<span class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[18px] text-primary">map</span>
+                                            Ruta: Centro / Autovía
+                                        </span>
+<span class="flex items-center gap-1.5">
+<span class="material-symbols-outlined text-[18px] text-primary">history_edu</span>
+                                            Clase #12/20
+                                        </span>
+</div>
+</div>
+</div>
+</div>
+<!-- 09:00 Slot (Exam) -->
+<div class="timeline-grid min-h-[110px] hover:bg-surface-container-low transition-colors group cursor-pointer">
+<div class="flex flex-col items-center justify-center border-r border-outline-variant/30 bg-surface/20">
+<span class="text-label-caps font-bold text-on-surface">09:00</span>
+<span class="text-[10px] font-semibold text-outline">AM</span>
+</div>
+<div class="p-3 sm:p-4">
+<div class="bg-tertiary-fixed/30 border-l-[6px] border-tertiary rounded-xl p-3.5 relative group-hover:shadow-md transition-all active:scale-[0.99]">
+<div class="flex justify-between items-start mb-2 gap-2">
+<h4 class="font-bold text-on-surface text-body-base leading-tight">Elena Sanchis</h4>
+<span class="shrink-0 bg-tertiary text-white text-[10px] font-black px-2.5 py-1 rounded-full uppercase tracking-tight shadow-sm">Examen DGT</span>
+</div>
+<div class="flex items-center gap-1.5 text-on-surface-variant text-body-sm font-medium">
+<span class="material-symbols-outlined text-[18px] text-tertiary">location_on</span>
+                                        Jefatura de Tráfico
+                                    </div>
+</div>
+</div>
+</div>
+<!-- 10:00 Slot (Available) -->
+<div class="timeline-grid min-h-[100px] bg-surface-container-highest/10 transition-colors">
+<div class="flex flex-col items-center justify-center border-r border-outline-variant/30 bg-surface/20">
+<span class="text-label-caps font-bold text-on-surface-variant">10:00</span>
+<span class="text-[10px] font-semibold text-outline">AM</span>
+</div>
+<div class="p-4 flex items-center justify-center">
+<button class="w-full h-full flex items-center justify-center gap-3 text-primary font-bold hover:bg-primary/5 py-4 rounded-xl border-2 border-dashed border-primary/30 transition-all active:bg-primary/10 group">
+<span class="material-symbols-outlined group-hover:scale-110 transition-transform">add_circle</span>
+<span class="text-body-sm tracking-wide">ASIGNAR HUECO LIBRE</span>
+</button>
+</div>
+</div>
+<!-- 11:00 Slot (Practice A2) -->
+<div class="timeline-grid min-h-[110px] hover:bg-surface-container-low transition-colors group cursor-pointer">
+<div class="flex flex-col items-center justify-center border-r border-outline-variant/30 bg-surface/20">
+<span class="text-label-caps font-bold text-on-surface">11:00</span>
+<span class="text-[10px] font-semibold text-outline">AM</span>
+</div>
+<div class="p-3 sm:p-4">
+<div class="bg-primary-fixed-dim/20 border-l-[6px] border-primary rounded-xl p-3.5 relative group-hover:shadow-md transition-all active:scale-[0.99]">
+<div class="flex justify-between items-start mb-2 gap-2">
+<h4 class="font-bold text-on-surface text-body-base leading-tight">Marcos Valero</h4>
+<span class="shrink-0 bg-on-secondary-fixed-variant text-white text-[10px] font-black px-2.5 py-1 rounded-full uppercase tracking-tight">Permiso A2</span>
+</div>
+<div class="flex items-center gap-1.5 text-on-surface-variant text-body-sm font-medium">
+<span class="material-symbols-outlined text-[18px] text-primary">motorcycle</span>
+                                        Circuito: Pista Polígono
+                                    </div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Side Panel (Student Details & Stats) -->
+<aside class="lg:col-span-4 space-y-gutter">
+<!-- Performance Metrics -->
+<div class="bg-white border border-outline-variant rounded-2xl p-5 shadow-sm">
+<h4 class="font-label-caps text-on-surface-variant mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-[20px]">analytics</span>
+                            RESUMEN DEL DÍA
+                        </h4>
+<div class="grid grid-cols-2 gap-4">
+<div class="bg-surface-container-low p-4 rounded-xl border border-outline-variant/30">
+<p class="text-[10px] font-black text-outline uppercase tracking-wider mb-1">Total KM</p>
+<p class="text-headline-md font-bold text-primary">142.4</p>
+</div>
+<div class="bg-surface-container-low p-4 rounded-xl border border-outline-variant/30">
+<p class="text-[10px] font-black text-outline uppercase tracking-wider mb-1">Combustible</p>
+<p class="text-headline-md font-bold text-primary">€24.50</p>
+</div>
+</div>
+</div>
+<!-- Student Profile Detail -->
+<div class="bg-white border border-outline-variant rounded-2xl shadow-sm overflow-hidden border-t-8 border-primary">
+<div class="p-5">
+<div class="flex items-center gap-4 mb-5">
+<div class="relative">
+<img alt="Foto de Javier Moreno" class="w-16 h-16 rounded-full object-cover border-2 border-primary/20 p-0.5" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCWKEus2swbWH0DCCFQywm4VzMs-HujI-GUbyLQYd64w0T9www6YMoAfqcjQnry1nx0zSuTzdjtWIAst9pVNjgZiP6CVZAn94UdVw2ll9dUT3JnH8m4-sHs_AcMdIMvxNZYaDpRUk4XA4bnJcO4Z01tfApb27T7EjBHCnFvFZDpU-dyk5vOnJ6dGUzW5DDwQGq8ZFUeYiuhvX-PQ9I9bsvagQx2s_qwG7SgMxXiBH1TPe1KQrPvM4s1pLMxpaJWC6EnzzGWFnVNrKI"/>
+<div class="absolute -bottom-1 -right-1 bg-green-500 w-4 h-4 rounded-full border-2 border-white"></div>
+</div>
+<div>
+<h4 class="font-bold text-on-surface text-body-base">Javier Moreno Ruíz</h4>
+<p class="text-body-sm text-primary font-bold">Siguiente clase: 08:00 AM</p>
+</div>
+</div>
+<div class="space-y-4">
+<div class="flex justify-between items-center">
+<span class="text-on-surface-variant font-medium text-body-sm">Teórico:</span>
+<span class="font-black text-green-700 bg-green-100 px-2 py-0.5 rounded text-[11px] tracking-wide">APTO</span>
+</div>
+<div class="space-y-1.5">
+<div class="flex justify-between items-center text-[11px] font-black text-on-surface-variant uppercase">
+<span>Progreso Prácticas</span>
+<span>12 / 20</span>
+</div>
+<div class="w-full bg-surface-container-highest rounded-full h-2.5 overflow-hidden ring-1 ring-black/5">
+<div class="bg-primary h-full rounded-full w-[60%] shadow-sm"></div>
+</div>
+</div>
+</div>
+<div class="mt-6 flex gap-3">
+<button class="flex-1 bg-primary text-white py-3 rounded-xl text-body-sm font-bold shadow-sm hover:bg-primary-container transition-colors active:scale-95 focus:ring-2 focus:ring-primary/50">
+                                    Ver Ficha Alumno
+                                </button>
+<button aria-label="Llamar al alumno" class="p-3 border border-outline-variant rounded-xl hover:bg-surface-container transition-colors text-primary focus:ring-2 focus:ring-primary/50">
+<span class="material-symbols-outlined font-bold">call</span>
+</button>
+</div>
+</div>
+</div>
+<!-- Map/Route Visualizer -->
+<div class="bg-white border border-outline-variant rounded-2xl shadow-sm overflow-hidden group cursor-pointer">
+<div class="p-4 border-b border-outline-variant flex justify-between items-center">
+<span class="font-label-caps text-on-surface-variant">MAPA DE RUTA</span>
+<span class="text-[10px] bg-error-container text-on-error-container px-2.5 py-1 rounded-md font-black uppercase tracking-wider">TRÁFICO INTENSO</span>
+</div>
+<div class="h-48 bg-surface-dim relative overflow-hidden">
+<img alt="Vista del mapa con la ruta programada" class="w-full h-full object-cover opacity-90 group-hover:scale-105 transition-transform duration-700" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDkHFf6d4LH0g-Jd2-5IA-vKV_sqySRGpKkHlFzFaRqrfvZb4h5fm38hT9YApkl_I4F9jEhpypm4Y7K3X3HcVKeXDYvuKvomP-oB8P74eIT62N3RQ1ETpnQkBiy5KsBqQACy2eAJ6ctHmFUkc0HkWK3i2OVLyNSiO-Z8S8dVpUqdT7qMubG5G85Vcm4C99bBXUD8HFP19uyZ2g6GpKQZd9LgpDPI0lIbfH2MhY1NtNOx7vxBwbitFgGJE7lYFiCCEto3rUIT5J92Ig"/>
+<div class="absolute inset-0 bg-gradient-to-t from-white/60 via-transparent to-transparent"></div>
+<div class="absolute bottom-4 left-4 bg-white/95 backdrop-blur-sm px-4 py-1.5 rounded-full shadow-lg border border-outline-variant/30 flex items-center gap-2">
+<span class="w-2.5 h-2.5 bg-primary rounded-full animate-pulse shadow-[0_0_8px_rgba(0,98,140,0.5)]"></span>
+<span class="text-[11px] font-black text-on-surface uppercase">Zona de Examen</span>
+</div>
+</div>
+</div>
+</aside>
+</div>
+</section>
+<!-- Footer -->
+<footer class="w-full py-12 bg-surface-container-low border-t border-outline-variant mt-auto">
+<div class="flex flex-col md:flex-row justify-between items-center px-gutter max-w-container-max mx-auto gap-6">
+<div class="flex flex-col items-center md:items-start gap-1">
+<span class="text-body-base font-black text-on-surface">Autoescuela Camacho</span>
+<span class="text-on-surface-variant text-body-sm font-medium">Portal de Instructores • v2.1.0</span>
+</div>
+<p class="text-on-surface-variant text-body-sm text-center">© 2024 Todos los derechos reservados.</p>
+<div class="flex gap-6">
+<a class="text-on-surface-variant hover:text-primary text-body-sm font-bold transition-colors" href="#">Privacidad</a>
+<a class="text-on-surface-variant hover:text-primary text-body-sm font-bold transition-colors" href="#">Términos</a>
+<a class="text-on-surface-variant hover:text-primary text-body-sm font-bold transition-colors" href="#">Soporte</a>
+</div>
+</div>
+</footer>
+</main>
+<!-- Bottom Navigation Bar (Mobile) -->
+<nav class="fixed bottom-0 w-full md:hidden bg-white/95 backdrop-blur-md border-t border-outline-variant/30 shadow-[0_-8px_20px_rgba(0,0,0,0.08)] flex justify-around items-center h-16 pb-safe z-50">
+<a class="flex flex-col items-center justify-center text-primary font-bold transition-all active:scale-90" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">home</span>
+<span class="text-[10px] font-black uppercase tracking-wider">Inicio</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-all active:scale-90" href="#">
+<span class="material-symbols-outlined">directions_car</span>
+<span class="text-[10px] font-black uppercase tracking-wider">Clases</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-all active:scale-90" href="#">
+<span class="material-symbols-outlined">history_edu</span>
+<span class="text-[10px] font-black uppercase tracking-wider">Exámenes</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant hover:text-primary transition-all active:scale-90" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="text-[10px] font-black uppercase tracking-wider">Perfil</span>
+</a>
+</nav>
+<!-- Contextual Floating Action Button -->
+<button aria-label="Añadir clase rápida" class="fixed right-6 bottom-20 md:bottom-10 bg-primary text-white w-14 h-14 rounded-full shadow-2xl flex items-center justify-center hover:scale-110 active:scale-90 transition-all z-40 focus:ring-4 ring-primary/30">
+<span class="material-symbols-outlined text-[28px]" style="font-variation-settings: 'FILL' 1;">add</span>
+</button>
+</body></html>

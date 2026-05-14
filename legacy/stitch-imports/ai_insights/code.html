@@ -1,0 +1,257 @@
+<!DOCTYPE html>
+
+<html lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Student AI Analytics - Autoescuela Camacho</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&amp;family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            "colors": {
+                    "on-surface-variant": "#3e4850",
+                    "on-tertiary": "#ffffff",
+                    "error": "#ba1a1a",
+                    "on-tertiary-fixed-variant": "#653e00",
+                    "surface-container-lowest": "#ffffff",
+                    "surface-variant": "#d3e4fe",
+                    "secondary": "#4558ae",
+                    "outline-variant": "#bec8d1",
+                    "primary-container": "#007cb0",
+                    "secondary-fixed": "#dde1ff",
+                    "background": "#f8f9ff",
+                    "surface-container-low": "#eff4ff",
+                    "on-secondary-fixed": "#001256",
+                    "inverse-primary": "#87ceff",
+                    "primary": "#00628c",
+                    "on-background": "#0b1c30",
+                    "surface-container-highest": "#d3e4fe",
+                    "surface-container": "#e5eeff",
+                    "secondary-container": "#90a3ff",
+                    "surface-tint": "#006590",
+                    "primary-fixed-dim": "#87ceff",
+                    "on-secondary": "#ffffff",
+                    "on-primary-container": "#fcfcff",
+                    "inverse-on-surface": "#eaf1ff",
+                    "tertiary-fixed": "#ffddb8",
+                    "outline": "#6f7881",
+                    "on-secondary-fixed-variant": "#2b3f94",
+                    "on-tertiary-container": "#fffbff",
+                    "secondary-fixed-dim": "#b9c3ff",
+                    "on-primary-fixed-variant": "#004c6d",
+                    "error-container": "#ffdad6",
+                    "surface-dim": "#cbdbf5",
+                    "primary-fixed": "#c8e6ff",
+                    "tertiary": "#825100",
+                    "on-primary": "#ffffff",
+                    "on-error": "#ffffff",
+                    "surface": "#f8f9ff",
+                    "surface-bright": "#f8f9ff",
+                    "on-error-container": "#93000a",
+                    "surface-container-high": "#dce9ff",
+                    "on-secondary-container": "#20358b",
+                    "on-tertiary-fixed": "#2a1700",
+                    "on-surface": "#0b1c30",
+                    "inverse-surface": "#213145",
+                    "tertiary-container": "#a36700",
+                    "on-primary-fixed": "#001e2e",
+                    "tertiary-fixed-dim": "#ffb95f"
+            },
+            "borderRadius": {
+                    "DEFAULT": "0.25rem",
+                    "lg": "0.5rem",
+                    "xl": "0.75rem",
+                    "full": "9999px"
+            },
+            "spacing": {
+                    "sm": "1rem",
+                    "gutter": "1.5rem",
+                    "base": "4px",
+                    "xs": "0.5rem",
+                    "lg": "2.5rem",
+                    "container-max": "1280px",
+                    "md": "1.5rem",
+                    "xl": "4rem"
+            },
+            "fontFamily": {
+                    "display-lg-mobile": ["Inter"],
+                    "headline-md": ["Inter"],
+                    "label-caps": ["Inter"],
+                    "display-lg": ["Inter"],
+                    "body-base": ["Inter"],
+                    "body-sm": ["Inter"]
+            },
+            "fontSize": {
+                    "display-lg-mobile": ["36px", {"lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                    "label-caps": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                    "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                    "body-base": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                    "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}]
+            }
+          },
+        },
+      }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+        }
+        .glass-card {
+            background: rgba(255, 255, 255, 0.7);
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(226, 232, 240, 0.5);
+        }
+    </style>
+</head>
+<body class="bg-background text-on-background font-body-base antialiased">
+<!-- Top App Bar -->
+<header class="w-full sticky top-0 z-40 bg-surface/80 backdrop-blur-md border-b border-outline-variant/30 flex justify-between items-center px-gutter h-16">
+<div class="flex items-center gap-3">
+<span class="material-symbols-outlined text-primary">analytics</span>
+<h1 class="text-headline-md font-headline-md font-bold text-primary">AI Analytics</h1>
+</div>
+<button class="w-10 h-10 flex items-center justify-center rounded-full hover:bg-surface-container transition-colors">
+<span class="material-symbols-outlined text-on-surface-variant">notifications</span>
+</button>
+</header>
+<main class="px-gutter pt-sm pb-32 max-w-md mx-auto space-y-md">
+<!-- Hero AI Card -->
+<section class="relative overflow-hidden rounded-xl p-gutter bg-gradient-to-br from-primary to-on-secondary-fixed-variant text-white shadow-lg">
+<div class="relative z-10 flex flex-col gap-xs">
+<span class="bg-white/20 self-start px-2 py-1 rounded-full text-[10px] font-bold tracking-widest uppercase">AI Prediction</span>
+<h2 class="font-display-lg-mobile text-display-lg-mobile mt-2">88%</h2>
+<p class="font-body-base text-body-base opacity-90">Pass Probability</p>
+<div class="mt-4 flex items-center gap-2">
+<div class="flex-1 h-1.5 bg-white/20 rounded-full overflow-hidden">
+<div class="h-full bg-white w-[88%] rounded-full shadow-[0_0_8px_rgba(255,255,255,0.8)]"></div>
+</div>
+</div>
+<p class="text-[12px] opacity-70 mt-2 italic">Based on your last 14 mock exams and practical feedback.</p>
+</div>
+<!-- Decorative Vector Elements -->
+<div class="absolute -right-8 -top-8 w-32 h-32 bg-white/10 rounded-full blur-2xl"></div>
+<div class="absolute -left-12 -bottom-12 w-48 h-48 bg-primary-container/20 rounded-full blur-3xl"></div>
+</section>
+<!-- Confidence Score Gauges -->
+<section class="grid grid-cols-2 gap-md">
+<div class="glass-card rounded-xl p-md flex flex-col items-center text-center">
+<span class="font-label-caps text-label-caps text-outline mb-3 uppercase">Theoretical</span>
+<div class="relative w-16 h-16 flex items-center justify-center mb-2">
+<svg class="w-full h-full -rotate-90">
+<circle cx="32" cy="32" fill="transparent" r="28" stroke="#E2E8F0" stroke-width="4"></circle>
+<circle cx="32" cy="32" fill="transparent" r="28" stroke="#0099D8" stroke-dasharray="175" stroke-dashoffset="15" stroke-linecap="round" stroke-width="4"></circle>
+</svg>
+<span class="absolute font-bold text-primary">92%</span>
+</div>
+<span class="text-[12px] text-on-surface-variant">High Confidence</span>
+</div>
+<div class="glass-card rounded-xl p-md flex flex-col items-center text-center">
+<span class="font-label-caps text-label-caps text-outline mb-3 uppercase">Practical</span>
+<div class="relative w-16 h-16 flex items-center justify-center mb-2">
+<svg class="w-full h-full -rotate-90">
+<circle cx="32" cy="32" fill="transparent" r="28" stroke="#E2E8F0" stroke-width="4"></circle>
+<circle cx="32" cy="32" fill="transparent" r="28" stroke="#4558ae" stroke-dasharray="175" stroke-dashoffset="45" stroke-linecap="round" stroke-width="4"></circle>
+</svg>
+<span class="absolute font-bold text-secondary">74%</span>
+</div>
+<span class="text-[12px] text-on-surface-variant">Improving</span>
+</div>
+</section>
+<!-- Risk Alerts -->
+<section class="space-y-sm">
+<h3 class="font-label-caps text-label-caps text-outline px-1 uppercase">Critical Focus Areas</h3>
+<div class="bg-error-container/30 border border-error/10 rounded-xl p-md flex gap-sm items-start">
+<div class="w-10 h-10 rounded-full bg-error/10 flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-error" style="font-variation-settings: 'FILL' 1;">warning</span>
+</div>
+<div class="flex flex-col">
+<span class="font-bold text-on-error-container text-body-sm">Signalization needs work</span>
+<p class="text-on-error-container/70 text-[13px] leading-relaxed">You missed 4/5 questions regarding vertical priority signs in the last session.</p>
+</div>
+</div>
+<div class="bg-tertiary-container/10 border border-tertiary/10 rounded-xl p-md flex gap-sm items-start">
+<div class="w-10 h-10 rounded-full bg-tertiary/10 flex items-center justify-center shrink-0">
+<span class="material-symbols-outlined text-tertiary" style="font-variation-settings: 'FILL' 1;">timer</span>
+</div>
+<div class="flex flex-col">
+<span class="font-bold text-tertiary text-body-sm">Reaction Time</span>
+<p class="text-tertiary/70 text-[13px] leading-relaxed">Slightly slower braking response in heavy rain simulations.</p>
+</div>
+</div>
+</section>
+<!-- Study Recommendations -->
+<section class="space-y-sm">
+<div class="flex justify-between items-end px-1">
+<h3 class="font-label-caps text-label-caps text-outline uppercase">AI Recommendations</h3>
+<span class="text-[11px] text-primary font-bold">VIEW ALL</span>
+</div>
+<div class="space-y-xs">
+<!-- Rec 1 -->
+<div class="glass-card rounded-xl p-4 flex items-center gap-sm active:scale-95 transition-transform">
+<div class="w-12 h-12 rounded-lg bg-surface-container flex items-center justify-center">
+<span class="material-symbols-outlined text-primary">menu_book</span>
+</div>
+<div class="flex-1">
+<h4 class="font-bold text-on-surface text-body-sm">Priority Signs Deep Dive</h4>
+<p class="text-on-surface-variant text-[12px]">Interactive module • 12 mins</p>
+</div>
+<span class="material-symbols-outlined text-outline-variant">chevron_right</span>
+</div>
+<!-- Rec 2 -->
+<div class="glass-card rounded-xl p-4 flex items-center gap-sm active:scale-95 transition-transform">
+<div class="w-12 h-12 rounded-lg bg-surface-container flex items-center justify-center">
+<span class="material-symbols-outlined text-primary">videocam</span>
+</div>
+<div class="flex-1">
+<h4 class="font-bold text-on-surface text-body-sm">Roundabout Maneuvers</h4>
+<p class="text-on-surface-variant text-[12px]">Video lecture • 5 mins</p>
+</div>
+<span class="material-symbols-outlined text-outline-variant">chevron_right</span>
+</div>
+<!-- Rec 3 -->
+<div class="glass-card rounded-xl p-4 flex items-center gap-sm active:scale-95 transition-transform">
+<div class="w-12 h-12 rounded-lg bg-surface-container flex items-center justify-center">
+<span class="material-symbols-outlined text-primary">quiz</span>
+</div>
+<div class="flex-1">
+<h4 class="font-bold text-on-surface text-body-sm">Weak Points Challenge</h4>
+<p class="text-on-surface-variant text-[12px]">Smart Quiz • 15 questions</p>
+</div>
+<span class="material-symbols-outlined text-outline-variant">chevron_right</span>
+</div>
+</div>
+</section>
+<!-- Aesthetic Imagery Component (SaaS look) -->
+<div class="w-full h-40 rounded-xl overflow-hidden relative border border-outline-variant/20 shadow-sm">
+<img alt="Analytics Visualization" class="w-full h-full object-cover" data-alt="A futuristic and professional data visualization interface for a high-end SaaS platform. The image displays clean glassmorphic panels with glowing blue line graphs and circular progress indicators against a dark, tech-focused background. The lighting is low-key with neon blue accents, evoking a sense of precision, advanced artificial intelligence, and strategic insight. The overall aesthetic is minimalist and corporate, resembling a high-performance financial or educational dashboard." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBB2a_lzMhnx7HGuSvprnOVnBqX3ReWHKPQ0k0mle9b_tE3a2f3GkVsjL9X2l_sJiq92PTFfGX8bI8MqA7SLHdgiuECBR9_5Xs7s6xkv6rM_KdlkNbj8tVEaPnhcwrFJg_joe0X1lWOwbVu0G9cj0_IBpqTDIi-KwP6X_NNRfHZQttUZH5tPoE02Jnb5tSYjV-Qn8ENGFdlo6CmP3APeQ9aXWkiDgPIgV-uyeVDzo33MESg45z1M3-qD8ckkibcqysvzA73v3skKdI"/>
+<div class="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent"></div>
+<div class="absolute bottom-3 left-4">
+<span class="text-[10px] font-bold text-primary tracking-tighter uppercase px-2 py-0.5 bg-white/80 rounded-full backdrop-blur-sm">System Insights</span>
+</div>
+</div>
+</main>
+<!-- Bottom Nav Bar -->
+<nav class="fixed bottom-0 w-full md:hidden rounded-t-xl bg-surface border-t border-outline-variant/30 shadow-[0_-4px_10px_rgba(0,0,0,0.05)] flex justify-around items-center h-16 px-2 pb-safe z-50">
+<button class="flex flex-col items-center justify-center text-on-surface-variant active:scale-95 transition-transform">
+<span class="material-symbols-outlined">home</span>
+<span class="font-label-caps text-[10px] mt-1 uppercase">Home</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant active:scale-95 transition-transform">
+<span class="material-symbols-outlined">directions_car</span>
+<span class="font-label-caps text-[10px] mt-1 uppercase">Lessons</span>
+</button>
+<button class="flex flex-col items-center justify-center text-primary font-bold active:scale-95 transition-transform">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">analytics</span>
+<span class="font-label-caps text-[10px] mt-1 uppercase">Insights</span>
+</button>
+<button class="flex flex-col items-center justify-center text-on-surface-variant active:scale-95 transition-transform">
+<span class="material-symbols-outlined">person</span>
+<span class="font-label-caps text-[10px] mt-1 uppercase">Profile</span>
+</button>
+</nav>
+</body></html>

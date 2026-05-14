@@ -1,0 +1,385 @@
+<!DOCTYPE html>
+
+<html lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Gestión de Incidencias - Autoescuela Camacho</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "on-secondary-container": "#20358b",
+                        "primary": "#00628c",
+                        "on-secondary-fixed-variant": "#2b3f94",
+                        "surface-container-high": "#dce9ff",
+                        "error-container": "#ffdad6",
+                        "secondary": "#4558ae",
+                        "on-tertiary-container": "#fffbff",
+                        "on-primary-fixed": "#001e2e",
+                        "surface-dim": "#cbdbf5",
+                        "on-primary-fixed-variant": "#004c6d",
+                        "inverse-on-surface": "#eaf1ff",
+                        "secondary-container": "#90a3ff",
+                        "surface-bright": "#f8f9ff",
+                        "tertiary-fixed-dim": "#ffb95f",
+                        "surface-variant": "#d3e4fe",
+                        "surface-container-lowest": "#ffffff",
+                        "primary-fixed-dim": "#87ceff",
+                        "primary-fixed": "#c8e6ff",
+                        "on-surface-variant": "#3e4850",
+                        "on-primary-container": "#fcfcff",
+                        "on-primary": "#ffffff",
+                        "primary-container": "#007cb0",
+                        "secondary-fixed": "#dde1ff",
+                        "surface": "#f8f9ff",
+                        "on-tertiary": "#ffffff",
+                        "inverse-primary": "#87ceff",
+                        "tertiary-container": "#a36700",
+                        "on-tertiary-fixed": "#2a1700",
+                        "on-error-container": "#93000a",
+                        "error": "#ba1a1a",
+                        "on-surface": "#0b1c30",
+                        "secondary-fixed-dim": "#b9c3ff",
+                        "on-secondary": "#ffffff",
+                        "tertiary-fixed": "#ffddb8",
+                        "on-background": "#0b1c30",
+                        "surface-container-highest": "#d3e4fe",
+                        "outline-variant": "#bec8d1",
+                        "on-secondary-fixed": "#001256",
+                        "on-error": "#ffffff",
+                        "background": "#f8f9ff",
+                        "inverse-surface": "#213145",
+                        "surface-tint": "#006590",
+                        "surface-container-low": "#eff4ff",
+                        "surface-container": "#e5eeff",
+                        "outline": "#6f7881",
+                        "on-tertiary-fixed-variant": "#653e00",
+                        "tertiary": "#825100"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "xl": "4rem",
+                        "gutter": "1.5rem",
+                        "sm": "1rem",
+                        "base": "4px",
+                        "md": "1.5rem",
+                        "lg": "2.5rem",
+                        "container-max": "1280px",
+                        "xs": "0.5rem"
+                    },
+                    "fontFamily": {
+                        "body-base": ["Inter"],
+                        "display-lg-mobile": ["Inter"],
+                        "display-lg": ["Inter"],
+                        "label-caps": ["Inter"],
+                        "headline-md": ["Inter"],
+                        "body-sm": ["Inter"]
+                    },
+                    "fontSize": {
+                        "body-base": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "display-lg-mobile": ["36px", {"lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "label-caps": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}]
+                    }
+                },
+            },
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            display: inline-block;
+            line-height: 1;
+            text-transform: none;
+            letter-spacing: normal;
+            word-wrap: normal;
+            white-space: nowrap;
+            direction: ltr;
+        }
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background min-h-screen">
+<!-- NavigationDrawer (Shared Component) -->
+<aside class="w-[280px] h-full fixed left-0 top-0 hidden md:block bg-on-secondary-fixed-variant dark:bg-inverse-surface shadow-md flex flex-col py-md z-50">
+<div class="px-6 mb-8">
+<h1 class="text-headline-md font-headline-md font-bold text-white">Autoescuela Camacho</h1>
+<p class="text-white/70 font-body-sm text-body-sm">Student Portal</p>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="flex items-center gap-3 px-4 py-3 text-surface-container-high hover:bg-white/10 rounded-lg mx-2 transition-colors active:scale-95 duration-150" href="#">
+<span class="material-symbols-outlined">dashboard</span>
+<span class="font-body-base text-body-base">Dashboard</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-surface-container-high hover:bg-white/10 rounded-lg mx-2 transition-colors active:scale-95 duration-150" href="#">
+<span class="material-symbols-outlined">school</span>
+<span class="font-body-base text-body-base">Theoretical</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-surface-container-high hover:bg-white/10 rounded-lg mx-2 transition-colors active:scale-95 duration-150" href="#">
+<span class="material-symbols-outlined">directions_car</span>
+<span class="font-body-base text-body-base">Practical</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-surface-container-high hover:bg-white/10 rounded-lg mx-2 transition-colors active:scale-95 duration-150" href="#">
+<span class="material-symbols-outlined">assignment</span>
+<span class="font-body-base text-body-base">Exams</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 bg-primary text-white rounded-lg mx-2 transition-colors active:scale-95 duration-150" href="#">
+<span class="material-symbols-outlined">report_problem</span>
+<span class="font-body-base text-body-base">Gestión de Incidencias</span>
+</a>
+<a class="flex items-center gap-3 px-4 py-3 text-surface-container-high hover:bg-white/10 rounded-lg mx-2 transition-colors active:scale-95 duration-150" href="#">
+<span class="material-symbols-outlined">settings</span>
+<span class="font-body-base text-body-base">Settings</span>
+</a>
+</nav>
+<div class="px-6 mt-auto">
+<p class="text-white/40 font-body-sm text-body-sm">v2.1.0</p>
+</div>
+</aside>
+<!-- Main Content Area -->
+<main class="md:ml-[280px] min-h-screen flex flex-col">
+<!-- TopAppBar (Shared Component) -->
+<header class="w-full sticky top-0 z-40 bg-surface/80 dark:bg-surface-dim/80 backdrop-blur-md border-b border-outline-variant/30 flex justify-between items-center px-gutter h-16">
+<div class="flex items-center gap-4">
+<button class="md:hidden text-primary">
+<span class="material-symbols-outlined">menu</span>
+</button>
+<h2 class="text-headline-md font-headline-md font-bold text-primary">Gestión de Incidencias</h2>
+</div>
+<div class="flex items-center gap-4">
+<div class="hidden sm:flex items-center bg-surface-container rounded-full px-4 py-1.5 focus-within:ring-2 focus-within:ring-primary">
+<span class="material-symbols-outlined text-on-surface-variant text-sm">search</span>
+<input class="bg-transparent border-none focus:ring-0 text-body-sm w-40" placeholder="Search..." type="text"/>
+</div>
+<div class="w-8 h-8 rounded-full overflow-hidden bg-primary-fixed-dim border border-outline-variant">
+<img alt="Profile" data-alt="Close-up portrait of a professional young adult male with a friendly expression, set against a soft-focus office background. The lighting is bright and airy, consistent with a modern corporate light-mode UI. The image uses a clean, high-performance SaaS aesthetic with neutral tones." src="https://lh3.googleusercontent.com/aida-public/AB6AXuAKIuthTQfehlFbqFt5mx_Xp5dhdElYac5H4ldQMTfWR98mAa2rDvQxRQbk0KHl6kE_jGEluishrfLNZL4FrCqkMDu2-Yf_BEZBG91dv6U7JsfV72CQF44kuOJubmAPeVrgVZxy7ZSOcpKFkFvzDw3m1gK4wG5fq0YwiD6QXVuxhJ37nPn3FnylISgWyRlvOwa1v7Z3ONhE3_v4eTYvInw-OV7GF98reda2knRGr8ml1f6L0Aj99z9k2HRXiZucv8-oU2sfgaNwKbI"/>
+</div>
+</div>
+</header>
+<!-- Content Canvas -->
+<div class="p-4 md:p-lg max-w-container-max mx-auto w-full flex-1">
+<div class="grid grid-cols-1 lg:grid-cols-12 gap-lg">
+<!-- Report Form Section (Bento Card Style) -->
+<div class="lg:col-span-7 space-y-lg">
+<div class="bg-white border border-outline-variant/30 rounded-xl shadow-[0_2px_4px_rgba(0,0,0,0.05)] p-6">
+<div class="flex items-center gap-3 mb-6">
+<div class="w-10 h-10 rounded-lg bg-primary/10 flex items-center justify-center text-primary">
+<span class="material-symbols-outlined">add_alert</span>
+</div>
+<div>
+<h3 class="font-headline-md text-headline-md text-on-surface">Reportar Nueva Incidencia</h3>
+<p class="font-body-sm text-body-sm text-on-surface-variant">Informe sobre cancelaciones, retrasos o averías de vehículos.</p>
+</div>
+</div>
+<form class="space-y-6">
+<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+<div class="space-y-2">
+<label class="font-label-caps text-label-caps text-on-surface-variant">Tipo de Incidencia</label>
+<select class="w-full h-12 px-4 rounded-lg border border-outline-variant bg-surface focus:ring-2 focus:ring-primary focus:border-primary text-body-base outline-none transition-all">
+<option>Cancelación de Clase</option>
+<option>Retraso por Tráfico</option>
+<option>Avería de Vehículo</option>
+<option>Problema con Documentación</option>
+<option>Otros</option>
+</select>
+</div>
+<div class="space-y-2">
+<label class="font-label-caps text-label-caps text-on-surface-variant">Urgencia</label>
+<div class="flex gap-2">
+<button class="flex-1 h-12 rounded-lg border border-outline-variant bg-surface-container-low text-primary font-bold hover:bg-primary/5 transition-colors" type="button">Baja</button>
+<button class="flex-1 h-12 rounded-lg border-2 border-primary bg-primary/10 text-primary font-bold" type="button">Media</button>
+<button class="flex-1 h-12 rounded-lg border border-outline-variant bg-surface-container-low text-error font-bold hover:bg-error/5 transition-colors" type="button">Alta</button>
+</div>
+</div>
+</div>
+<div class="space-y-2">
+<label class="font-label-caps text-label-caps text-on-surface-variant">Vehículo / Clase ID</label>
+<input class="w-full h-12 px-4 rounded-lg border border-outline-variant bg-surface focus:ring-2 focus:ring-primary focus:border-primary text-body-base outline-none" placeholder="Ej: Seat Leon - 4582KLL" type="text"/>
+</div>
+<div class="space-y-2">
+<label class="font-label-caps text-label-caps text-on-surface-variant">Descripción Detallada</label>
+<textarea class="w-full p-4 rounded-lg border border-outline-variant bg-surface focus:ring-2 focus:ring-primary focus:border-primary text-body-base outline-none resize-none" placeholder="Describa lo ocurrido brevemente..." rows="4"></textarea>
+</div>
+<div class="flex items-center gap-4">
+<button class="flex-1 bg-primary text-white h-12 rounded-lg font-bold hover:brightness-110 active:scale-[0.98] transition-all flex items-center justify-center gap-2" type="submit">
+<span class="material-symbols-outlined">send</span>
+                                    Enviar Reporte
+                                </button>
+<button class="px-6 h-12 rounded-lg border border-outline-variant text-on-surface-variant hover:bg-surface-container transition-colors font-bold" type="button">
+                                    Cancelar
+                                </button>
+</div>
+</form>
+</div>
+<!-- Recent Incidents List -->
+<div class="bg-white border border-outline-variant/30 rounded-xl shadow-[0_2px_4px_rgba(0,0,0,0.05)] overflow-hidden">
+<div class="p-6 border-b border-outline-variant/30 flex justify-between items-center">
+<h3 class="font-headline-md text-headline-md text-on-surface">Historial Reciente</h3>
+<span class="px-3 py-1 bg-surface-container text-primary text-label-caps font-bold rounded-full">3 ACTIVAS</span>
+</div>
+<div class="divide-y divide-outline-variant/20">
+<!-- Item 1 -->
+<div class="p-4 hover:bg-surface-container-low transition-colors flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-error-container text-error flex items-center justify-center">
+<span class="material-symbols-outlined">directions_car</span>
+</div>
+<div class="flex-1">
+<div class="flex justify-between">
+<h4 class="font-bold text-on-surface">Avería Motor - Seat Leon</h4>
+<span class="text-xs text-on-surface-variant">Hace 2h</span>
+</div>
+<p class="text-body-sm text-on-surface-variant">Pendiente de grúa en Calle Mayor.</p>
+<div class="mt-2 flex gap-2">
+<span class="px-2 py-0.5 bg-error-container text-error text-[10px] font-bold rounded uppercase">Crítico</span>
+<span class="px-2 py-0.5 bg-surface-container-highest text-on-surface-variant text-[10px] font-bold rounded uppercase">En Proceso</span>
+</div>
+</div>
+</div>
+<!-- Item 2 -->
+<div class="p-4 hover:bg-surface-container-low transition-colors flex items-center gap-4">
+<div class="w-12 h-12 rounded-full bg-tertiary-fixed text-tertiary flex items-center justify-center">
+<span class="material-symbols-outlined">traffic</span>
+</div>
+<div class="flex-1">
+<div class="flex justify-between">
+<h4 class="font-bold text-on-surface">Retraso 15 min - Tráfico</h4>
+<span class="text-xs text-on-surface-variant">Ayer</span>
+</div>
+<p class="text-body-sm text-on-surface-variant">Accidente en la A-2 demora la llegada.</p>
+<div class="mt-2 flex gap-2">
+<span class="px-2 py-0.5 bg-tertiary-fixed text-tertiary text-[10px] font-bold rounded uppercase">Media</span>
+<span class="px-2 py-0.5 bg-surface-container-high text-primary text-[10px] font-bold rounded uppercase">Cerrado</span>
+</div>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Chat/Communication Section -->
+<div class="lg:col-span-5 h-[calc(100vh-12rem)] min-h-[600px] flex flex-col bg-white border border-outline-variant/30 rounded-xl shadow-[0_2px_4px_rgba(0,0,0,0.05)] overflow-hidden">
+<!-- Chat Header -->
+<div class="p-4 bg-primary text-white flex items-center justify-between">
+<div class="flex items-center gap-3">
+<div class="relative">
+<div class="w-10 h-10 rounded-full bg-white/20 flex items-center justify-center">
+<span class="material-symbols-outlined">support_agent</span>
+</div>
+<div class="absolute bottom-0 right-0 w-3 h-3 bg-green-400 border-2 border-primary rounded-full"></div>
+</div>
+<div>
+<h4 class="font-bold text-body-base">Oficina Central</h4>
+<p class="text-xs text-white/70">En línea ahora</p>
+</div>
+</div>
+<button class="hover:bg-white/10 p-2 rounded-full transition-colors">
+<span class="material-symbols-outlined">more_vert</span>
+</button>
+</div>
+<!-- Chat Messages Area -->
+<div class="flex-1 p-4 overflow-y-auto bg-surface-container-lowest space-y-4">
+<!-- Message Received -->
+<div class="flex gap-3 max-w-[85%]">
+<div class="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center text-primary text-xs font-bold shrink-0">OC</div>
+<div class="space-y-1">
+<div class="bg-surface-container p-3 rounded-2xl rounded-tl-none">
+<p class="text-body-sm text-on-surface">Hola Carlos, hemos recibido tu aviso sobre el Seat Leon. La grúa está de camino, debería llegar en 20 minutos.</p>
+</div>
+<span class="text-[10px] text-on-surface-variant ml-1">10:45 AM</span>
+</div>
+</div>
+<!-- Message Sent -->
+<div class="flex flex-row-reverse gap-3 max-w-[85%] ml-auto">
+<div class="w-8 h-8 rounded-full bg-primary flex items-center justify-center text-white text-xs font-bold shrink-0">YO</div>
+<div class="space-y-1 text-right">
+<div class="bg-primary text-white p-3 rounded-2xl rounded-tr-none">
+<p class="text-body-sm">Perfecto. El alumno ya se ha retirado. Me quedo esperando junto al vehículo.</p>
+</div>
+<div class="flex items-center justify-end gap-1">
+<span class="text-[10px] text-on-surface-variant">10:48 AM</span>
+<span class="material-symbols-outlined text-[12px] text-primary" style="font-variation-settings: 'FILL' 1;">done_all</span>
+</div>
+</div>
+</div>
+<!-- System Notification -->
+<div class="flex justify-center">
+<span class="px-4 py-1 bg-surface-container-high text-on-surface-variant text-[10px] font-bold rounded-full uppercase tracking-wider">La grúa ha llegado al lugar</span>
+</div>
+<!-- Message Received -->
+<div class="flex gap-3 max-w-[85%]">
+<div class="w-8 h-8 rounded-full bg-surface-container-high flex items-center justify-center text-primary text-xs font-bold shrink-0">OC</div>
+<div class="space-y-1">
+<div class="bg-surface-container p-3 rounded-2xl rounded-tl-none">
+<p class="text-body-sm text-on-surface">¿Podrías enviarnos una foto del cuadro de mandos con el testigo de avería encendido?</p>
+</div>
+<span class="text-[10px] text-on-surface-variant ml-1">11:05 AM</span>
+</div>
+</div>
+</div>
+<!-- Chat Input -->
+<div class="p-4 border-t border-outline-variant/30 bg-white">
+<div class="flex items-end gap-2 bg-surface-container rounded-2xl p-2 focus-within:ring-2 focus-within:ring-primary/50 transition-all">
+<button class="p-2 text-on-surface-variant hover:text-primary transition-colors">
+<span class="material-symbols-outlined">add_circle</span>
+</button>
+<textarea class="flex-1 bg-transparent border-none focus:ring-0 text-body-sm py-2 resize-none max-h-32" placeholder="Escribe un mensaje..." rows="1"></textarea>
+<button class="w-10 h-10 bg-primary text-white rounded-xl flex items-center justify-center hover:brightness-110 active:scale-90 transition-all">
+<span class="material-symbols-outlined">send</span>
+</button>
+</div>
+</div>
+</div>
+</div>
+</div>
+<!-- Footer (Shared Component) -->
+<footer class="w-full py-xl bg-surface-container-low dark:bg-surface-container-lowest border-t border-outline-variant mt-auto">
+<div class="flex flex-col md:flex-row justify-between items-center px-gutter max-w-container-max mx-auto gap-4">
+<div class="flex flex-col items-center md:items-start">
+<p class="text-body-base font-bold text-on-surface">Autoescuela Camacho</p>
+<p class="font-body-sm text-body-sm text-on-surface-variant">© 2024 Autoescuela Camacho. Todos los derechos reservados.</p>
+</div>
+<div class="flex gap-6">
+<a class="font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-colors" href="#">Privacy Policy</a>
+<a class="font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-colors" href="#">Terms of Service</a>
+<a class="font-body-sm text-body-sm text-on-surface-variant hover:text-primary transition-colors" href="#">Contact Support</a>
+</div>
+</div>
+</footer>
+<!-- BottomNavBar (Shared Component - Mobile Only) -->
+<nav class="fixed bottom-0 w-full md:hidden rounded-t-xl bg-surface dark:bg-inverse-surface border-t border-outline-variant/30 shadow-[0_-4px_10px_rgba(0,0,0,0.05)] flex justify-around items-center h-16 px-2 pb-safe z-50">
+<a class="flex flex-col items-center justify-center text-on-surface-variant active:bg-surface-container scale-95 transition-transform" href="#">
+<span class="material-symbols-outlined">home</span>
+<span class="font-label-caps text-label-caps">Home</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant active:bg-surface-container scale-95 transition-transform" href="#">
+<span class="material-symbols-outlined">directions_car</span>
+<span class="font-label-caps text-label-caps">Lessons</span>
+</a>
+<a class="flex flex-col items-center justify-center text-primary font-bold active:bg-surface-container scale-95 transition-transform" href="#">
+<span class="material-symbols-outlined" style="font-variation-settings: 'FILL' 1;">report_problem</span>
+<span class="font-label-caps text-label-caps">Incident</span>
+</a>
+<a class="flex flex-col items-center justify-center text-on-surface-variant active:bg-surface-container scale-95 transition-transform" href="#">
+<span class="material-symbols-outlined">person</span>
+<span class="font-label-caps text-label-caps">Profile</span>
+</a>
+</nav>
+</main>
+</body></html>

@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+
+<html class="light" lang="es"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<script id="tailwind-config">
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    "colors": {
+                        "surface-variant": "#d3e4fe",
+                        "secondary-fixed-dim": "#b9c3ff",
+                        "on-surface-variant": "#3e4850",
+                        "surface-container-high": "#dce9ff",
+                        "on-secondary-container": "#20358b",
+                        "secondary": "#4558ae",
+                        "on-secondary-fixed-variant": "#2b3f94",
+                        "primary": "#00628c",
+                        "surface": "#f8f9ff",
+                        "on-tertiary-fixed-variant": "#653e00",
+                        "surface-container": "#e5eeff",
+                        "on-secondary": "#ffffff",
+                        "on-error": "#ffffff",
+                        "primary-fixed": "#c8e6ff",
+                        "on-primary-fixed-variant": "#004c6d",
+                        "tertiary-container": "#a36700",
+                        "surface-container-highest": "#d3e4fe",
+                        "surface-container-low": "#eff4ff",
+                        "primary-fixed-dim": "#87ceff",
+                        "error": "#ba1a1a",
+                        "tertiary": "#825100",
+                        "error-container": "#ffdad6",
+                        "on-secondary-fixed": "#001256",
+                        "background": "#f8f9ff",
+                        "tertiary-fixed-dim": "#ffb95f",
+                        "on-tertiary-fixed": "#2a1700",
+                        "on-primary": "#ffffff",
+                        "surface-dim": "#cbdbf5",
+                        "inverse-on-surface": "#eaf1ff",
+                        "surface-container-lowest": "#ffffff",
+                        "secondary-container": "#90a3ff",
+                        "inverse-primary": "#87ceff",
+                        "on-surface": "#0b1c30",
+                        "on-primary-container": "#fcfcff",
+                        "surface-tint": "#006590",
+                        "primary-container": "#007cb0",
+                        "outline-variant": "#bec8d1",
+                        "on-tertiary": "#ffffff",
+                        "on-background": "#0b1c30",
+                        "on-error-container": "#93000a",
+                        "secondary-fixed": "#dde1ff",
+                        "tertiary-fixed": "#ffddb8",
+                        "on-primary-fixed": "#001e2e",
+                        "outline": "#6f7881",
+                        "surface-bright": "#f8f9ff",
+                        "on-tertiary-container": "#fffbff",
+                        "inverse-surface": "#213145"
+                    },
+                    "borderRadius": {
+                        "DEFAULT": "0.25rem",
+                        "lg": "0.5rem",
+                        "xl": "0.75rem",
+                        "full": "9999px"
+                    },
+                    "spacing": {
+                        "sm": "1rem",
+                        "lg": "2.5rem",
+                        "xs": "0.5rem",
+                        "xl": "4rem",
+                        "md": "1.5rem",
+                        "gutter": "1.5rem",
+                        "container-max": "1280px",
+                        "base": "4px"
+                    },
+                    "fontFamily": {
+                        "headline-md": ["Inter"],
+                        "display-lg": ["Inter"],
+                        "display-lg-mobile": ["Inter"],
+                        "label-caps": ["Inter"],
+                        "body-base": ["Inter"],
+                        "body-sm": ["Inter"]
+                    },
+                    "fontSize": {
+                        "headline-md": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.01em", "fontWeight": "600"}],
+                        "display-lg": ["48px", {"lineHeight": "56px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "display-lg-mobile": ["36px", {"lineHeight": "44px", "letterSpacing": "-0.02em", "fontWeight": "700"}],
+                        "label-caps": ["12px", {"lineHeight": "16px", "letterSpacing": "0.05em", "fontWeight": "600"}],
+                        "body-base": ["16px", {"lineHeight": "24px", "fontWeight": "400"}],
+                        "body-sm": ["14px", {"lineHeight": "20px", "fontWeight": "400"}]
+                    }
+                }
+            }
+        }
+    </script>
+<style>
+        .material-symbols-outlined {
+            font-variation-settings: 'FILL' 0, 'wght' 400, 'GRAD' 0, 'opsz' 24;
+            vertical-align: middle;
+        }
+        body { font-family: 'Inter', sans-serif; }
+    </style>
+<style>
+    body {
+      min-height: max(884px, 100dvh);
+    }
+  </style>
+  </head>
+<body class="bg-background text-on-background min-h-screen">
+<!-- NavigationDrawer -->
+<aside class="w-[280px] h-full fixed left-0 top-0 bg-surface-container-lowest dark:bg-inverse-surface shadow-sm flex flex-col h-screen py-md px-sm z-50">
+<div class="mb-xl px-xs">
+<h1 class="text-headline-md font-headline-md font-bold text-primary dark:text-primary-fixed">Autoescuela Camacho</h1>
+</div>
+<nav class="flex-1 space-y-xs">
+<a class="flex items-center gap-sm px-md py-sm rounded-lg text-on-surface-variant dark:text-surface-variant hover:text-on-surface hover:bg-surface-container-high dark:hover:bg-on-surface-variant/10 transition-colors duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="dashboard">dashboard</span>
+<span class="text-body-base font-body-base">Dashboard</span>
+</a>
+<a class="flex items-center gap-sm px-md py-sm rounded-lg text-on-surface-variant dark:text-surface-variant hover:text-on-surface hover:bg-surface-container-high dark:hover:bg-on-surface-variant/10 transition-colors duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="group">group</span>
+<span class="text-body-base font-body-base">Alumnos</span>
+</a>
+<a class="flex items-center gap-sm px-md py-sm rounded-lg text-on-surface-variant dark:text-surface-variant hover:text-on-surface hover:bg-surface-container-high dark:hover:bg-on-surface-variant/10 transition-colors duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="badge">badge</span>
+<span class="text-body-base font-body-base">Profesores</span>
+</a>
+<a class="flex items-center gap-sm px-md py-sm rounded-lg text-on-surface-variant dark:text-surface-variant hover:text-on-surface hover:bg-surface-container-high dark:hover:bg-on-surface-variant/10 transition-colors duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="directions_car">directions_car</span>
+<span class="text-body-base font-body-base">Flota</span>
+</a>
+<a class="flex items-center gap-sm px-md py-sm rounded-lg text-on-surface-variant dark:text-surface-variant hover:text-on-surface hover:bg-surface-container-high dark:hover:bg-on-surface-variant/10 transition-colors duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="calendar_month">calendar_month</span>
+<span class="text-body-base font-body-base">Horarios</span>
+</a>
+<a class="flex items-center gap-sm px-md py-sm rounded-lg text-on-surface-variant dark:text-surface-variant hover:text-on-surface hover:bg-surface-container-high dark:hover:bg-on-surface-variant/10 transition-colors duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="payments">payments</span>
+<span class="text-body-base font-body-base">Finanzas</span>
+</a>
+<a class="flex items-center gap-sm px-md py-sm rounded-lg text-on-surface-variant dark:text-surface-variant hover:text-on-surface hover:bg-surface-container-high dark:hover:bg-on-surface-variant/10 transition-colors duration-150" href="#">
+<span class="material-symbols-outlined" data-icon="query_stats">query_stats</span>
+<span class="text-body-base font-body-base">IA/Analítica</span>
+</a>
+<a class="flex items-center gap-sm px-md py-sm rounded-lg text-primary dark:text-inverse-primary font-bold bg-secondary-container/20 dark:bg-secondary/20 scale-[0.99] transition-transform" href="#">
+<span class="material-symbols-outlined" data-icon="settings" style="font-variation-settings: 'FILL' 1;">settings</span>
+<span class="text-body-base font-body-base">Configuración</span>
+</a>
+</nav>
+</aside>
+<!-- TopAppBar -->
+<header class="w-[calc(100%-280px)] fixed top-0 right-0 z-40 bg-surface/80 dark:bg-inverse-surface/80 backdrop-blur-md flex justify-between items-center px-lg h-16 w-full ml-[280px]">
+<div class="flex items-center gap-md">
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="search">search</span>
+<h2 class="text-headline-md font-headline-md text-on-surface dark:text-on-secondary-fixed">Configuración del Sistema</h2>
+</div>
+<div class="flex items-center gap-md">
+<button class="p-xs rounded-full hover:bg-surface-container-low transition-colors">
+<span class="material-symbols-outlined" data-icon="notifications">notifications</span>
+</button>
+<div class="w-8 h-8 rounded-full bg-primary-container flex items-center justify-center text-on-primary-container overflow-hidden">
+<img alt="Admin" data-alt="A professional headshot of a senior administrator in a modern office setting. The lighting is soft and natural, emphasizing a trustworthy and efficient persona. The background is slightly blurred, showing a clean, high-end corporate environment with neutral tones and minimalist furniture." src="https://lh3.googleusercontent.com/aida-public/AB6AXuBYyqEUKxDGVrGirmtNFXz7HqxWsmxGtAKAFTM2BPrT5LKKsdRz2wB2DtUXwspyaw3wA7AYzNptYLp_Yjy14CVt4ZRbrDu4nrYgMVUGwTgE4Co_fq4c9BXsk3asdxbosbl3hztaiPM47pQ_MVixe-5RoLdkMhVOmZBu8mdHp65w75o6OCMeXy0369qJe9oFmnmfmGS9WhfiwtsO1HP8ANn-mD0Zyq_zir7dvy4m3wnAujKChceOE1iKXrYHaOcbx72Ff7XwzktTcrI"/>
+</div>
+</div>
+</header>
+<!-- Main Content Canvas -->
+<main class="ml-[280px] pt-16 min-h-screen p-lg bg-background">
+<div class="max-w-[1280px] mx-auto space-y-lg">
+<!-- Bento Settings Layout -->
+<div class="grid grid-cols-12 gap-gutter">
+<!-- Business Profile Card -->
+<section class="col-span-12 md:col-span-8 bg-surface-container-lowest border border-outline-variant rounded-xl p-md shadow-sm">
+<div class="flex items-center justify-between mb-md">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-primary" data-icon="business">business</span>
+<h3 class="text-headline-md font-headline-md">Perfil de Empresa</h3>
+</div>
+<button class="px-md py-xs bg-primary text-on-primary rounded-lg text-body-sm font-medium hover:opacity-90 transition-opacity">Guardar cambios</button>
+</div>
+<div class="grid grid-cols-2 gap-md">
+<div class="space-y-xs">
+<label class="text-label-caps font-label-caps text-on-surface-variant">NOMBRE COMERCIAL</label>
+<input class="w-full px-sm py-xs bg-surface border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all" type="text" value="Autoescuela Camacho S.L."/>
+</div>
+<div class="space-y-xs">
+<label class="text-label-caps font-label-caps text-on-surface-variant">NIF/CIF</label>
+<input class="w-full px-sm py-xs bg-surface border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all" type="text" value="B12345678"/>
+</div>
+<div class="col-span-2 space-y-xs">
+<label class="text-label-caps font-label-caps text-on-surface-variant">DIRECCIÓN FISCAL</label>
+<input class="w-full px-sm py-xs bg-surface border border-outline-variant rounded-lg focus:ring-2 focus:ring-primary/20 focus:border-primary outline-none transition-all" type="text" value="Calle de la Formación, 42, 28001 Madrid, España"/>
+</div>
+</div>
+</section>
+<!-- Branding Mini Card -->
+<section class="col-span-12 md:col-span-4 bg-surface-container-lowest border border-outline-variant rounded-xl p-md shadow-sm flex flex-col items-center justify-center text-center space-y-md">
+<label class="text-label-caps font-label-caps text-on-surface-variant self-start">LOGOTIPO DE MARCA</label>
+<div class="w-32 h-32 rounded-xl bg-surface-container border-2 border-dashed border-outline-variant flex items-center justify-center cursor-pointer hover:bg-surface-container-high transition-colors">
+<div class="text-primary">
+<span class="material-symbols-outlined text-4xl" data-icon="upload_file">upload_file</span>
+<p class="text-label-caps font-label-caps mt-xs">SUBIR LOGO</p>
+</div>
+</div>
+<p class="text-body-sm text-on-surface-variant">Formatos: SVG, PNG o JPG. Máx 2MB.</p>
+</section>
+<!-- Notification Templates -->
+<section class="col-span-12 bg-surface-container-lowest border border-outline-variant rounded-xl shadow-sm overflow-hidden">
+<div class="p-md border-b border-outline-variant bg-surface-container-low">
+<h3 class="text-headline-md font-headline-md flex items-center gap-sm">
+<span class="material-symbols-outlined text-primary" data-icon="campaign">campaign</span>
+                            Plantillas de Notificación
+                        </h3>
+</div>
+<div class="divide-y divide-outline-variant">
+<!-- SMS Template -->
+<div class="p-md flex items-start justify-between gap-xl hover:bg-surface/50 transition-colors">
+<div class="flex items-start gap-md flex-1">
+<div class="w-10 h-10 rounded-lg bg-blue-100 flex items-center justify-center text-blue-600">
+<span class="material-symbols-outlined" data-icon="sms">sms</span>
+</div>
+<div>
+<h4 class="font-bold text-on-surface">Recordatorio de Clase Práctica (SMS)</h4>
+<p class="text-body-sm text-on-surface-variant mb-md">Enviado 24 horas antes de la clase programada.</p>
+<div class="bg-surface p-sm rounded-lg border border-outline-variant text-body-sm italic font-mono">
+                                        "Hola [Nombre], te recordamos tu clase de conducir mañana a las [Hora] con el profesor [Profesor]. ¡No faltes!"
+                                    </div>
+</div>
+</div>
+<div class="flex items-center gap-sm">
+<span class="px-sm py-1 rounded-full bg-green-100 text-green-700 text-xs font-bold uppercase tracking-wider">Activo</span>
+<button class="p-xs rounded-lg hover:bg-surface-variant transition-colors"><span class="material-symbols-outlined" data-icon="edit">edit</span></button>
+</div>
+</div>
+<!-- WhatsApp Template -->
+<div class="p-md flex items-start justify-between gap-xl hover:bg-surface/50 transition-colors">
+<div class="flex items-start gap-md flex-1">
+<div class="w-10 h-10 rounded-lg bg-green-100 flex items-center justify-center text-green-600">
+<span class="material-symbols-outlined" data-icon="chat">chat</span>
+</div>
+<div>
+<h4 class="font-bold text-on-surface">Bienvenida Nuevo Alumno (WhatsApp)</h4>
+<p class="text-body-sm text-on-surface-variant mb-md">Enviado inmediatamente después del registro manual o web.</p>
+<div class="bg-surface p-sm rounded-lg border border-outline-variant text-body-sm italic font-mono">
+                                        "🚗 ¡Bienvenido a Autoescuela Camacho! Estamos encantados de acompañarte en tu formación. Accede a tu portal aquí: [Link_Portal]"
+                                    </div>
+</div>
+</div>
+<div class="flex items-center gap-sm">
+<span class="px-sm py-1 rounded-full bg-green-100 text-green-700 text-xs font-bold uppercase tracking-wider">Activo</span>
+<button class="p-xs rounded-lg hover:bg-surface-variant transition-colors"><span class="material-symbols-outlined" data-icon="edit">edit</span></button>
+</div>
+</div>
+<!-- Push Template -->
+<div class="p-md flex items-start justify-between gap-xl hover:bg-surface/50 transition-colors">
+<div class="flex items-start gap-md flex-1">
+<div class="w-10 h-10 rounded-lg bg-orange-100 flex items-center justify-center text-orange-600">
+<span class="material-symbols-outlined" data-icon="notifications_active">notifications_active</span>
+</div>
+<div>
+<h4 class="font-bold text-on-surface">Alerta de Examen (Push)</h4>
+<p class="text-body-sm text-on-surface-variant mb-md">Notificación en tiempo real para resultados de exámenes teóricos.</p>
+<div class="bg-surface p-sm rounded-lg border border-outline-variant text-body-sm italic font-mono">
+                                        "¡Ya están disponibles tus resultados! Entra para ver tu calificación del examen teórico."
+                                    </div>
+</div>
+</div>
+<div class="flex items-center gap-sm">
+<span class="px-sm py-1 rounded-full bg-surface-variant text-on-surface-variant text-xs font-bold uppercase tracking-wider">Inactivo</span>
+<button class="p-xs rounded-lg hover:bg-surface-variant transition-colors"><span class="material-symbols-outlined" data-icon="edit">edit</span></button>
+</div>
+</div>
+</div>
+</section>
+<!-- API & Integrations -->
+<section class="col-span-12 md:col-span-7 bg-surface-container-lowest border border-outline-variant rounded-xl p-md shadow-sm">
+<div class="flex items-center gap-sm mb-md">
+<span class="material-symbols-outlined text-primary" data-icon="api">api</span>
+<h3 class="text-headline-md font-headline-md">Integraciones y API</h3>
+</div>
+<div class="space-y-md">
+<div class="p-sm bg-surface-container-low rounded-lg border border-outline-variant">
+<div class="flex justify-between items-center mb-xs">
+<label class="text-label-caps font-label-caps text-on-surface-variant">CLAVE API DE PRODUCCIÓN</label>
+<button class="text-primary text-body-sm font-bold flex items-center gap-xs">
+<span class="material-symbols-outlined text-sm" data-icon="content_copy">content_copy</span>
+                                    Copiar
+                                </button>
+</div>
+<code class="text-body-sm font-mono break-all text-on-surface">sk_prod_51N2H8L4vX9y3m...****************</code>
+</div>
+<div class="flex items-center justify-between p-sm border border-outline-variant rounded-lg">
+<div class="flex items-center gap-sm">
+<img alt="Stripe" class="w-8 h-8 object-contain" data-alt="The official minimalist Stripe logo with its characteristic purple blur and professional fintech branding. The logo is displayed cleanly on a white background with high resolution and crisp edges." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCYyILLr8AAYlg7e9YyFZaInsyUlezsFqqLadD8AnQFZ_Q0odB9SZk170L6NJpDw0Em8oWW4qV-7RRp8nZkVzI0x7wd0NG4u3E3Kxz84gOygoHEE0tTPxv9KdEtARZxP4TkILV-NSYH6RaxUtgZhuoVuA78pua2Uqf1JyGm0oqbdWaYuIqiSXh5bCfjqVwnRMN4qMxSqYyHIMpPt_5qlaqtY9qzc5G1jBE1FXud3W092GyJsNmmQiIxfdxGacdK27SizvkrddeE454"/>
+<div>
+<p class="font-bold text-on-surface">Stripe Payments</p>
+<p class="text-body-sm text-on-surface-variant">Pasarela de pagos conectada</p>
+</div>
+</div>
+<span class="px-sm py-1 rounded-full bg-green-100 text-green-700 text-xs font-bold uppercase tracking-wider">Conectado</span>
+</div>
+<div class="flex items-center justify-between p-sm border border-outline-variant rounded-lg">
+<div class="flex items-center gap-sm">
+<div class="w-8 h-8 bg-blue-500 rounded flex items-center justify-center text-white">
+<span class="material-symbols-outlined" data-icon="calendar_today">calendar_today</span>
+</div>
+<div>
+<p class="font-bold text-on-surface">Google Calendar</p>
+<p class="text-body-sm text-on-surface-variant">Sincronización de clases prácticas</p>
+</div>
+</div>
+<button class="text-primary text-body-sm font-bold">Configurar</button>
+</div>
+</div>
+</section>
+<!-- System Maintenance / Advanced -->
+<section class="col-span-12 md:col-span-5 bg-surface-container-lowest border border-outline-variant rounded-xl p-md shadow-sm">
+<div class="flex items-center gap-sm mb-md">
+<span class="material-symbols-outlined text-primary" data-icon="admin_panel_settings">admin_panel_settings</span>
+<h3 class="text-headline-md font-headline-md">Sistema Avanzado</h3>
+</div>
+<div class="space-y-sm">
+<button class="w-full flex items-center justify-between p-sm bg-surface hover:bg-surface-container-low border border-outline-variant rounded-lg transition-colors group">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary" data-icon="history">history</span>
+<span class="text-on-surface font-medium">Logs de Auditoría</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="chevron_right">chevron_right</span>
+</button>
+<button class="w-full flex items-center justify-between p-sm bg-surface hover:bg-surface-container-low border border-outline-variant rounded-lg transition-colors group">
+<div class="flex items-center gap-sm">
+<span class="material-symbols-outlined text-on-surface-variant group-hover:text-primary" data-icon="cloud_download">cloud_download</span>
+<span class="text-on-surface font-medium">Exportar Backup</span>
+</div>
+<span class="material-symbols-outlined text-on-surface-variant" data-icon="chevron_right">chevron_right</span>
+</button>
+<button class="w-full flex items-center justify-between p-sm bg-error-container/20 hover:bg-error-container/40 border border-error/20 rounded-lg transition-colors group">
+<div class="flex items-center gap-sm text-error">
+<span class="material-symbols-outlined" data-icon="delete_forever">delete_forever</span>
+<span class="font-medium">Purgar Datos Temporales</span>
+</div>
+</button>
+</div>
+</section>
+</div>
+</div>
+</main>
+</body></html>
