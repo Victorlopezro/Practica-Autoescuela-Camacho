@@ -9,9 +9,11 @@ import {
   Query,
   HttpCode,
   HttpStatus,
+  NotFoundException,
 } from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
+import { Prisma } from '@prisma/client';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { PrismaService } from '../../common/services/prisma.service';
 import { CreateVehicleDto, UpdateVehicleDto, LogIncidentDto } from './dto';
@@ -53,7 +55,7 @@ export class VehiclesController {
   ) {
     const skip = (Number(page) - 1) * Number(limit);
 
-    const where: Record<string, unknown> = {};
+    const where: Prisma.VehicleWhereInput = {};
     if (type) where.type = type;
     if (status) where.status = status;
 
@@ -67,15 +69,8 @@ export class VehiclesController {
       this.prisma.vehicle.count({ where }),
     ]);
 
-    const enriched = data.map((vehicle) => ({
-      ...vehicle,
-      itvWarning: vehicle.itvExpiry
-        ? vehicle.itvExpiry <= new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
-        : false,
-    }));
-
     return {
-      data: enriched,
+      data: data.map(this.addItvWarning),
       total,
       page: Number(page),
       limit: Number(limit),
@@ -93,15 +88,10 @@ export class VehiclesController {
     });
 
     if (!vehicle) {
-      return null;
+      throw new NotFoundException('Vehicle not found');
     }
 
-    return {
-      ...vehicle,
-      itvWarning: vehicle.itvExpiry
-        ? vehicle.itvExpiry <= new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
-        : false,
-    };
+    return this.addItvWarning(vehicle);
   }
 
   @Patch(':id')
@@ -140,9 +130,24 @@ export class VehiclesController {
   @Roles('admin:manage')
   @ApiOperation({ summary: 'List incidents for a vehicle' })
   async findIncidents(@Param('id') id: string) {
+    const vehicle = await this.prisma.vehicle.findUnique({
+      where: { id },
+      select: { id: true },
+    });
+    if (!vehicle) throw new NotFoundException('Vehicle not found');
+
     return this.prisma.vehicleIncident.findMany({
       where: { vehicleId: id },
       orderBy: { date: 'desc' },
     });
+  }
+
+  private addItvWarning(vehicle: Prisma.VehicleGetPayload<{}>) {
+    return {
+      ...vehicle,
+      itvWarning: vehicle.itvExpiry
+        ? vehicle.itvExpiry <= new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+        : false,
+    };
   }
 }

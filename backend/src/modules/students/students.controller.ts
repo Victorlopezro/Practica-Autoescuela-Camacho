@@ -7,6 +7,7 @@ import {
   Param,
   HttpCode,
   HttpStatus,
+  NotFoundException,
 } from '@nestjs/common';
 import { CommandBus } from '@nestjs/cqrs';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
@@ -34,9 +35,11 @@ export class StudentsController {
   @Roles('admin:manage')
   @ApiOperation({ summary: 'Get student by ID with user info and balance' })
   async findOne(@Param('id') id: string) {
-    return this.prisma.student.findUnique({
+    const student = await this.prisma.student.findUnique({
       where: { id },
     });
+    if (!student) throw new NotFoundException('Student not found');
+    return student;
   }
 
   @Patch(':id/balance')
@@ -56,9 +59,13 @@ export class StudentsController {
   @Roles('admin:manage')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Deduct a class (45m=1, 90m=2) from student balance' })
-  async deductClass(@Param('id') id: string, @Body() dto: DeductClassDto) {
+  async deductClass(
+    @Param('id') id: string,
+    @Body() dto: DeductClassDto,
+    @CurrentUser() user: JwtPayload,
+  ) {
     return this.commandBus.execute(
-      new DeductClassCommand(id, dto.duration),
+      new DeductClassCommand(id, dto.duration, user.sub),
     );
   }
 
@@ -66,9 +73,13 @@ export class StudentsController {
   @Roles('admin:manage')
   @HttpCode(HttpStatus.OK)
   @ApiOperation({ summary: 'Refill/add classes to student balance' })
-  async refillClass(@Param('id') id: string, @Body() dto: RefillClassDto) {
+  async refillClass(
+    @Param('id') id: string,
+    @Body() dto: RefillClassDto,
+    @CurrentUser() user: JwtPayload,
+  ) {
     return this.commandBus.execute(
-      new RefillClassCommand(id, dto.amount),
+      new RefillClassCommand(id, dto.amount, user.sub),
     );
   }
 }

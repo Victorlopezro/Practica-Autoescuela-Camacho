@@ -13,7 +13,7 @@ export class RefillClassHandler implements ICommandHandler<RefillClassCommand> {
   ) {}
 
   async execute(command: RefillClassCommand) {
-    const { studentId, amount } = command;
+    const { studentId, amount, adjustedBy } = command;
 
     const student = await this.prisma.student.findUnique({ where: { id: studentId } });
     if (!student) throw new NotFoundException('Student not found');
@@ -25,7 +25,7 @@ export class RefillClassHandler implements ICommandHandler<RefillClassCommand> {
       amount,
       reason: `Classes refilled (${amount} added)`,
       timestamp: new Date(),
-      adjustedBy: 'system',
+      adjustedBy,
     });
 
     await this.prisma.student.update({

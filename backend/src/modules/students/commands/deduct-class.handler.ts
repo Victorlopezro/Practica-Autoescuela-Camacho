@@ -13,7 +13,7 @@ export class DeductClassHandler implements ICommandHandler<DeductClassCommand> {
   ) {}
 
   async execute(command: DeductClassCommand) {
-    const { studentId, duration } = command;
+    const { studentId, duration, adjustedBy } = command;
 
     const student = await this.prisma.student.findUnique({ where: { id: studentId } });
     if (!student) throw new NotFoundException('Student not found');
@@ -32,7 +32,7 @@ export class DeductClassHandler implements ICommandHandler<DeductClassCommand> {
       amount: -deductAmount,
       reason: `Class deducted (${duration} min)`,
       timestamp: new Date(),
-      adjustedBy: 'system',
+      adjustedBy,
     });
 
     await this.prisma.student.update({
