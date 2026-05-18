@@ -1,0 +1,158 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+}
+
+// ─── Auth ────────────────────────────────────────────────────────────────
+
+model User {
+  id        String   @id @default(uuid()) @map("id")
+  username  String   @unique @map("username")
+  password  String   @map("password")
+  role      String   @default("student") @map("role") // admin | teacher | student
+  teacherId String?  @map("teacher_id")
+
+  refreshTokens RefreshToken[]
+  auditLogs     AuditLog[]
+  createdById   String?          @map("created_by_id")
+  createdBy     User?            @relation("CreatedUsers", fields: [createdById], references: [id])
+  createdUsers  User[]           @relation("CreatedUsers")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("users")
+}
+
+model RefreshToken {
+  id        String   @id @default(uuid()) @map("id")
+  token     String   @unique @map("token")
+  userId    String   @map("user_id")
+  user      User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+  expiresAt DateTime @map("expires_at")
+  revoked   Boolean  @default(false) @map("revoked")
+  revokedAt DateTime? @map("revoked_at")
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("refresh_tokens")
+}
+
+// ─── Domain Models ───────────────────────────────────────────────────────
+
+model Student {
+  id               String   @id @default(uuid()) @map("id")
+  userId           String   @unique @map("user_id")
+  remainingClasses Int      @default(0) @map("remaining_classes")
+  balanceHistory   Json?    @map("balance_history") // Array of { amount, reason, timestamp, adjustedBy }
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("students")
+}
+
+model Teacher {
+  id   String @id @default(uuid()) @map("id")
+  name String @map("name")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("teachers")
+}
+
+model Vehicle {
+  id        String   @id @default(uuid()) @map("id")
+  plate     String   @unique @map("plate")
+  type      String   @map("type") // moto-pista | moto-circulacion | coche-manual | coche-automatico
+  status    String   @default("available") @map("status") // available | in-use | maintenance | retired
+  itvExpiry DateTime? @map("itv_expiry")
+
+  incidents VehicleIncident[]
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("vehicles")
+}
+
+model VehicleIncident {
+  id          String   @id @default(uuid()) @map("id")
+  vehicleId   String   @map("vehicle_id")
+  vehicle     Vehicle  @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+  description String   @map("description")
+  date        DateTime @map("date")
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("vehicle_incidents")
+}
+
+model Reservation {
+  id          String   @id @default(uuid()) @map("id")
+  studentId   String   @map("student_id")
+  teacherId   String   @map("teacher_id")
+  vehicleType String   @map("vehicle_type")
+  startTime   DateTime @map("start_time")
+  duration    Int      @map("duration") // minutes: 45 or 90
+  status      String   @default("pending") @map("status") // pending | confirmed | cancelled | completed
+  cancelledAt DateTime? @map("cancelled_at")
+  refundAmount Int?     @map("refund_amount")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("reservations")
+}
+
+// ─── Payments ────────────────────────────────────────────────────────────
+
+model Payment {
+  id               String   @id @default(uuid()) @map("id")
+  reservationId    String   @unique @map("reservation_id")
+  stripeSessionId  String   @unique @map("stripe_session_id")
+  status           String   @default("pending") @map("status") // pending | completed | failed | refunded
+  amount           Int      @map("amount") // cents
+  idempotencyKey   String?  @unique @map("idempotency_key")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@map("payments")
+}
+
+// ─── Notifications ───────────────────────────────────────────────────────
+
+model Notification {
+  id        String   @id @default(uuid()) @map("id")
+  recipient String   @map("recipient")
+  channel   String   @map("channel") // whatsapp | email
+  template  String   @map("template")
+  data      Json?    @map("data")
+  status    String   @default("pending") @map("status") // pending | sent | failed
+  error     String?  @map("error")
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("notifications")
+}
+
+// ─── Audit ───────────────────────────────────────────────────────────────
+
+model AuditLog {
+  id        String   @id @default(uuid()) @map("id")
+  userId    String   @map("user_id")
+  user      User     @relation(fields: [userId], references: [id])
+  action    String   @map("action")
+  oldValue  Json?    @map("old_value")
+  newValue  Json?    @map("new_value")
+  reason    String?  @map("reason")
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@map("audit_logs")
+}

@@ -1,0 +1,15 @@
+allowBuilds:
+  '@nestjs/core': true
+  '@prisma/engines': true
+  '@scarf/scarf': true
+  argon2: true
+  prisma: true
+  unrs-resolver: true
+  esbuild: true
+
+minimumReleaseAgeExclude:
+  - pg-cloudflare@1.4.0
+  - pg-connection-string@2.13.0
+  - pg-pool@3.14.0
+  - pg-protocol@1.14.0
+  - pg@8.21.0
