@@ -8,11 +8,6 @@ const quickStats = [
   { label: 'Próxima clase', value: 'Mañana', color: 'text-tertiary' },
 ];
 
-const upcomingClasses = [
-  { date: '15 may', time: '10:00', teacher: 'Carlos', status: 'Confirmada' },
-  { date: '17 may', time: '10:00', teacher: 'Carlos', status: 'Pendiente' },
-];
-
 export default function StudentDashboard() {
   return (
     <div className="space-y-6">

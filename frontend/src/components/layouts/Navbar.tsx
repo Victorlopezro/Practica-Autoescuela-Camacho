@@ -1,7 +1,6 @@
 'use client';
 
 import Link from 'next/link';
-import { BRANDING } from '@/lib/constants';
 
 interface NavbarProps {
   userName?: string;

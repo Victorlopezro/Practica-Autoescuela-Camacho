@@ -30,7 +30,7 @@ import { getPlanById } from './plans';
 const delay = (ms: number) => new Promise(res => setTimeout(res, ms));
 
 /** In-memory mock transactions store */
-let mockTransactions: PaymentTransaction[] = [
+const mockTransactions: PaymentTransaction[] = [
   {
     id: 'txn-001',
     userId: 'student-1',

@@ -11,17 +11,14 @@
 
 'use client';
 
-import { Suspense } from 'react';
-import { useEffect, useState } from 'react';
-import { useSearchParams } from 'next/navigation';
+import { Suspense, useEffect, useState } from 'react';
 import Link from 'next/link';
 import { PaymentSuccess } from '@/components/payments/PaymentSuccess';
 import { paymentService } from '@/services/payments';
 import type { PaymentTransaction } from '@/types/payment';
 
-/** Inner component that uses useSearchParams (needs Suspense wrapper) */
+/** Inner component (wrapped in Suspense for future searchParams access) */
 function PaymentSuccessContent() {
-  const searchParams = useSearchParams();
   const [transaction, setTransaction] = useState<PaymentTransaction | null>(null);
   const [loading, setLoading] = useState(true);
 
@@ -95,7 +92,7 @@ function PaymentSuccessContent() {
   );
 }
 
-/** Page component with Suspense boundary for useSearchParams */
+/** Page component with Suspense boundary (ready for future useSearchParams) */
 export default function PaymentSuccessPage() {
   return (
     <Suspense
