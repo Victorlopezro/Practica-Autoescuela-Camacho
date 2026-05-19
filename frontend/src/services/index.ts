@@ -3,13 +3,10 @@
  *
  * Controlled by NEXT_PUBLIC_USE_MOCKS env var:
  *   'true' (default) → all services use mock implementations
- *   anything else    → auth uses real API, others use mock fallbacks
+ *   anything else    → all services use real API adapters
  */
-import apiClient from '@/services/api/client';
-
 import type {
   IAuthService,
-  AuthResponse,
   AuthUserDto,
   IStudentService,
   StudentDto,
@@ -218,33 +215,24 @@ const mockPaymentService: IPaymentService = {
 
 /* ─── Real API Implementations ────────────────────────────────── */
 
-const realAuthService: IAuthService = {
-  async login(data) {
-    const response = await apiClient.post<AuthResponse>('/auth/login', data);
-    return response.data;
-  },
-  async refresh(refreshToken) {
-    const response = await apiClient.post<AuthResponse>('/auth/refresh', { refreshToken });
-    return response.data;
-  },
-  async logout(refreshToken) {
-    await apiClient.post('/auth/logout', { refreshToken });
-  },
-  async getMe() {
-    const response = await apiClient.get<AuthUserDto>('/users/me');
-    return response.data;
-  },
-};
+import {
+  authApi,
+  studentApi,
+  teacherApi,
+  vehicleApi,
+  reservationApi,
+  paymentApi,
+} from './api';
 
 /* ─── Adapter Switch ──────────────────────────────────────────── */
 
 const useMocks = process.env.NEXT_PUBLIC_USE_MOCKS === 'true';
 
 export const services = {
-  auth: useMocks ? mockAuthService : realAuthService,
-  student: mockStudentService,
-  teacher: mockTeacherService,
-  vehicle: mockVehicleService,
-  reservation: mockReservationService,
-  payment: mockPaymentService,
+  auth: useMocks ? mockAuthService : authApi,
+  student: useMocks ? mockStudentService : studentApi,
+  teacher: useMocks ? mockTeacherService : teacherApi,
+  vehicle: useMocks ? mockVehicleService : vehicleApi,
+  reservation: useMocks ? mockReservationService : reservationApi,
+  payment: useMocks ? mockPaymentService : paymentApi,
 };
