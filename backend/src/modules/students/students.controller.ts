@@ -76,14 +76,20 @@ export class StudentsController {
   }
 
   @Get(':id')
-  @Roles('admin:manage')
+  @Roles('admin:manage', 'student:view')
   @ApiOperation({ summary: 'Get student by ID with user info and balance' })
   async findOne(@Param('id') id: string) {
     const student = await this.prisma.student.findUnique({
       where: { id },
     });
     if (!student) throw new NotFoundException('Student not found');
-    return student;
+
+    const user = await this.prisma.user.findUnique({
+      where: { id: student.userId },
+      select: { id: true, username: true, name: true, lastName: true, email: true, phone: true },
+    });
+
+    return { ...student, user: user ?? null };
   }
 
   @Patch(':id/balance')

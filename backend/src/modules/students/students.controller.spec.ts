@@ -39,6 +39,7 @@ describe('StudentsController', () => {
       },
       user: {
         findMany: jest.fn(),
+        findUnique: jest.fn(),
       },
     };
     commandBus = { execute: jest.fn() };
@@ -106,12 +107,13 @@ describe('StudentsController', () => {
   });
 
   describe('findOne', () => {
-    it('should return student when found', async () => {
+    it('should return student with user profile when found', async () => {
       prisma.student.findUnique.mockResolvedValue(mockStudent);
+      prisma.user.findUnique.mockResolvedValue(mockUserRecord);
 
       const result = await controller.findOne('student-1');
 
-      expect(result).toEqual(mockStudent);
+      expect(result).toEqual({ ...mockStudent, user: mockUserRecord });
     });
 
     it('should throw NotFoundException when student not found', async () => {
