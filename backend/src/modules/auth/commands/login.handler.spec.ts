@@ -24,7 +24,23 @@ describe('LoginHandler', () => {
     id: 'user-1',
     username: 'admin',
     password: 'hashed-password',
+    name: 'Admin',
+    lastName: 'User',
+    email: 'admin@camacho.com',
+    phone: null,
     role: 'admin',
+    teacherId: null,
+  };
+
+  const mockUserProfile = {
+    id: 'user-1',
+    username: 'admin',
+    name: 'Admin',
+    lastName: 'User',
+    email: 'admin@camacho.com',
+    phone: null,
+    role: 'admin',
+    teacherId: null,
   };
 
   beforeEach(async () => {
@@ -52,8 +68,10 @@ describe('LoginHandler', () => {
   });
 
   describe('execute', () => {
-    it('should return tokens when credentials are valid', async () => {
-      (prisma.user.findUnique as jest.Mock).mockResolvedValue(mockUser);
+    it('should return tokens with user profile when credentials are valid', async () => {
+      (prisma.user.findUnique as jest.Mock)
+        .mockResolvedValueOnce(mockUser)   // first call: auth lookup
+        .mockResolvedValueOnce(mockUserProfile); // second call: profile query
       (argon2.verify as jest.Mock).mockResolvedValue(true);
       (jwtService.sign as jest.Mock)
         .mockReturnValueOnce('access-token')
@@ -66,6 +84,7 @@ describe('LoginHandler', () => {
       expect(result).toEqual({
         accessToken: 'access-token',
         refreshToken: 'refresh-token',
+        user: mockUserProfile,
       });
       expect(eventBus.publish).toHaveBeenCalledWith(
         expect.any(UserLoggedInEvent),

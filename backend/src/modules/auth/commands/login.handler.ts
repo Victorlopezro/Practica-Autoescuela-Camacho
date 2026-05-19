@@ -54,6 +54,11 @@ export class LoginHandler implements ICommandHandler<LoginCommand> {
 
     this.eventBus.publish(new UserLoggedInEvent(user.id, new Date()));
 
-    return { accessToken, refreshToken };
+    const userProfile = await this.prisma.user.findUnique({
+      where: { id: user.id },
+      select: { id: true, username: true, name: true, lastName: true, email: true, phone: true, role: true, teacherId: true },
+    });
+
+    return { accessToken, refreshToken, user: userProfile };
   }
 }

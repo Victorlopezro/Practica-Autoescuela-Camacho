@@ -42,7 +42,7 @@ export class RefreshTokenHandler implements ICommandHandler<RefreshTokenCommand>
 
     const user = await this.prisma.user.findUnique({
       where: { id: payload.sub },
-      select: { id: true, username: true, role: true },
+      select: { id: true, username: true, name: true, lastName: true, email: true, phone: true, role: true, teacherId: true },
     });
     if (!user) throw new UnauthorizedException('User no longer exists');
 
@@ -75,6 +75,6 @@ export class RefreshTokenHandler implements ICommandHandler<RefreshTokenCommand>
       new TokenRefreshedEvent(user.id, stored.id, newRefreshTokenId),
     );
 
-    return { accessToken: newAccessToken, refreshToken: newRefreshToken };
+    return { accessToken: newAccessToken, refreshToken: newRefreshToken, user };
   }
 }

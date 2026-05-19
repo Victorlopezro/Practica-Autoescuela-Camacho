@@ -3,6 +3,8 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import axios from 'axios';
+import { useAuth } from '@/providers/auth-provider';
 
 const roles = [
   { id: 'student' as const, label: 'Alumno', icon: 'school' },
@@ -12,11 +14,35 @@ const roles = [
 
 export default function LoginPage() {
   const router = useRouter();
+  const { login } = useAuth();
   const [role, setRole] = useState<'student' | 'teacher' | 'admin'>('student');
   const [showPassword, setShowPassword] = useState(false);
+  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
+  const [isSubmitting, setIsSubmitting] = useState(false);
 
-  const handleLogin = () => {
-    router.push(`/${role}/dashboard`);
+  const handleLogin = async () => {
+    setError('');
+    setIsSubmitting(true);
+    try {
+      await login(username, password);
+      router.push(`/${role}/dashboard`);
+    } catch (err) {
+      if (axios.isAxiosError(err) && err.response?.status === 401) {
+        setError('Credenciales inválidas');
+      } else {
+        setError('Error al iniciar sesión. Intenta de nuevo.');
+      }
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent) => {
+    if (e.key === 'Enter' && !isSubmitting) {
+      handleLogin();
+    }
   };
 
   return (
@@ -123,8 +149,11 @@ export default function LoginPage() {
                     <span className="material-symbols-outlined absolute left-3 text-outline text-[20px]">person</span>
                     <input
                       id="email"
-                      type="email"
+                      type="text"
                       placeholder="ejemplo@correo.com"
+                      value={username}
+                      onChange={(e) => setUsername(e.target.value)}
+                      onKeyDown={handleKeyDown}
                       className="w-full pl-10 pr-4 py-3 bg-white border border-outline-variant rounded-xl focus:ring-2 focus:ring-primary focus:border-primary transition-all outline-none text-body-base"
                     />
                   </div>
@@ -141,6 +170,9 @@ export default function LoginPage() {
                       id="password"
                       type={showPassword ? 'text' : 'password'}
                       placeholder="••••••••"
+                      value={password}
+                      onChange={(e) => setPassword(e.target.value)}
+                      onKeyDown={handleKeyDown}
                       className="w-full pl-10 pr-12 py-3 bg-white border border-outline-variant rounded-xl focus:ring-2 focus:ring-primary focus:border-primary transition-all outline-none text-body-base"
                     />
                     <button
@@ -160,13 +192,21 @@ export default function LoginPage() {
                   </div>
                 </div>
 
+                {/* Error Message */}
+                {error && (
+                  <div className="mb-md p-3 bg-error-container text-on-error-container rounded-xl text-body-sm">
+                    {error}
+                  </div>
+                )}
+
                 {/* Login Button */}
                 <button
                   onClick={handleLogin}
-                  className="w-full bg-primary text-white text-headline-md font-semibold py-4 rounded-xl shadow-md active:scale-[0.98] transition-all hover:bg-primary/90 flex items-center justify-center gap-2 mt-md cursor-pointer"
+                  disabled={isSubmitting}
+                  className="w-full bg-primary text-white text-headline-md font-semibold py-4 rounded-xl shadow-md active:scale-[0.98] transition-all hover:bg-primary/90 flex items-center justify-center gap-2 mt-md cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed"
                 >
-                  Iniciar sesión
-                  <span className="material-symbols-outlined">login</span>
+                  {isSubmitting ? 'Iniciando sesión...' : 'Iniciar sesión'}
+                  <span className="material-symbols-outlined">{isSubmitting ? 'hourglass_top' : 'login'}</span>
                 </button>
               </div>
 

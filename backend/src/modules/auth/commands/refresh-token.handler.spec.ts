@@ -53,11 +53,17 @@ describe('RefreshTokenHandler', () => {
       userId: 'user-1',
       revoked: false,
     });
-    prisma.user.findUnique.mockResolvedValue({
+    const mockUser = {
       id: 'user-1',
       username: 'admin',
+      name: 'Admin',
+      lastName: 'User',
+      email: 'admin@camacho.com',
+      phone: null,
       role: 'admin',
-    });
+      teacherId: null,
+    };
+    prisma.user.findUnique.mockResolvedValue(mockUser);
     (jwtService.sign as jest.Mock)
       .mockReturnValueOnce('new-access-token')
       .mockReturnValueOnce('new-refresh-token');
@@ -69,6 +75,7 @@ describe('RefreshTokenHandler', () => {
     expect(result).toEqual({
       accessToken: 'new-access-token',
       refreshToken: 'new-refresh-token',
+      user: mockUser,
     });
     expect(eventBus.publish).toHaveBeenCalledWith(
       expect.any(TokenRefreshedEvent),
