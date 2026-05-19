@@ -69,10 +69,40 @@ function getMockUser(username?: string): AuthUserDto {
     phone: '612345678',
     role,
     teacherId: role === 'teacher' ? 'teacher-1' : null,
+    studentId: role === 'student' ? 'student-1' : null,
   };
 }
 
 const mockStudentService: IStudentService = {
+  async list() {
+    await delay(300);
+    return {
+      data: [
+        {
+          id: 'student-1',
+          userId: 'user-1',
+          remainingClasses: 15,
+          balanceHistory: [],
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          user: { id: 'user-1', username: 'student', name: 'Juan', lastName: 'Pérez', email: 'juan@example.com', phone: '612345678' },
+        },
+        {
+          id: 'student-2',
+          userId: 'user-2',
+          remainingClasses: 0,
+          balanceHistory: [],
+          createdAt: new Date().toISOString(),
+          updatedAt: new Date().toISOString(),
+          user: { id: 'user-2', username: 'maria', name: 'María', lastName: 'García', email: 'maria@example.com', phone: '698765432' },
+        },
+      ],
+      total: 2,
+      page: 1,
+      limit: 10,
+      totalPages: 1,
+    };
+  },
   async getProfile() {
     await delay(300);
     return {
@@ -120,9 +150,19 @@ const mockTeacherService: ITeacherService = {
       { id: 'teacher-2', name: 'Laura Sánchez', createdAt: '2025-06-15T00:00:00Z', updatedAt: '2025-06-15T00:00:00Z' },
     ];
   },
+  async getById(id) {
+    await delay(300);
+    return {
+      id,
+      name: id === 'teacher-2' ? 'Laura Sánchez' : 'Carlos Martínez',
+      createdAt: '2025-01-01T00:00:00Z',
+      updatedAt: '2025-01-01T00:00:00Z',
+      user: { id: `${id}-user`, username: id, name: id === 'teacher-2' ? 'Laura' : 'Carlos', lastName: id === 'teacher-2' ? 'Sánchez' : 'Martínez', email: `${id}@example.com`, phone: '612345678' },
+    };
+  },
   async getStats() {
     await delay(300);
-    return { totalReservations: 45, completedReservations: 38 };
+    return { id: 'teacher-1', name: 'Carlos Martínez', totalReservations: 45, upcomingReservations: 3, completedReservations: 38 };
   },
 };
 

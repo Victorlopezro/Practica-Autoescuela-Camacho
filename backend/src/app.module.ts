@@ -15,6 +15,7 @@ import { ReservationsModule } from './modules/reservations/reservations.module';
 import { PaymentsModule } from './modules/payments/payments.module';
 import { NotificationsModule } from './modules/notifications/notifications.module';
 import { AuditLogModule } from './modules/audit-log/audit-log.module';
+import { HealthModule } from './modules/health/health.module';
 
 @Module({
   imports: [
@@ -39,6 +40,7 @@ import { AuditLogModule } from './modules/audit-log/audit-log.module';
     PaymentsModule,
     NotificationsModule,
     AuditLogModule,
+    HealthModule,
   ],
   controllers: [],
   providers: [

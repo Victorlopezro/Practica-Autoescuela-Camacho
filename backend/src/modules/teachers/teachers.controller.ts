@@ -40,6 +40,21 @@ export class TeachersController {
     };
   }
 
+  @Get(':id')
+  @Roles('admin:manage', 'teacher:view')
+  @ApiOperation({ summary: 'Get teacher by ID with user profile' })
+  async findOne(@Param('id') id: string) {
+    const teacher = await this.prisma.teacher.findUnique({ where: { id } });
+    if (!teacher) throw new NotFoundException('Teacher not found');
+
+    const user = await this.prisma.user.findFirst({
+      where: { teacherId: id },
+      select: { id: true, username: true, name: true, lastName: true, email: true, phone: true },
+    });
+
+    return { ...teacher, user: user ?? null };
+  }
+
   @Get(':id/stats')
   @Roles('admin:manage', 'teacher:view')
   @ApiOperation({ summary: 'Get teacher stats (reservations counts)' })

@@ -12,6 +12,7 @@ export interface AuthUserDto {
   phone: string | null;
   role: string;
   teacherId: string | null;
+  studentId: string | null;
 }
 
 export interface AuthResponse {

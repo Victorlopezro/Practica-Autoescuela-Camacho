@@ -41,11 +41,13 @@ describe('LoginHandler', () => {
     phone: null,
     role: 'admin',
     teacherId: null,
+    studentId: null,
   };
 
   beforeEach(async () => {
     prisma = {
       user: { findUnique: jest.fn() },
+      student: { findUnique: jest.fn() },
       refreshToken: { create: jest.fn() },
     };
     jwtService = { sign: jest.fn() };
@@ -72,6 +74,7 @@ describe('LoginHandler', () => {
       (prisma.user.findUnique as jest.Mock)
         .mockResolvedValueOnce(mockUser)   // first call: auth lookup
         .mockResolvedValueOnce(mockUserProfile); // second call: profile query
+      (prisma.student.findUnique as jest.Mock).mockResolvedValue(null);
       (argon2.verify as jest.Mock).mockResolvedValue(true);
       (jwtService.sign as jest.Mock)
         .mockReturnValueOnce('access-token')

@@ -43,21 +43,28 @@ export class UsersController {
   @Get('me')
   @ApiOperation({ summary: 'Get current user profile' })
   async getMe(@CurrentUser() user: JwtPayload) {
-    return this.prisma.user.findUnique({
-      where: { id: user.sub },
-      select: {
-        id: true,
-        username: true,
-        name: true,
-        lastName: true,
-        email: true,
-        phone: true,
-        role: true,
-        teacherId: true,
-        createdAt: true,
-        updatedAt: true,
-      },
-    });
+    const [profile, studentRecord] = await Promise.all([
+      this.prisma.user.findUnique({
+        where: { id: user.sub },
+        select: {
+          id: true,
+          username: true,
+          name: true,
+          lastName: true,
+          email: true,
+          phone: true,
+          role: true,
+          teacherId: true,
+          createdAt: true,
+          updatedAt: true,
+        },
+      }),
+      this.prisma.student.findUnique({
+        where: { userId: user.sub },
+        select: { id: true },
+      }),
+    ]);
+    return { ...profile!, studentId: studentRecord?.id ?? null };
   }
 
   @Get()

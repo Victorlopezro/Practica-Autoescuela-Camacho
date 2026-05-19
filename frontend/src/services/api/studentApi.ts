@@ -1,7 +1,14 @@
 import apiClient from './client';
-import type { IStudentService, StudentDto } from '../interfaces/student.service';
+import type { IStudentService, StudentDto, PaginatedStudents } from '../interfaces/student.service';
 
 export const studentApi: IStudentService = {
+  async list(page = 1, limit = 20): Promise<PaginatedStudents> {
+    const { data } = await apiClient.get<PaginatedStudents>('/students', {
+      params: { page, limit },
+    });
+    return data;
+  },
+
   async getProfile(studentId: string): Promise<StudentDto> {
     const { data } = await apiClient.get<StudentDto>(`/students/${studentId}`);
     return data;

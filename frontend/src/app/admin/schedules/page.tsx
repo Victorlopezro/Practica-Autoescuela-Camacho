@@ -3,15 +3,14 @@
 import { Card, CardHeader } from '@/components/layouts/Card';
 
 /**
- * BACKLOG: Pendiente de endpoint de horarios del backend.
- * Cuando esté disponible, reemplazar datos mock con:
+ * BACKLOG: Pantalla de horarios de profesores.
  *
- *   import { useData } from '@/hooks/useData';
- *   import { services } from '@/services';
- *   const { data, isLoading, error, refresh } = useData(
- *     () => services.reservation.list(),
- *     []
- *   );
+ * Necesita un modelo de "disponibilidad / horario laboral" de profesores
+ * que aún no existe en el backend. Cuando esté disponible, se conectará
+ * usando services.teacher.list() para los nombres + un nuevo endpoint
+ * de availability/working-hours.
+ *
+ * Por ahora se muestran datos mock mientras se expande el backend.
  */
 
 const slots = [

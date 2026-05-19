@@ -12,6 +12,15 @@ describe('TeachersController', () => {
     { id: 'teacher-2', name: 'Jane Smith', createdAt: new Date() },
   ];
 
+  const mockUser = {
+    id: 'user-1',
+    username: 'jdoe',
+    name: 'John',
+    lastName: 'Doe',
+    email: 'john@example.com',
+    phone: '612345680',
+  };
+
   beforeEach(async () => {
     prisma = {
       teacher: {
@@ -21,6 +30,9 @@ describe('TeachersController', () => {
       },
       reservation: {
         count: jest.fn(),
+      },
+      user: {
+        findFirst: jest.fn(),
       },
     };
 
@@ -75,6 +87,41 @@ describe('TeachersController', () => {
         take: 1,
         orderBy: { createdAt: 'desc' },
       });
+    });
+  });
+
+  describe('findOne', () => {
+    it('should return teacher with user profile when found', async () => {
+      prisma.teacher.findUnique.mockResolvedValue(mockTeachers[0]);
+      prisma.user.findFirst.mockResolvedValue(mockUser);
+
+      const result = await controller.findOne('teacher-1');
+
+      expect(result).toEqual({
+        ...mockTeachers[0],
+        user: mockUser,
+      });
+      expect(prisma.user.findFirst).toHaveBeenCalledWith({
+        where: { teacherId: 'teacher-1' },
+        select: expect.any(Object),
+      });
+    });
+
+    it('should return teacher with null user when no user linked', async () => {
+      prisma.teacher.findUnique.mockResolvedValue(mockTeachers[0]);
+      prisma.user.findFirst.mockResolvedValue(null);
+
+      const result = await controller.findOne('teacher-1');
+
+      expect(result.user).toBeNull();
+    });
+
+    it('should throw NotFoundException when teacher not found', async () => {
+      prisma.teacher.findUnique.mockResolvedValue(null);
+
+      await expect(
+        controller.findOne('unknown'),
+      ).rejects.toThrow(NotFoundException);
     });
   });
 

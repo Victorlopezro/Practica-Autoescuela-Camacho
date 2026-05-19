@@ -27,6 +27,9 @@ describe('RefreshTokenHandler', () => {
       user: {
         findUnique: jest.fn(),
       },
+      student: {
+        findUnique: jest.fn(),
+      },
     };
     jwtService = { sign: jest.fn(), verify: jest.fn() };
     configService = { get: jest.fn(), getOrThrow: jest.fn() };
@@ -62,8 +65,10 @@ describe('RefreshTokenHandler', () => {
       phone: null,
       role: 'admin',
       teacherId: null,
+      studentId: null,
     };
     prisma.user.findUnique.mockResolvedValue(mockUser);
+    prisma.student.findUnique.mockResolvedValue(null);
     (jwtService.sign as jest.Mock)
       .mockReturnValueOnce('new-access-token')
       .mockReturnValueOnce('new-refresh-token');

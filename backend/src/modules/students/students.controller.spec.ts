@@ -14,8 +14,18 @@ describe('StudentsController', () => {
 
   const mockStudent = {
     id: 'student-1',
+    userId: 'user-1',
     remainingClasses: 10,
     balanceHistory: [],
+  };
+
+  const mockUserRecord = {
+    id: 'user-1',
+    username: 'jperez',
+    name: 'Juan',
+    lastName: 'Pérez',
+    email: 'juan@example.com',
+    phone: '612345678',
   };
 
   const mockUser = { sub: 'admin-1', username: 'admin', role: 'admin' };
@@ -24,6 +34,11 @@ describe('StudentsController', () => {
     prisma = {
       student: {
         findUnique: jest.fn(),
+        findMany: jest.fn(),
+        count: jest.fn(),
+      },
+      user: {
+        findMany: jest.fn(),
       },
     };
     commandBus = { execute: jest.fn() };
@@ -38,6 +53,56 @@ describe('StudentsController', () => {
 
     controller = module.get<StudentsController>(StudentsController);
     jest.clearAllMocks();
+  });
+
+  describe('findAll', () => {
+    it('should return paginated students with user profiles', async () => {
+      prisma.student.findMany.mockResolvedValue([mockStudent]);
+      prisma.student.count.mockResolvedValue(1);
+      prisma.user.findMany.mockResolvedValue([mockUserRecord]);
+
+      const result = await controller.findAll();
+
+      expect(result.data).toHaveLength(1);
+      expect(result.data[0].user).toEqual(mockUserRecord);
+      expect(result.total).toBe(1);
+      expect(result.page).toBe(1);
+      expect(result.limit).toBe(20);
+      expect(prisma.student.findMany).toHaveBeenCalledWith({
+        skip: 0,
+        take: 20,
+        orderBy: { createdAt: 'desc' },
+      });
+    });
+
+    it('should return empty list when no students', async () => {
+      prisma.student.findMany.mockResolvedValue([]);
+      prisma.student.count.mockResolvedValue(0);
+
+      const result = await controller.findAll('1', '20');
+
+      expect(result.data).toHaveLength(0);
+      expect(result.total).toBe(0);
+      expect(prisma.user.findMany).not.toHaveBeenCalled();
+    });
+
+    it('should handle pagination correctly', async () => {
+      prisma.student.findMany.mockResolvedValue([mockStudent]);
+      prisma.student.count.mockResolvedValue(3);
+      prisma.user.findMany.mockResolvedValue([mockUserRecord]);
+
+      const result = await controller.findAll('2', '1');
+
+      expect(result.data).toHaveLength(1);
+      expect(result.page).toBe(2);
+      expect(result.limit).toBe(1);
+      expect(result.totalPages).toBe(3);
+      expect(prisma.student.findMany).toHaveBeenCalledWith({
+        skip: 1,
+        take: 1,
+        orderBy: { createdAt: 'desc' },
+      });
+    });
   });
 
   describe('findOne', () => {

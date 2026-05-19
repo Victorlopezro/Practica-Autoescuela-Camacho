@@ -3,30 +3,33 @@
 import { Card } from '@/components/layouts/Card';
 import { DataView } from '@/components/DataView';
 import { useData } from '@/hooks/useData';
+import { services } from '@/services';
 
-/**
- * BACKLOG: El backend no tiene un endpoint para listar alumnos.
- * Cuando esté disponible, reemplazar el fetcher con:
- *
- *   import { services } from '@/services';
- *   const { data, isLoading, error, refresh } = useData(
- *     () => services.student.list(),  // requires IStudentService.list() first
- *     []
- *   );
- *
- * Por ahora se muestran datos mock mientras se expande el backend.
- */
-
-const mockStudents = [
-  { name: 'Juan Pérez', email: 'juan@example.com', progress: 55, status: 'Activo' },
-  { name: 'María García', email: 'maria@example.com', progress: 78, status: 'Activo' },
-  { name: 'Pedro López', email: 'pedro@example.com', progress: 30, status: 'Inactivo' },
-  { name: 'Ana Martínez', email: 'ana@example.com', progress: 90, status: 'Activo' },
-];
+interface DisplayStudent {
+  id: string;
+  name: string;
+  email: string;
+  remainingClasses: number;
+  status: string;
+}
 
 export default function AdminStudents() {
   const { data, isLoading, error, refresh } = useData(
-    async () => mockStudents,
+    async (): Promise<DisplayStudent[]> => {
+      const result = await services.student.list();
+      return result.data.map((s) => {
+        const displayName = s.user
+          ? [s.user.name, s.user.lastName].filter(Boolean).join(' ') || s.user.username
+          : 'Sin nombre';
+        return {
+          id: s.id,
+          name: displayName,
+          email: s.user?.email ?? '',
+          remainingClasses: s.remainingClasses,
+          status: s.remainingClasses > 0 ? 'Activo' : 'Sin clases',
+        };
+      });
+    },
     [],
   );
 
@@ -42,7 +45,7 @@ export default function AdminStudents() {
           </div>
           <div className="space-y-3">
             {students.map((s) => (
-              <Card key={s.email} accent>
+              <Card key={s.id} accent>
                 <div className="flex items-center gap-3">
                   <div className="w-10 h-10 bg-surface-container-high rounded-full flex items-center justify-center font-bold text-primary">
                     {s.name.charAt(0)}
@@ -62,10 +65,9 @@ export default function AdminStudents() {
                     </div>
                     <p className="text-xs text-on-surface-variant">{s.email}</p>
                     <div className="flex items-center gap-2 mt-1.5">
-                      <div className="flex-1 h-1.5 bg-surface-container rounded-full overflow-hidden">
-                        <div className="h-full bg-primary rounded-full transition-all" style={{ width: `${s.progress}%` }} />
-                      </div>
-                      <span className="text-label-caps text-on-surface-variant">{s.progress}%</span>
+                      <p className="text-label-caps text-on-surface-variant">
+                        {s.remainingClasses} clases restantes
+                      </p>
                     </div>
                   </div>
                 </div>

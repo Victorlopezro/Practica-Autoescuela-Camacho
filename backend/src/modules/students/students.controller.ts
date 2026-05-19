@@ -5,6 +5,7 @@ import {
   Patch,
   Body,
   Param,
+  Query,
   HttpCode,
   HttpStatus,
   NotFoundException,
@@ -30,6 +31,49 @@ export class StudentsController {
     private readonly commandBus: CommandBus,
     private readonly prisma: PrismaService,
   ) {}
+
+  @Get()
+  @Roles('admin:manage')
+  @ApiOperation({ summary: 'List all students with user profile data (paginated)' })
+  async findAll(
+    @Query('page') page = '1',
+    @Query('limit') limit = '20',
+  ) {
+    const skip = (Number(page) - 1) * Number(limit);
+
+    const [data, total] = await Promise.all([
+      this.prisma.student.findMany({
+        skip,
+        take: Number(limit),
+        orderBy: { createdAt: 'desc' },
+      }),
+      this.prisma.student.count(),
+    ]);
+
+    // Batch fetch users for profile data
+    const userIds = data.map(s => s.userId);
+    const users = userIds.length > 0
+      ? await this.prisma.user.findMany({
+          where: { id: { in: userIds } },
+          select: { id: true, username: true, name: true, lastName: true, email: true, phone: true },
+        })
+      : [];
+
+    const userMap = new Map(users.map(u => [u.id, u]));
+
+    const enriched = data.map(student => ({
+      ...student,
+      user: userMap.get(student.userId) || null,
+    }));
+
+    return {
+      data: enriched,
+      total,
+      page: Number(page),
+      limit: Number(limit),
+      totalPages: Math.ceil(total / Number(limit)),
+    };
+  }
 
   @Get(':id')
   @Roles('admin:manage')

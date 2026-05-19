@@ -40,10 +40,16 @@ export class RefreshTokenHandler implements ICommandHandler<RefreshTokenCommand>
       data: { revoked: true, revokedAt: new Date() },
     });
 
-    const user = await this.prisma.user.findUnique({
-      where: { id: payload.sub },
-      select: { id: true, username: true, name: true, lastName: true, email: true, phone: true, role: true, teacherId: true },
-    });
+    const [user, studentRecord] = await Promise.all([
+      this.prisma.user.findUnique({
+        where: { id: payload.sub },
+        select: { id: true, username: true, name: true, lastName: true, email: true, phone: true, role: true, teacherId: true },
+      }),
+      this.prisma.student.findUnique({
+        where: { userId: payload.sub },
+        select: { id: true },
+      }),
+    ]);
     if (!user) throw new UnauthorizedException('User no longer exists');
 
     const newPayload = { sub: user.id, username: user.username, role: user.role };
@@ -75,6 +81,6 @@ export class RefreshTokenHandler implements ICommandHandler<RefreshTokenCommand>
       new TokenRefreshedEvent(user.id, stored.id, newRefreshTokenId),
     );
 
-    return { accessToken: newAccessToken, refreshToken: newRefreshToken, user };
+    return { accessToken: newAccessToken, refreshToken: newRefreshToken, user: { ...user, studentId: studentRecord?.id ?? null } };
   }
 }

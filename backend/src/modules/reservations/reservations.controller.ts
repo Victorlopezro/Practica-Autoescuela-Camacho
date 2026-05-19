@@ -51,7 +51,7 @@ export class ReservationsController {
   }
 
   @Get()
-  @Roles('admin:manage', 'teacher:view')
+  @Roles('admin:manage', 'teacher:view', 'student:view')
   @ApiOperation({ summary: 'List all reservations with pagination and filters' })
   async findAll(
     @Query('page') page = '1',

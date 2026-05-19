@@ -14,6 +14,7 @@ export interface AuthUser {
   phone?: string;
   role: 'admin' | 'teacher' | 'student';
   teacherId?: string;
+  studentId?: string;
 }
 
 interface AuthContextType {

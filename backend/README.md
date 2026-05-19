@@ -149,3 +149,11 @@ Crea un usuario admin por defecto:
 
 - **Username**: `admin`
 - **Password**: `admin123`
+
+## Deploy (InsForge)
+
+1. Install CLI: `npm install -g @insforge/cli`
+2. Login: `npx @insforge/cli login`
+3. Link: `npx @insforge/cli link`
+4. Set env vars (DATABASE_URL, JWT secrets, etc.)
+5. Deploy: `npx @insforge/cli deploy`
