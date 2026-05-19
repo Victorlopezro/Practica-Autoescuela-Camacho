@@ -2,6 +2,11 @@
 
 import { Card } from '@/components/layouts/Card';
 
+/**
+ * BACKLOG: Pendiente de endpoint de configuración del backend.
+ * Cuando esté disponible, reemplazar datos mock.
+ */
+
 const settings = [
   { label: 'Festivos', desc: 'Gestionar días festivos', icon: 'celebration' },
   { label: 'Bloqueos', desc: 'Bloqueos de horarios', icon: 'block' },

@@ -2,6 +2,18 @@
 
 import { Card } from '@/components/layouts/Card';
 
+/**
+ * BACKLOG: Pendiente de endpoint de analíticas del backend.
+ * Cuando esté disponible, reemplazar datos mock con:
+ *
+ *   import { useData } from '@/hooks/useData';
+ *   import { services } from '@/services';
+ *   const { data, isLoading, error, refresh } = useData(
+ *     () => services.reservation.list(),
+ *     []
+ *   );
+ */
+
 const analytics = [
   { label: 'Clases este mes', value: 187, change: '+12%' },
   { label: 'Alumnos nuevos', value: 8, change: '+25%' },

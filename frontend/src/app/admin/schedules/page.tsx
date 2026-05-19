@@ -2,6 +2,18 @@
 
 import { Card, CardHeader } from '@/components/layouts/Card';
 
+/**
+ * BACKLOG: Pendiente de endpoint de horarios del backend.
+ * Cuando esté disponible, reemplazar datos mock con:
+ *
+ *   import { useData } from '@/hooks/useData';
+ *   import { services } from '@/services';
+ *   const { data, isLoading, error, refresh } = useData(
+ *     () => services.reservation.list(),
+ *     []
+ *   );
+ */
+
 const slots = [
   { time: '09:00', m: 'Carlos', t: '', w: '', th: '', f: 'Laura', s: '', su: '' },
   { time: '10:00', m: 'Carlos', t: 'Carlos', w: 'Carlos', th: 'Carlos', f: 'Carlos', s: '', su: '' },
