@@ -5,6 +5,7 @@ import { usePathname } from 'next/navigation';
 import { cn } from '@/lib/utils';
 import { Navbar } from './Navbar';
 import { MobileNav } from './MobileNav';
+import { ProtectedRoute } from '@/components/ProtectedRoute';
 
 interface NavItem {
   href: string;
@@ -32,6 +33,7 @@ export function DashboardLayout({
   const pathname = usePathname();
 
   return (
+    <ProtectedRoute allowedRoles={[role]}>
     <div className="min-h-screen bg-background flex flex-col">
       {/* Desktop Sidebar */}
       <aside className="w-[280px] h-full fixed left-0 top-0 hidden md:block bg-[#2b3f94] shadow-md z-50">
@@ -139,5 +141,6 @@ export function DashboardLayout({
       {/* Mobile Bottom Nav */}
       <MobileNav role={role} />
     </div>
+    </ProtectedRoute>
   );
 }
