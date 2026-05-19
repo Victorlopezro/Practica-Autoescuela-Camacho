@@ -2,7 +2,7 @@
   "name": "autoescuela-camacho-api",
   "type": "node",
   "buildCommand": "pnpm install --frozen-lockfile && pnpm prisma generate && pnpm build",
-  "startCommand": "node dist/main",
+  "startCommand": "node dist/src/main.js",
   "healthCheckPath": "/v1/health",
   "env": {
     "NODE_ENV": "production",
