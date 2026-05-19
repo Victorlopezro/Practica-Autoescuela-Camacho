@@ -2,6 +2,18 @@
 
 import { Card, CardHeader } from '@/components/layouts/Card';
 
+/**
+ * BACKLOG: Pendiente de endpoint de pagos del backend.
+ * Cuando esté disponible, reemplazar datos mock con:
+ *
+ *   import { useData } from '@/hooks/useData';
+ *   import { services } from '@/services';
+ *   const { data, isLoading, error, refresh } = useData(
+ *     () => services.payment.getHistory(),
+ *     []
+ *   );
+ */
+
 const allPayments = [
   { student: 'Juan Pérez', concept: 'Paquete 10 cls', amount: 150, date: '01 may', status: 'Pagado' },
   { student: 'María García', concept: 'Paquete 15 cls', amount: 200, date: '15 abr', status: 'Pendiente' },

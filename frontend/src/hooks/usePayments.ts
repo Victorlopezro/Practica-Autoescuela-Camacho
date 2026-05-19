@@ -58,8 +58,11 @@ export function usePayments(userId: string | undefined): UsePaymentsResult {
     }
   }, [userId]);
 
+  // React 19 desaconseja llamar setState sincrónicamente dentro de effects.
+  // queueMicrotask asegura que fetchData (y sus setState internos) corran
+  // en un microtask posterior, no sincrónicamente en el effect body.
   useEffect(() => {
-    fetchData();
+    queueMicrotask(() => fetchData());
   }, [fetchData]);
 
   return {

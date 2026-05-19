@@ -33,7 +33,6 @@ function formatDate(date: Date): string {
 
 export function PaymentCard({
   transaction,
-  showUserName,
   className,
 }: PaymentCardProps) {
   const { amount, currency, concept, status, createdAt, planName } = transaction;

@@ -2,6 +2,17 @@
 
 import { Card, CardHeader } from '@/components/layouts/Card';
 
+/**
+ * BACKLOG: Pantalla de horarios de profesores.
+ *
+ * Necesita un modelo de "disponibilidad / horario laboral" de profesores
+ * que aún no existe en el backend. Cuando esté disponible, se conectará
+ * usando services.teacher.list() para los nombres + un nuevo endpoint
+ * de availability/working-hours.
+ *
+ * Por ahora se muestran datos mock mientras se expande el backend.
+ */
+
 const slots = [
   { time: '09:00', m: 'Carlos', t: '', w: '', th: '', f: 'Laura', s: '', su: '' },
   { time: '10:00', m: 'Carlos', t: 'Carlos', w: 'Carlos', th: 'Carlos', f: 'Carlos', s: '', su: '' },
