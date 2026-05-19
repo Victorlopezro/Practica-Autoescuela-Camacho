@@ -2,6 +2,20 @@
 
 import { Card } from '@/components/layouts/Card';
 
+/**
+ * Alumnos del profesor.
+ *
+ * BACKLOG: El backend no tiene un endpoint para listar alumnos por
+ * profesor directamente. Cuando esté disponible, reemplazar con:
+ *
+ *   const { data, isLoading, error, refresh } = useData(
+ *     () => services.reservation.list({ teacherId: user.id }),
+ *     [user.id]
+ *   );
+ *
+ * Por ahora se muestran datos mock mientras se expande el backend.
+ */
+
 const students = [
   { name: 'Juan Pérez', progress: 55, classes: 15, nextClass: '15 may 10:00' },
   { name: 'María García', progress: 70, classes: 22, nextClass: '17 may 11:00' },
@@ -10,28 +24,34 @@ const students = [
 
 export default function TeacherStudents() {
   return (
-    <div className="space-y-3">
-      {students.map(s => (
-        <Card key={s.name} accent>
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-surface-container-high rounded-full flex items-center justify-center font-bold text-primary">
-              {s.name.charAt(0)}
-            </div>
-            <div className="flex-1">
-              <div className="flex justify-between items-start">
-                <div>
-                  <p className="text-sm font-medium text-on-surface">{s.name}</p>
-                  <p className="text-xs text-on-surface-variant">{s.classes} clases · Próxima: {s.nextClass}</p>
+    <div className="space-y-4">
+      <div className="bg-surface-container-low rounded-xl p-4 text-body-sm text-on-surface-variant border border-outline-variant/20">
+        <span className="material-symbols-outlined text-[18px] align-text-bottom mr-1">info</span>
+        Listado de alumnos — requiere expansión del backend para datos en tiempo real.
+      </div>
+      <div className="space-y-3">
+        {students.map(s => (
+          <Card key={s.name} accent>
+            <div className="flex items-center gap-3">
+              <div className="w-10 h-10 bg-surface-container-high rounded-full flex items-center justify-center font-bold text-primary">
+                {s.name.charAt(0)}
+              </div>
+              <div className="flex-1">
+                <div className="flex justify-between items-start">
+                  <div>
+                    <p className="text-sm font-medium text-on-surface">{s.name}</p>
+                    <p className="text-xs text-on-surface-variant">{s.classes} clases · Próxima: {s.nextClass}</p>
+                  </div>
+                  <span className="text-label-caps text-on-surface-variant">{s.progress}%</span>
                 </div>
-                <span className="text-label-caps text-on-surface-variant">{s.progress}%</span>
-              </div>
-              <div className="mt-2 h-1.5 bg-surface-container rounded-full overflow-hidden">
-                <div className="h-full bg-primary rounded-full transition-all" style={{ width: `${s.progress}%` }} />
+                <div className="mt-2 h-1.5 bg-surface-container rounded-full overflow-hidden">
+                  <div className="h-full bg-primary rounded-full transition-all" style={{ width: `${s.progress}%` }} />
+                </div>
               </div>
             </div>
-          </div>
-        </Card>
-      ))}
+          </Card>
+        ))}
+      </div>
     </div>
   );
 }

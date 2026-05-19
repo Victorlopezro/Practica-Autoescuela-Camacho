@@ -2,6 +2,20 @@
 
 import { Card } from '@/components/layouts/Card';
 
+/**
+ * Pagos del estudiante.
+ *
+ * BACKLOG: Cuando el backend tenga endpoints reales de pagos,
+ * reemplazar este mock con:
+ *   const { data, isLoading, error, refresh } = useData(
+ *     () => services.payment.getHistory(user.id),
+ *     [user.id]
+ *   );
+ *   <DataView data={data} isLoading={isLoading} error={error} onRetry={refresh}>
+ *     ...
+ *   </DataView>
+ */
+
 const payments = [
   { concept: 'Paquete 10 clases', amount: 150, date: '15 ene 2025', status: 'Pagado' },
   { concept: 'Paquete 10 clases', amount: 150, date: '01 mar 2025', status: 'Pendiente' },
@@ -29,8 +43,8 @@ export default function StudentPayments() {
               <div className="text-right">
                 <p className="font-bold text-on-surface">{p.amount},00 €</p>
                 <span className={`text-label-caps px-2 py-0.5 rounded-full ${
-                  p.status === 'Pagado' 
-                    ? 'bg-primary-container text-primary' 
+                  p.status === 'Pagado'
+                    ? 'bg-primary-container text-primary'
                     : 'bg-tertiary-fixed text-tertiary'
                 }`}>{p.status}</span>
               </div>
