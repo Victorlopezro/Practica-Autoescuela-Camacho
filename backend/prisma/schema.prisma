@@ -14,6 +14,10 @@ model User {
   password  String   @map("password")
   role      String   @default("student") @map("role") // admin | teacher | student
   teacherId String?  @map("teacher_id")
+  name      String?  @map("name")
+  lastName  String?  @map("last_name")
+  email     String?  @unique @map("email")
+  phone     String?  @map("phone")
 
   refreshTokens RefreshToken[]
   auditLogs     AuditLog[]

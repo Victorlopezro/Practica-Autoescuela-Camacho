@@ -20,6 +20,26 @@ export class CreateUserDto {
   @IsOptional()
   @IsString()
   teacherId?: string;
+
+  @ApiProperty({ required: false, example: 'John' })
+  @IsOptional()
+  @IsString()
+  name?: string;
+
+  @ApiProperty({ required: false, example: 'Doe' })
+  @IsOptional()
+  @IsString()
+  lastName?: string;
+
+  @ApiProperty({ required: false, example: 'john@example.com' })
+  @IsOptional()
+  @IsString()
+  email?: string;
+
+  @ApiProperty({ required: false, example: '+34 600 000 000' })
+  @IsOptional()
+  @IsString()
+  phone?: string;
 }
 
 export class UpdateUserDto {
@@ -32,4 +52,24 @@ export class UpdateUserDto {
   @IsOptional()
   @IsString()
   teacherId?: string;
+
+  @ApiProperty({ required: false, example: 'John' })
+  @IsOptional()
+  @IsString()
+  name?: string;
+
+  @ApiProperty({ required: false, example: 'Doe' })
+  @IsOptional()
+  @IsString()
+  lastName?: string;
+
+  @ApiProperty({ required: false, example: 'john@example.com' })
+  @IsOptional()
+  @IsString()
+  email?: string;
+
+  @ApiProperty({ required: false, example: '+34 600 000 000' })
+  @IsOptional()
+  @IsString()
+  phone?: string;
 }

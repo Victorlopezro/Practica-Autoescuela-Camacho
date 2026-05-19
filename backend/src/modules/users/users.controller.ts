@@ -36,8 +36,28 @@ export class UsersController {
   @ApiOperation({ summary: 'Create a new user (admin only)' })
   async create(@Body() dto: CreateUserDto, @CurrentUser() user: JwtPayload) {
     return this.commandBus.execute(
-      new CreateUserCommand(dto.username, dto.password, dto.role, dto.teacherId, user.sub),
+      new CreateUserCommand(dto.username, dto.password, dto.role, dto.teacherId, user.sub, dto.name, dto.lastName, dto.email, dto.phone),
     );
+  }
+
+  @Get('me')
+  @ApiOperation({ summary: 'Get current user profile' })
+  async getMe(@CurrentUser() user: JwtPayload) {
+    return this.prisma.user.findUnique({
+      where: { id: user.sub },
+      select: {
+        id: true,
+        username: true,
+        name: true,
+        lastName: true,
+        email: true,
+        phone: true,
+        role: true,
+        teacherId: true,
+        createdAt: true,
+        updatedAt: true,
+      },
+    });
   }
 
   @Get()
@@ -77,7 +97,7 @@ export class UsersController {
     @CurrentUser() user: JwtPayload,
   ) {
     return this.commandBus.execute(
-      new UpdateUserCommand(id, dto.role, dto.teacherId, user.sub),
+      new UpdateUserCommand(id, dto.role, dto.teacherId, user.sub, dto.name, dto.lastName, dto.email, dto.phone),
     );
   }
 
