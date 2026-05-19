@@ -1,7 +1,6 @@
 import { IsString, IsIn, IsOptional, IsDateString, MinLength } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
-
-const vehicleTypes = ['moto-pista', 'moto-circulacion', 'coche-manual', 'coche-automatico'] as const;
+import { VEHICLE_TYPES } from '../../../common/constants/vehicle-types';
 
 export class CreateVehicleDto {
   @ApiProperty({ example: '1234ABC' })
@@ -9,8 +8,8 @@ export class CreateVehicleDto {
   @MinLength(3)
   plate: string;
 
-  @ApiProperty({ enum: vehicleTypes, example: 'coche-manual' })
-  @IsIn(vehicleTypes)
+  @ApiProperty({ enum: [...VEHICLE_TYPES], example: 'coche-manual' })
+  @IsIn([...VEHICLE_TYPES])
   type: string;
 
   @ApiProperty({ required: false, example: '2026-06-15T00:00:00.000Z' })

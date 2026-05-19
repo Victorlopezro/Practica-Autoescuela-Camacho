@@ -1,7 +1,7 @@
 import { IsString, IsIn, IsOptional, IsDateString, MinLength } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
+import { VEHICLE_TYPES } from '../../../common/constants/vehicle-types';
 
-const vehicleTypes = ['moto-pista', 'moto-circulacion', 'coche-manual', 'coche-automatico'] as const;
 const vehicleStatuses = ['available', 'in-use', 'maintenance', 'retired'] as const;
 
 export class UpdateVehicleDto {
@@ -11,9 +11,9 @@ export class UpdateVehicleDto {
   @MinLength(3)
   plate?: string;
 
-  @ApiProperty({ required: false, enum: vehicleTypes, example: 'moto-pista' })
+  @ApiProperty({ required: false, enum: [...VEHICLE_TYPES], example: 'moto-pista' })
   @IsOptional()
-  @IsIn(vehicleTypes)
+  @IsIn([...VEHICLE_TYPES])
   type?: string;
 
   @ApiProperty({ required: false, enum: vehicleStatuses, example: 'maintenance' })
