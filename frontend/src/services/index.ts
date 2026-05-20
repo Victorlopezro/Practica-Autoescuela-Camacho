@@ -20,6 +20,12 @@ import type {
   ReservationDto,
   AvailabilitySlot,
   IPaymentService,
+  ISchedulingService,
+  TeacherAvailabilityDto,
+  WeeklyAvailabilityDto,
+  SlotResultDto,
+  VehicleTypeConfigDto,
+  ValidationResultDto,
 } from './interfaces';
 
 /* ─── Helpers ─────────────────────────────────────────────────── */
@@ -81,6 +87,7 @@ const mockStudentService: IStudentService = {
         {
           id: 'student-1',
           userId: 'user-1',
+          teacherId: 'teacher-1',
           remainingClasses: 15,
           balanceHistory: [],
           createdAt: new Date().toISOString(),
@@ -90,6 +97,7 @@ const mockStudentService: IStudentService = {
         {
           id: 'student-2',
           userId: 'user-2',
+          teacherId: null,
           remainingClasses: 0,
           balanceHistory: [],
           createdAt: new Date().toISOString(),
@@ -108,6 +116,7 @@ const mockStudentService: IStudentService = {
     return {
       id: 'student-1',
       userId: 'user-1',
+      teacherId: 'teacher-1',
       remainingClasses: 15,
       balanceHistory: [],
       createdAt: new Date().toISOString(),
@@ -123,6 +132,7 @@ const mockStudentService: IStudentService = {
     return {
       id: 'student-1',
       userId: 'user-1',
+      teacherId: 'teacher-1',
       remainingClasses: 14,
       balanceHistory: [{ action: 'deduct', duration, date: new Date().toISOString() }],
       createdAt: new Date().toISOString(),
@@ -134,6 +144,7 @@ const mockStudentService: IStudentService = {
     return {
       id: 'student-1',
       userId: 'user-1',
+      teacherId: 'teacher-1',
       remainingClasses: 25,
       balanceHistory: [{ action: 'refill', amount, date: new Date().toISOString() }],
       createdAt: new Date().toISOString(),
@@ -166,29 +177,38 @@ const mockTeacherService: ITeacherService = {
   },
 };
 
+function mockVehicleMetadata<T extends Record<string, unknown>>(v: T) {
+  return {
+    ...v,
+    available: v.status === 'available',
+    itvWarning: v.itvExpiry ? new Date(v.itvExpiry as string).getTime() <= Date.now() + 30 * 86400000 : false,
+    itvCritical: v.itvExpiry ? new Date(v.itvExpiry as string).getTime() <= Date.now() + 7 * 86400000 : false,
+  } as unknown as VehicleDto;
+}
+
 const mockVehicleService: IVehicleService = {
   async list() {
     await delay(300);
     return {
       data: [
-        { id: 'vehicle-1', plate: 'ABC-1234', type: 'car', status: 'available', itvExpiry: '2026-12-31', createdAt: '2025-01-01T00:00:00Z', updatedAt: '2025-01-01T00:00:00Z' },
-        { id: 'vehicle-2', plate: 'DEF-5678', type: 'car', status: 'in_use', itvExpiry: '2026-06-30', createdAt: '2025-01-01T00:00:00Z', updatedAt: '2025-01-01T00:00:00Z' },
-        { id: 'vehicle-3', plate: 'GHI-9012', type: 'motorcycle', status: 'available', itvExpiry: null, createdAt: '2025-01-01T00:00:00Z', updatedAt: '2025-01-01T00:00:00Z' },
+        mockVehicleMetadata({ id: 'vehicle-1', plate: 'ABC-1234', type: 'car', status: 'available', itvExpiry: '2026-12-31', createdAt: '2025-01-01T00:00:00Z', updatedAt: '2025-01-01T00:00:00Z' }),
+        mockVehicleMetadata({ id: 'vehicle-2', plate: 'DEF-5678', type: 'car', status: 'in_use', itvExpiry: '2026-06-30', createdAt: '2025-01-01T00:00:00Z', updatedAt: '2025-01-01T00:00:00Z' }),
+        mockVehicleMetadata({ id: 'vehicle-3', plate: 'GHI-9012', type: 'motorcycle', status: 'available', itvExpiry: null, createdAt: '2025-01-01T00:00:00Z', updatedAt: '2025-01-01T00:00:00Z' }),
       ],
       total: 3,
     };
   },
   async getById(id) {
     await delay(200);
-    return { id, plate: 'ABC-1234', type: 'car', status: 'available', itvExpiry: '2026-12-31', createdAt: '2025-01-01T00:00:00Z', updatedAt: '2025-01-01T00:00:00Z' };
+    return mockVehicleMetadata({ id, plate: 'ABC-1234', type: 'car', status: 'available', itvExpiry: '2026-12-31', createdAt: '2025-01-01T00:00:00Z', updatedAt: '2025-01-01T00:00:00Z' });
   },
   async create(data) {
     await delay(400);
-    return { id: makeId(), ...data, status: 'available', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), itvExpiry: data.itvExpiry ?? null };
+    return mockVehicleMetadata({ id: makeId(), ...data, status: 'available', createdAt: new Date().toISOString(), updatedAt: new Date().toISOString(), itvExpiry: data.itvExpiry ?? null });
   },
   async update(id, data) {
     await delay(400);
-    return { id, plate: 'ABC-1234', type: 'car', status: 'available', itvExpiry: '2026-12-31', createdAt: '2025-01-01T00:00:00Z', updatedAt: new Date().toISOString(), ...data };
+    return mockVehicleMetadata({ id, plate: 'ABC-1234', type: 'car', status: 'available', itvExpiry: '2026-12-31', createdAt: '2025-01-01T00:00:00Z', updatedAt: new Date().toISOString(), ...data });
   },
   async delete() {
     await delay(300);
@@ -246,6 +266,49 @@ const mockReservationService: IReservationService = {
   },
 };
 
+const mockSchedulingService: ISchedulingService = {
+  async getTeacherAvailability() {
+    await delay(300);
+    return {
+      teacherId: 'teacher-1',
+      doubleSession: true,
+      availability: [
+        { id: 'avail-1', teacherId: 'teacher-1', dayOfWeek: 1, startTime: '08:00', endTime: '14:00' },
+        { id: 'avail-2', teacherId: 'teacher-1', dayOfWeek: 2, startTime: '08:00', endTime: '14:00' },
+        { id: 'avail-3', teacherId: 'teacher-1', dayOfWeek: 3, startTime: '08:00', endTime: '14:00' },
+        { id: 'avail-4', teacherId: 'teacher-1', dayOfWeek: 4, startTime: '08:00', endTime: '14:00' },
+        { id: 'avail-5', teacherId: 'teacher-1', dayOfWeek: 5, startTime: '08:00', endTime: '14:00' },
+      ],
+      overrides: [],
+    };
+  },
+  async setAvailability() { await delay(200); },
+  async removeAvailability() { await delay(200); },
+  async setOverride() { await delay(200); },
+  async removeOverride() { await delay(200); },
+  async getSlots() {
+    await delay(300);
+    const slots: string[] = [];
+    for (let h = 8; h < 14; h++) {
+      slots.push(new Date(`2026-05-20T${h.toString().padStart(2, '0')}:00:00Z`).toISOString());
+    }
+    return { date: '2026-05-20', slots, slotDuration: 45, doubleSession: true };
+  },
+  async validateSlot() {
+    await delay(400);
+    return { valid: true, reason: 'Slot válido según horario del profesor', riskLevel: 'none' };
+  },
+  async getVehicleTypeConfig() {
+    await delay(200);
+    return [
+      { id: 'vtc-coche-manual', type: 'coche-manual', duration: 45 },
+      { id: 'vtc-coche-automatico', type: 'coche-automatico', duration: 45 },
+      { id: 'vtc-moto-pista', type: 'moto-pista', duration: 30 },
+      { id: 'vtc-moto-circulacion', type: 'moto-circulacion', duration: 45 },
+    ];
+  },
+};
+
 const mockPaymentService: IPaymentService = {
   async getHistory() {
     await delay(300);
@@ -262,6 +325,7 @@ import {
   vehicleApi,
   reservationApi,
   paymentApi,
+  schedulingApi,
 } from './api';
 
 /* ─── Adapter Switch ──────────────────────────────────────────── */
@@ -275,4 +339,5 @@ export const services = {
   vehicle: useMocks ? mockVehicleService : vehicleApi,
   reservation: useMocks ? mockReservationService : reservationApi,
   payment: useMocks ? mockPaymentService : paymentApi,
+  scheduling: useMocks ? mockSchedulingService : schedulingApi,
 };

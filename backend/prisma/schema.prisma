@@ -50,6 +50,7 @@ model RefreshToken {
 model Student {
   id               String   @id @default(uuid()) @map("id")
   userId           String   @unique @map("user_id")
+  teacherId        String?  @map("teacher_id")
   remainingClasses Int      @default(0) @map("remaining_classes")
   balanceHistory   Json?    @map("balance_history") // Array of { amount, reason, timestamp, adjustedBy }
 
@@ -60,13 +61,56 @@ model Student {
 }
 
 model Teacher {
-  id   String @id @default(uuid()) @map("id")
-  name String @map("name")
+  id            String   @id @default(uuid()) @map("id")
+  name          String   @map("name")
+  doubleSession Boolean  @default(false) @map("double_session")
+
+  availability  TeacherAvailability[]
+  overrides     AvailabilityOverride[]
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("teachers")
+}
+
+model TeacherAvailability {
+  id        String   @id @default(uuid()) @map("id")
+  teacherId String   @map("teacher_id")
+  teacher   Teacher  @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  dayOfWeek Int      @map("day_of_week") // 0=Sunday, 1=Monday ... 6=Saturday
+  startTime String   @map("start_time") // "HH:mm" in local time
+  endTime   String   @map("end_time")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@unique([teacherId, dayOfWeek])
+  @@map("teacher_availability")
+}
+
+model AvailabilityOverride {
+  id          String   @id @default(uuid()) @map("id")
+  teacherId   String   @map("teacher_id")
+  teacher     Teacher  @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  date        DateTime @map("date")
+  isAvailable Boolean  @default(false) @map("is_available")
+  startTime   String?  @map("start_time") // null = use regular schedule
+  endTime     String?  @map("end_time")
+  reason      String?  @map("reason")
+
+  createdAt DateTime @default(now()) @map("created_at")
+
+  @@unique([teacherId, date])
+  @@map("availability_overrides")
+}
+
+model VehicleTypeConfig {
+  id       String @id @default(uuid()) @map("id")
+  type     String @unique @map("type")
+  duration Int    @map("duration") // minutes
+
+  @@map("vehicle_type_config")
 }
 
 model Vehicle {

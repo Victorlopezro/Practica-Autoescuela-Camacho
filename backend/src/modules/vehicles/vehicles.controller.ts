@@ -35,11 +35,13 @@ export class VehiclesController {
   @Roles('admin:manage')
   @ApiOperation({ summary: 'Create a new vehicle (admin only)' })
   async create(@Body() dto: CreateVehicleDto) {
-    return this.commandBus.execute(
-      new CreateVehicleCommand(
-        dto.plate,
-        dto.type,
-        dto.itvExpiry ? new Date(dto.itvExpiry) : undefined,
+    return this.addVehicleMetadata(
+      await this.commandBus.execute(
+        new CreateVehicleCommand(
+          dto.plate,
+          dto.type,
+          dto.itvExpiry ? new Date(dto.itvExpiry) : undefined,
+        ),
       ),
     );
   }
@@ -70,7 +72,7 @@ export class VehiclesController {
     ]);
 
     return {
-      data: data.map(this.addItvWarning),
+      data: data.map(this.addVehicleMetadata),
       total,
       page: Number(page),
       limit: Number(limit),
@@ -91,20 +93,22 @@ export class VehiclesController {
       throw new NotFoundException('Vehicle not found');
     }
 
-    return this.addItvWarning(vehicle);
+    return this.addVehicleMetadata(vehicle);
   }
 
   @Patch(':id')
   @Roles('admin:manage', 'teacher:view')
   @ApiOperation({ summary: 'Update vehicle' })
   async update(@Param('id') id: string, @Body() dto: UpdateVehicleDto) {
-    return this.commandBus.execute(
-      new UpdateVehicleCommand(
-        id,
-        dto.plate,
-        dto.type,
-        dto.status,
-        dto.itvExpiry ? new Date(dto.itvExpiry) : undefined,
+    return this.addVehicleMetadata(
+      await this.commandBus.execute(
+        new UpdateVehicleCommand(
+          id,
+          dto.plate,
+          dto.type,
+          dto.status,
+          dto.itvExpiry ? new Date(dto.itvExpiry) : undefined,
+        ),
       ),
     );
   }
@@ -142,11 +146,17 @@ export class VehiclesController {
     });
   }
 
-  private addItvWarning(vehicle: Prisma.VehicleGetPayload<{}>) {
+  private addVehicleMetadata(vehicle: Prisma.VehicleGetPayload<{}>) {
+    const now = Date.now();
+    const itvExpiry = vehicle.itvExpiry?.getTime();
     return {
       ...vehicle,
-      itvWarning: vehicle.itvExpiry
-        ? vehicle.itvExpiry <= new Date(Date.now() + 30 * 24 * 60 * 60 * 1000)
+      available: vehicle.status === 'available',
+      itvWarning: itvExpiry
+        ? itvExpiry <= now + 30 * 24 * 60 * 60 * 1000
+        : false,
+      itvCritical: itvExpiry
+        ? itvExpiry <= now + 7 * 24 * 60 * 60 * 1000
         : false,
     };
   }

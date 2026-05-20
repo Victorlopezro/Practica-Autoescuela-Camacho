@@ -10,6 +10,7 @@ export interface StudentUserProfile {
 export interface StudentDto {
   id: string;
   userId: string;
+  teacherId: string | null;
   remainingClasses: number;
   balanceHistory: unknown[];
   createdAt: string;

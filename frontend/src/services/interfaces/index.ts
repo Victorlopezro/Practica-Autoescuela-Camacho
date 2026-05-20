@@ -4,3 +4,4 @@ export type { ITeacherService, TeacherDto, TeacherStatsDto } from './teacher.ser
 export type { IVehicleService, VehicleDto, VehicleIncidentDto } from './vehicle.service';
 export type { IReservationService, ReservationDto, AvailabilitySlot } from './reservation.service';
 export type { IPaymentService } from './payment.service';
+export type { ISchedulingService, TeacherAvailabilityDto, WeeklyAvailabilityDto, OverrideDto, SlotResultDto, VehicleTypeConfigDto, ValidationResultDto } from './scheduling.service';

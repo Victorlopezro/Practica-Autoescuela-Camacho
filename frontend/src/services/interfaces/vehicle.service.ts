@@ -6,6 +6,9 @@ export interface VehicleDto {
   itvExpiry: string | null;
   createdAt: string;
   updatedAt: string;
+  available: boolean;
+  itvWarning: boolean;
+  itvCritical: boolean;
 }
 
 export interface VehicleIncidentDto {

@@ -4,3 +4,4 @@ export { teacherApi } from './teacherApi';
 export { vehicleApi } from './vehicleApi';
 export { reservationApi } from './reservationApi';
 export { paymentApi } from './paymentApi';
+export { schedulingApi } from './schedulingApi';
