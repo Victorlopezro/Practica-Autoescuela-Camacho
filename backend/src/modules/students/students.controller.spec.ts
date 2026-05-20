@@ -62,7 +62,7 @@ describe('StudentsController', () => {
       prisma.student.count.mockResolvedValue(1);
       prisma.user.findMany.mockResolvedValue([mockUserRecord]);
 
-      const result = await controller.findAll();
+      const result = await controller.findAll(undefined, undefined, mockUser);
 
       expect(result.data).toHaveLength(1);
       expect(result.data[0].user).toEqual(mockUserRecord);
@@ -70,6 +70,7 @@ describe('StudentsController', () => {
       expect(result.page).toBe(1);
       expect(result.limit).toBe(20);
       expect(prisma.student.findMany).toHaveBeenCalledWith({
+        where: {},
         skip: 0,
         take: 20,
         orderBy: { createdAt: 'desc' },
@@ -80,7 +81,7 @@ describe('StudentsController', () => {
       prisma.student.findMany.mockResolvedValue([]);
       prisma.student.count.mockResolvedValue(0);
 
-      const result = await controller.findAll('1', '20');
+      const result = await controller.findAll('1', '20', mockUser);
 
       expect(result.data).toHaveLength(0);
       expect(result.total).toBe(0);
@@ -92,13 +93,14 @@ describe('StudentsController', () => {
       prisma.student.count.mockResolvedValue(3);
       prisma.user.findMany.mockResolvedValue([mockUserRecord]);
 
-      const result = await controller.findAll('2', '1');
+      const result = await controller.findAll('2', '1', mockUser);
 
       expect(result.data).toHaveLength(1);
       expect(result.page).toBe(2);
       expect(result.limit).toBe(1);
       expect(result.totalPages).toBe(3);
       expect(prisma.student.findMany).toHaveBeenCalledWith({
+        where: {},
         skip: 1,
         take: 1,
         orderBy: { createdAt: 'desc' },
@@ -111,7 +113,7 @@ describe('StudentsController', () => {
       prisma.student.findUnique.mockResolvedValue(mockStudent);
       prisma.user.findUnique.mockResolvedValue(mockUserRecord);
 
-      const result = await controller.findOne('student-1');
+      const result = await controller.findOne('student-1', mockUser);
 
       expect(result).toEqual({ ...mockStudent, user: mockUserRecord });
     });
@@ -119,7 +121,7 @@ describe('StudentsController', () => {
     it('should throw NotFoundException when student not found', async () => {
       prisma.student.findUnique.mockResolvedValue(null);
 
-      await expect(controller.findOne('unknown')).rejects.toThrow(
+      await expect(controller.findOne('unknown', mockUser)).rejects.toThrow(
         NotFoundException,
       );
     });
