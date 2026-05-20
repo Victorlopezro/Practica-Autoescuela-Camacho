@@ -12,8 +12,10 @@ const studentLinks = [
 
 const teacherLinks = [
   { href: '/teacher/dashboard', label: 'Inicio', icon: 'home' },
-  { href: '/teacher/calendar', label: 'Horario', icon: 'calendar_month' },
+  { href: '/teacher/calendar', label: 'Calendario', icon: 'calendar_month' },
+  { href: '/teacher/schedule', label: 'Horario', icon: 'schedule' },
   { href: '/teacher/students', label: 'Alumnos', icon: 'group' },
+  { href: '/teacher/incidents', label: 'Incidencias', icon: 'report' },
   { href: '/teacher/profile', label: 'Perfil', icon: 'person' },
 ];
 

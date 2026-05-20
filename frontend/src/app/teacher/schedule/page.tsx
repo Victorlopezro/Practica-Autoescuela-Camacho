@@ -54,32 +54,24 @@ export default function TeacherSchedule() {
   useEffect(() => { load(); }, [load]);
 
   const toggleDay = async (dayIndex: number) => {
-    if (!teacherId) return;
     if (availability[dayIndex]) {
-      // Remove
+      // Removing → save immediately (no extra config needed)
       setAvailability((prev) => {
         const next = { ...prev };
         delete next[dayIndex];
         return next;
       });
+      setMessage(null);
       try {
-        await services.scheduling.removeAvailability(teacherId, dayIndex);
+        if (teacherId) await services.scheduling.removeAvailability(teacherId, dayIndex);
       } catch {
         setMessage({ type: 'error', text: 'Error al eliminar disponibilidad' });
         load();
       }
     } else {
-      // Add with defaults
-      const start = '08:00';
-      const end = '14:00';
-      setAvailability((prev) => ({ ...prev, [dayIndex]: { start, end } }));
-      try {
-        await services.scheduling.setAvailability(teacherId, dayIndex, start, end);
-        setMessage({ type: 'success', text: 'Disponibilidad actualizada' });
-      } catch {
-        setMessage({ type: 'error', text: 'Error al guardar' });
-        load();
-      }
+      // Adding → local only, user sets times and clicks Guardar
+      setAvailability((prev) => ({ ...prev, [dayIndex]: { start: '08:00', end: '14:00' } }));
+      setMessage(null);
     }
   };
 
