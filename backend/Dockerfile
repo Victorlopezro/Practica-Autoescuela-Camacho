@@ -28,7 +28,7 @@ RUN pnpm install --frozen-lockfile --prod
 
 COPY --from=builder /app/dist ./dist
 COPY prisma/ ./prisma/
-RUN npx prisma generate
+RUN pnpm prisma generate
 
 COPY docker/entrypoint.sh ./
 RUN chmod +x entrypoint.sh
