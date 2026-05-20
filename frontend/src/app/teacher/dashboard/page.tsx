@@ -49,15 +49,15 @@ export default function TeacherDashboard() {
   const { data, isLoading, error, refresh } = useData<DashboardData>(
     async () => {
       const [stats, reservations] = await Promise.all([
-        services.teacher.getStats(user?.id ?? ''),
-        services.reservation.list({ teacherId: user?.id }),
+        services.teacher.getStats(user?.teacherId ?? ''),
+        services.reservation.list({ teacherId: user?.teacherId }),
       ]);
       return {
         stats,
         todayReservations: reservations.data.filter(r => isToday(r.startTime)),
       };
     },
-    [user?.id]
+    [user?.teacherId]
   );
 
   const todayCount = data?.todayReservations.length ?? 0;

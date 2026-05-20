@@ -16,7 +16,7 @@ export class TeachersController {
   constructor(private readonly prisma: PrismaService) {}
 
   @Get()
-  @Roles('admin:manage', 'teacher:view')
+  @Roles('admin:manage', 'teacher:view', 'student:view')
   @ApiOperation({ summary: 'List all teachers (paginated)' })
   async findAll(
     @Query('page') page = '1',

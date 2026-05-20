@@ -10,7 +10,7 @@
     "pnpm": ">=11"
   },
   "prisma": {
-    "seed": "ts-node prisma/seed.ts"
+    "seed": "corepack pnpm tsx --env-file=.env prisma/seed.ts"
   },
   "license": "UNLICENSED",
   "scripts": {

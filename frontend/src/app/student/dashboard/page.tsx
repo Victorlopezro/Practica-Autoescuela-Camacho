@@ -10,8 +10,8 @@ import type { StudentDto } from '@/services/interfaces';
 export default function StudentDashboard() {
   const { user } = useAuth();
   const { data: profile, isLoading, error, refresh } = useData<StudentDto>(
-    () => services.student.getProfile(user?.id ?? ''),
-    [user?.id]
+    () => services.student.getProfile(user?.studentId ?? ''),
+    [user?.studentId]
   );
 
   return (

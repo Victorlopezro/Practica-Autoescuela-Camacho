@@ -6,6 +6,6 @@ export default defineConfig({
     url: process.env.DATABASE_URL ?? 'postgresql://postgres:postgres@localhost:5432/autoescuela',
   },
   migrations: {
-    seed: 'corepack pnpm tsx ./prisma/seed.ts',
+    seed: 'corepack pnpm tsx --env-file=.env ./prisma/seed.ts',
   },
 });

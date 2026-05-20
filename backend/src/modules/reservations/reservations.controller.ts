@@ -35,7 +35,7 @@ export class ReservationsController {
   ) {}
 
   @Post()
-  @Roles('admin:manage', 'teacher:view')
+  @Roles('admin:manage', 'student:view')
   @ApiOperation({ summary: 'Create a new reservation' })
   async create(@Body() dto: CreateReservationDto, @CurrentUser() user: JwtPayload) {
     return this.commandBus.execute(

@@ -45,7 +45,7 @@ export class VehiclesController {
   }
 
   @Get()
-  @Roles('admin:manage')
+  @Roles('admin:manage', 'teacher:view')
   @ApiOperation({ summary: 'List all vehicles with pagination and filters' })
   async findAll(
     @Query('page') page = '1',
@@ -79,7 +79,7 @@ export class VehiclesController {
   }
 
   @Get(':id')
-  @Roles('admin:manage')
+  @Roles('admin:manage', 'teacher:view')
   @ApiOperation({ summary: 'Get vehicle by ID with incidents' })
   async findOne(@Param('id') id: string) {
     const vehicle = await this.prisma.vehicle.findUnique({
@@ -95,8 +95,8 @@ export class VehiclesController {
   }
 
   @Patch(':id')
-  @Roles('admin:manage')
-  @ApiOperation({ summary: 'Update vehicle (admin only)' })
+  @Roles('admin:manage', 'teacher:view')
+  @ApiOperation({ summary: 'Update vehicle' })
   async update(@Param('id') id: string, @Body() dto: UpdateVehicleDto) {
     return this.commandBus.execute(
       new UpdateVehicleCommand(
@@ -118,8 +118,8 @@ export class VehiclesController {
   }
 
   @Post(':id/incidents')
-  @Roles('admin:manage')
-  @ApiOperation({ summary: 'Log an incident for a vehicle (admin only)' })
+  @Roles('admin:manage', 'teacher:view')
+  @ApiOperation({ summary: 'Log an incident for a vehicle' })
   async logIncident(@Param('id') id: string, @Body() dto: LogIncidentDto) {
     return this.commandBus.execute(
       new LogIncidentCommand(id, dto.description, new Date(dto.date)),
@@ -127,7 +127,7 @@ export class VehiclesController {
   }
 
   @Get(':id/incidents')
-  @Roles('admin:manage')
+  @Roles('admin:manage', 'teacher:view')
   @ApiOperation({ summary: 'List incidents for a vehicle' })
   async findIncidents(@Param('id') id: string) {
     const vehicle = await this.prisma.vehicle.findUnique({

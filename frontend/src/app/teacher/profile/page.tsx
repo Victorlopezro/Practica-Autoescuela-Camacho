@@ -16,8 +16,8 @@ function getInitials(name?: string, lastName?: string): string {
 export default function TeacherProfile() {
   const { user, logout } = useAuth();
   const { data: stats, isLoading, error, refresh } = useData<TeacherStatsDto>(
-    () => services.teacher.getStats(user?.id ?? ''),
-    [user?.id]
+    () => services.teacher.getStats(user?.teacherId ?? ''),
+    [user?.teacherId]
   );
 
   return (

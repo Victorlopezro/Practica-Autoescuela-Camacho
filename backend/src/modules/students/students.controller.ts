@@ -33,21 +33,39 @@ export class StudentsController {
   ) {}
 
   @Get()
-  @Roles('admin:manage')
-  @ApiOperation({ summary: 'List all students with user profile data (paginated)' })
+  @Roles('admin:manage', 'teacher:view')
+  @ApiOperation({ summary: 'List students (admin: all; teacher: only assigned)' })
   async findAll(
     @Query('page') page = '1',
     @Query('limit') limit = '20',
+    @CurrentUser() currentUser: JwtPayload,
   ) {
     const skip = (Number(page) - 1) * Number(limit);
 
+    // If teacher, find only their assigned students
+    let teacherFilter: { teacherId: string } | undefined;
+    if (currentUser.role === 'teacher') {
+      const user = await this.prisma.user.findUnique({
+        where: { id: currentUser.sub },
+        select: { teacherId: true },
+      });
+      if (user?.teacherId) {
+        teacherFilter = { teacherId: user.teacherId };
+      }
+    }
+
+    const where = teacherFilter
+      ? { userId: { in: (await this.prisma.user.findMany({ where: teacherFilter, select: { id: true } })).map(u => u.id) } }
+      : {};
+
     const [data, total] = await Promise.all([
       this.prisma.student.findMany({
+        where,
         skip,
         take: Number(limit),
         orderBy: { createdAt: 'desc' },
       }),
-      this.prisma.student.count(),
+      this.prisma.student.count({ where }),
     ]);
 
     // Batch fetch users for profile data
@@ -76,9 +94,9 @@ export class StudentsController {
   }
 
   @Get(':id')
-  @Roles('admin:manage', 'student:view')
+  @Roles('admin:manage', 'teacher:view', 'student:view')
   @ApiOperation({ summary: 'Get student by ID with user info and balance' })
-  async findOne(@Param('id') id: string) {
+  async findOne(@Param('id') id: string, @CurrentUser() currentUser: JwtPayload) {
     const student = await this.prisma.student.findUnique({
       where: { id },
     });
@@ -86,8 +104,19 @@ export class StudentsController {
 
     const user = await this.prisma.user.findUnique({
       where: { id: student.userId },
-      select: { id: true, username: true, name: true, lastName: true, email: true, phone: true },
+      select: { id: true, username: true, name: true, lastName: true, email: true, phone: true, teacherId: true },
     });
+
+    // Teachers can only view their assigned students
+    if (currentUser.role === 'teacher') {
+      const teacher = await this.prisma.user.findUnique({
+        where: { id: currentUser.sub },
+        select: { teacherId: true },
+      });
+      if (!teacher?.teacherId || user?.teacherId !== teacher.teacherId) {
+        throw new NotFoundException('Student not found');
+      }
+    }
 
     return { ...student, user: user ?? null };
   }
