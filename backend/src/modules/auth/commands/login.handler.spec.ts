@@ -72,7 +72,7 @@ describe('LoginHandler', () => {
   describe('execute', () => {
     it('should return tokens with user profile when credentials are valid', async () => {
       (prisma.user.findUnique as jest.Mock)
-        .mockResolvedValueOnce(mockUser)   // first call: auth lookup
+        .mockResolvedValueOnce(mockUser) // first call: auth lookup
         .mockResolvedValueOnce(mockUserProfile); // second call: profile query
       (prisma.student.findUnique as jest.Mock).mockResolvedValue(null);
       (argon2.verify as jest.Mock).mockResolvedValue(true);

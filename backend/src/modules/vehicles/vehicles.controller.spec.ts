@@ -122,9 +122,9 @@ describe('VehiclesController', () => {
     it('should throw NotFoundException when vehicle not found', async () => {
       prisma.vehicle.findUnique.mockResolvedValue(null);
 
-      await expect(
-        controller.findOne('unknown'),
-      ).rejects.toThrow(NotFoundException);
+      await expect(controller.findOne('unknown')).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 
@@ -156,7 +156,12 @@ describe('VehiclesController', () => {
 
   describe('logIncident', () => {
     it('should execute LogIncidentCommand', async () => {
-      const mockIncident = { id: 'inc-1', vehicleId: 'vehicle-1', description: 'Broken light', date: new Date() };
+      const mockIncident = {
+        id: 'inc-1',
+        vehicleId: 'vehicle-1',
+        description: 'Broken light',
+        date: new Date(),
+      };
       commandBus.execute.mockResolvedValue(mockIncident);
 
       await controller.logIncident('vehicle-1', {
@@ -173,7 +178,12 @@ describe('VehiclesController', () => {
   describe('findIncidents', () => {
     it('should return incidents for existing vehicle', async () => {
       const incidents = [
-        { id: 'inc-1', vehicleId: 'vehicle-1', description: 'test', date: new Date() },
+        {
+          id: 'inc-1',
+          vehicleId: 'vehicle-1',
+          description: 'test',
+          date: new Date(),
+        },
       ];
       prisma.vehicle.findUnique.mockResolvedValue({ id: 'vehicle-1' });
       prisma.vehicleIncident.findMany.mockResolvedValue(incidents);
@@ -186,9 +196,9 @@ describe('VehiclesController', () => {
     it('should throw NotFoundException when vehicle does not exist', async () => {
       prisma.vehicle.findUnique.mockResolvedValue(null);
 
-      await expect(
-        controller.findIncidents('unknown'),
-      ).rejects.toThrow(NotFoundException);
+      await expect(controller.findIncidents('unknown')).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 

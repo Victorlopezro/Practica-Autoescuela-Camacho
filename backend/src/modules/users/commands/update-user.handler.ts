@@ -12,9 +12,12 @@ export class UpdateUserHandler implements ICommandHandler<UpdateUserCommand> {
   ) {}
 
   async execute(command: UpdateUserCommand) {
-    const { userId, role, teacherId, changedBy, name, lastName, email, phone } = command;
+    const { userId, role, teacherId, changedBy, name, lastName, email, phone } =
+      command;
 
-    const existing = await this.prisma.user.findUnique({ where: { id: userId } });
+    const existing = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
     if (!existing) throw new NotFoundException('User not found');
 
     const data: Record<string, unknown> = {};
@@ -28,7 +31,17 @@ export class UpdateUserHandler implements ICommandHandler<UpdateUserCommand> {
     const updated = await this.prisma.user.update({
       where: { id: userId },
       data,
-      select: { id: true, username: true, name: true, lastName: true, email: true, phone: true, role: true, teacherId: true, updatedAt: true },
+      select: {
+        id: true,
+        username: true,
+        name: true,
+        lastName: true,
+        email: true,
+        phone: true,
+        role: true,
+        teacherId: true,
+        updatedAt: true,
+      },
     });
 
     if (role !== undefined && role !== existing.role) {

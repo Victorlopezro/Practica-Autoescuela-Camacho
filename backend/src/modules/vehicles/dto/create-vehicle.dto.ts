@@ -1,4 +1,10 @@
-import { IsString, IsIn, IsOptional, IsDateString, MinLength } from 'class-validator';
+import {
+  IsString,
+  IsIn,
+  IsOptional,
+  IsDateString,
+  MinLength,
+} from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 import { VEHICLE_TYPES } from '../../../common/constants/vehicle-types';
 

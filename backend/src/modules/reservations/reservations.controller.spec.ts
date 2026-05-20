@@ -114,15 +114,18 @@ describe('ReservationsController', () => {
     it('should throw NotFoundException when reservation not found', async () => {
       prisma.reservation.findUnique.mockResolvedValue(null);
 
-      await expect(
-        controller.findOne('unknown'),
-      ).rejects.toThrow(NotFoundException);
+      await expect(controller.findOne('unknown')).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 
   describe('PATCH /reservations/:id/confirm', () => {
     it('should delegate to ConfirmReservationCommand', async () => {
-      commandBus.execute.mockResolvedValue({ ...mockReservation, status: 'confirmed' });
+      commandBus.execute.mockResolvedValue({
+        ...mockReservation,
+        status: 'confirmed',
+      });
 
       const result = await controller.confirm('res-1', mockUser);
 
@@ -153,7 +156,10 @@ describe('ReservationsController', () => {
 
   describe('PATCH /reservations/:id/complete', () => {
     it('should delegate to CompleteReservationCommand', async () => {
-      commandBus.execute.mockResolvedValue({ ...mockReservation, status: 'completed' });
+      commandBus.execute.mockResolvedValue({
+        ...mockReservation,
+        status: 'completed',
+      });
 
       const result = await controller.complete('res-1', mockUser);
 
@@ -168,7 +174,11 @@ describe('ReservationsController', () => {
     it('should return free slots', async () => {
       prisma.reservation.findMany.mockResolvedValue([]);
 
-      const result = await controller.getAvailability('2026-06-01', 'teacher-1', '45');
+      const result = await controller.getAvailability(
+        '2026-06-01',
+        'teacher-1',
+        '45',
+      );
 
       expect(result.date).toBe('2026-06-01');
       expect(result.teacherId).toBe('teacher-1');
@@ -179,7 +189,11 @@ describe('ReservationsController', () => {
     it('should handle 90-minute duration parameter', async () => {
       prisma.reservation.findMany.mockResolvedValue([]);
 
-      const result = await controller.getAvailability('2026-06-01', 'teacher-1', '90');
+      const result = await controller.getAvailability(
+        '2026-06-01',
+        'teacher-1',
+        '90',
+      );
 
       expect(result.slotDuration).toBe(90);
     });

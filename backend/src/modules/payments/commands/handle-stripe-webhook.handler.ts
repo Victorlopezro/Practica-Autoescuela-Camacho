@@ -7,14 +7,15 @@ import { HandleStripeWebhookCommand } from './handle-stripe-webhook.command';
 export class HandleStripeWebhookHandler implements ICommandHandler<HandleStripeWebhookCommand> {
   private readonly logger = new Logger(HandleStripeWebhookHandler.name);
 
-  constructor(
-    private readonly mockStripeProvider: MockStripeProvider,
-  ) {}
+  constructor(private readonly mockStripeProvider: MockStripeProvider) {}
 
   async execute(command: HandleStripeWebhookCommand) {
     const { rawBody, signature } = command;
 
-    const isValid = this.mockStripeProvider.verifyWebhookSignature(rawBody, signature);
+    const isValid = this.mockStripeProvider.verifyWebhookSignature(
+      rawBody,
+      signature,
+    );
     if (!isValid) {
       throw new BadRequestException('Invalid webhook signature');
     }

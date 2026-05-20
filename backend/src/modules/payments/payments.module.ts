@@ -5,10 +5,7 @@ import { CreateCheckoutSessionHandler } from './commands/create-checkout-session
 import { HandleStripeWebhookHandler } from './commands/handle-stripe-webhook.handler';
 import { MockStripeProvider } from './providers/mock-stripe-provider';
 
-const handlers = [
-  CreateCheckoutSessionHandler,
-  HandleStripeWebhookHandler,
-];
+const handlers = [CreateCheckoutSessionHandler, HandleStripeWebhookHandler];
 
 @Module({
   imports: [CqrsModule],

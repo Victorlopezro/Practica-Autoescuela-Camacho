@@ -32,7 +32,9 @@ describe('JwtAuthGuard', () => {
   it('should throw UnauthorizedException when user is missing', () => {
     reflector.getAllAndOverride.mockReturnValue(false);
 
-    expect(() => guard.handleRequest(null, null)).toThrow(UnauthorizedException);
+    expect(() => guard.handleRequest(null, null)).toThrow(
+      UnauthorizedException,
+    );
   });
 
   it('should pass user through when valid', () => {

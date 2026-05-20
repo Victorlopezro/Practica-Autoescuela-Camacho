@@ -66,7 +66,9 @@ describe('AdjustBalanceHandler', () => {
     prisma.student.findUnique.mockResolvedValue(null);
 
     await expect(
-      handler.execute(new AdjustBalanceCommand('unknown', 5, 'test', 'admin-1')),
+      handler.execute(
+        new AdjustBalanceCommand('unknown', 5, 'test', 'admin-1'),
+      ),
     ).rejects.toThrow(NotFoundException);
   });
 
@@ -74,7 +76,9 @@ describe('AdjustBalanceHandler', () => {
     prisma.student.findUnique.mockResolvedValue(mockStudent);
 
     await expect(
-      handler.execute(new AdjustBalanceCommand('student-1', -20, 'Penalty', 'admin-1')),
+      handler.execute(
+        new AdjustBalanceCommand('student-1', -20, 'Penalty', 'admin-1'),
+      ),
     ).rejects.toThrow(BadRequestException);
   });
 

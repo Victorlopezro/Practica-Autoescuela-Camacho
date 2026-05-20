@@ -96,9 +96,7 @@ describe('DeductClassHandler', () => {
       remainingClasses: 9,
     });
 
-    await handler.execute(
-      new DeductClassCommand('student-1', 45, 'admin-1'),
-    );
+    await handler.execute(new DeductClassCommand('student-1', 45, 'admin-1'));
 
     expect(eventBus.publish).toHaveBeenCalledWith(
       expect.any(BalanceAdjustedEvent),

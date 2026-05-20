@@ -15,15 +15,20 @@ export class AdjustBalanceHandler implements ICommandHandler<AdjustBalanceComman
   async execute(command: AdjustBalanceCommand) {
     const { studentId, amount, reason, adjustedBy } = command;
 
-    const student = await this.prisma.student.findUnique({ where: { id: studentId } });
+    const student = await this.prisma.student.findUnique({
+      where: { id: studentId },
+    });
     if (!student) throw new NotFoundException('Student not found');
 
     const newBalance = student.remainingClasses + amount;
     if (newBalance < 0) {
-      throw new BadRequestException('Insufficient balance — resulting classes cannot be below 0');
+      throw new BadRequestException(
+        'Insufficient balance — resulting classes cannot be below 0',
+      );
     }
 
-    const history = (student.balanceHistory as Array<Record<string, unknown>>) || [];
+    const history =
+      (student.balanceHistory as Array<Record<string, unknown>>) || [];
     history.push({
       amount,
       reason,
@@ -39,7 +44,9 @@ export class AdjustBalanceHandler implements ICommandHandler<AdjustBalanceComman
       },
     });
 
-    this.eventBus.publish(new BalanceAdjustedEvent(studentId, amount, reason, newBalance));
+    this.eventBus.publish(
+      new BalanceAdjustedEvent(studentId, amount, reason, newBalance),
+    );
 
     return { remainingClasses: newBalance };
   }

@@ -5,8 +5,14 @@ import { PaymentProvider, StripeSession } from '../../../common/interfaces';
 export class MockStripeProvider implements PaymentProvider {
   private readonly logger = new Logger(MockStripeProvider.name);
 
-  async createCheckoutSession(params: { reservationId: string; amount: number; metadata?: Record<string, string> }) {
-    this.logger.log(`[MOCK] Creating checkout session for reservation ${params.reservationId}, amount ${params.amount}`);
+  async createCheckoutSession(params: {
+    reservationId: string;
+    amount: number;
+    metadata?: Record<string, string>;
+  }) {
+    this.logger.log(
+      `[MOCK] Creating checkout session for reservation ${params.reservationId}, amount ${params.amount}`,
+    );
     // TODO: Replace with real Stripe SDK call when STRIPE_SECRET_KEY is configured
     return {
       url: `https://mock-checkout.example.com/pay/${params.reservationId}`,

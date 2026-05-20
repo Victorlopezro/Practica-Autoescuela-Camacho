@@ -15,12 +15,15 @@ export class RefillClassHandler implements ICommandHandler<RefillClassCommand> {
   async execute(command: RefillClassCommand) {
     const { studentId, amount, adjustedBy } = command;
 
-    const student = await this.prisma.student.findUnique({ where: { id: studentId } });
+    const student = await this.prisma.student.findUnique({
+      where: { id: studentId },
+    });
     if (!student) throw new NotFoundException('Student not found');
 
     const newBalance = student.remainingClasses + amount;
 
-    const history = (student.balanceHistory as Array<Record<string, unknown>>) || [];
+    const history =
+      (student.balanceHistory as Array<Record<string, unknown>>) || [];
     history.push({
       amount,
       reason: `Classes refilled (${amount} added)`,
@@ -37,7 +40,12 @@ export class RefillClassHandler implements ICommandHandler<RefillClassCommand> {
     });
 
     this.eventBus.publish(
-      new BalanceAdjustedEvent(studentId, amount, `Classes refilled`, newBalance),
+      new BalanceAdjustedEvent(
+        studentId,
+        amount,
+        `Classes refilled`,
+        newBalance,
+      ),
     );
 
     return { remainingClasses: newBalance };

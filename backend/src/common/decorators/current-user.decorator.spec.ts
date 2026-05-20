@@ -7,7 +7,11 @@ function getParamDecoratorFactory(decorator: Function) {
   class TestController {
     test(@decorator() user: any) {} // eslint-disable-line @typescript-eslint/no-unused-vars
   }
-  const metadata = Reflect.getMetadata(ROUTE_ARGS_METADATA, TestController, 'test');
+  const metadata = Reflect.getMetadata(
+    ROUTE_ARGS_METADATA,
+    TestController,
+    'test',
+  );
   const key = Object.keys(metadata)[0];
   return metadata[key].factory;
 }

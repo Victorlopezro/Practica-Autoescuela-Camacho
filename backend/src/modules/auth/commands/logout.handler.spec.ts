@@ -16,10 +16,7 @@ describe('LogoutHandler', () => {
     };
 
     const module: TestingModule = await Test.createTestingModule({
-      providers: [
-        LogoutHandler,
-        { provide: PrismaService, useValue: prisma },
-      ],
+      providers: [LogoutHandler, { provide: PrismaService, useValue: prisma }],
     }).compile();
 
     handler = module.get<LogoutHandler>(LogoutHandler);

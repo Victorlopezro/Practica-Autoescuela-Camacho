@@ -34,7 +34,9 @@ export class StudentsController {
 
   @Get()
   @Roles('admin:manage', 'teacher:view')
-  @ApiOperation({ summary: 'List students (admin: all; teacher: only assigned)' })
+  @ApiOperation({
+    summary: 'List students (admin: all; teacher: only assigned)',
+  })
   async findAll(
     @Query('page') page = '1',
     @Query('limit') limit = '20',
@@ -55,7 +57,16 @@ export class StudentsController {
     }
 
     const where = teacherFilter
-      ? { userId: { in: (await this.prisma.user.findMany({ where: teacherFilter, select: { id: true } })).map(u => u.id) } }
+      ? {
+          userId: {
+            in: (
+              await this.prisma.user.findMany({
+                where: teacherFilter,
+                select: { id: true },
+              })
+            ).map((u) => u.id),
+          },
+        }
       : {};
 
     const [data, total] = await Promise.all([
@@ -69,17 +80,25 @@ export class StudentsController {
     ]);
 
     // Batch fetch users for profile data
-    const userIds = data.map(s => s.userId);
-    const users = userIds.length > 0
-      ? await this.prisma.user.findMany({
-          where: { id: { in: userIds } },
-          select: { id: true, username: true, name: true, lastName: true, email: true, phone: true },
-        })
-      : [];
+    const userIds = data.map((s) => s.userId);
+    const users =
+      userIds.length > 0
+        ? await this.prisma.user.findMany({
+            where: { id: { in: userIds } },
+            select: {
+              id: true,
+              username: true,
+              name: true,
+              lastName: true,
+              email: true,
+              phone: true,
+            },
+          })
+        : [];
 
-    const userMap = new Map(users.map(u => [u.id, u]));
+    const userMap = new Map(users.map((u) => [u.id, u]));
 
-    const enriched = data.map(student => ({
+    const enriched = data.map((student) => ({
       ...student,
       user: userMap.get(student.userId) || null,
     }));
@@ -96,7 +115,10 @@ export class StudentsController {
   @Get(':id')
   @Roles('admin:manage', 'teacher:view', 'student:view')
   @ApiOperation({ summary: 'Get student by ID with user info and balance' })
-  async findOne(@Param('id') id: string, @CurrentUser() currentUser: JwtPayload) {
+  async findOne(
+    @Param('id') id: string,
+    @CurrentUser() currentUser: JwtPayload,
+  ) {
     const student = await this.prisma.student.findUnique({
       where: { id },
     });
@@ -104,7 +126,15 @@ export class StudentsController {
 
     const user = await this.prisma.user.findUnique({
       where: { id: student.userId },
-      select: { id: true, username: true, name: true, lastName: true, email: true, phone: true, teacherId: true },
+      select: {
+        id: true,
+        username: true,
+        name: true,
+        lastName: true,
+        email: true,
+        phone: true,
+        teacherId: true,
+      },
     });
 
     // Teachers can only view their assigned students
@@ -137,7 +167,9 @@ export class StudentsController {
   @Post(':id/deduct-class')
   @Roles('admin:manage')
   @HttpCode(HttpStatus.OK)
-  @ApiOperation({ summary: 'Deduct a class (45m=1, 90m=2) from student balance' })
+  @ApiOperation({
+    summary: 'Deduct a class (45m=1, 90m=2) from student balance',
+  })
   async deductClass(
     @Param('id') id: string,
     @Body() dto: DeductClassDto,

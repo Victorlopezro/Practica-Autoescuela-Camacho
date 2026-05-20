@@ -37,7 +37,10 @@ export class ReservationsController {
   @Post()
   @Roles('admin:manage', 'student:view')
   @ApiOperation({ summary: 'Create a new reservation' })
-  async create(@Body() dto: CreateReservationDto, @CurrentUser() user: JwtPayload) {
+  async create(
+    @Body() dto: CreateReservationDto,
+    @CurrentUser() user: JwtPayload,
+  ) {
     return this.commandBus.execute(
       new CreateReservationCommand(
         dto.studentId,
@@ -52,7 +55,9 @@ export class ReservationsController {
 
   @Get()
   @Roles('admin:manage', 'teacher:view', 'student:view')
-  @ApiOperation({ summary: 'List all reservations with pagination and filters' })
+  @ApiOperation({
+    summary: 'List all reservations with pagination and filters',
+  })
   async findAll(
     @Query('page') page = '1',
     @Query('limit') limit = '20',
@@ -103,20 +108,18 @@ export class ReservationsController {
 
   @Patch(':id/confirm')
   @Roles('admin:manage', 'teacher:view')
-  @ApiOperation({ summary: 'Confirm a reservation (deduct from student balance)' })
+  @ApiOperation({
+    summary: 'Confirm a reservation (deduct from student balance)',
+  })
   async confirm(@Param('id') id: string, @CurrentUser() user: JwtPayload) {
-    return this.commandBus.execute(
-      new ConfirmReservationCommand(id, user.sub),
-    );
+    return this.commandBus.execute(new ConfirmReservationCommand(id, user.sub));
   }
 
   @Delete(':id')
   @Roles('admin:manage', 'teacher:view')
   @ApiOperation({ summary: 'Cancel a reservation (refund if applicable)' })
   async remove(@Param('id') id: string, @CurrentUser() user: JwtPayload) {
-    return this.commandBus.execute(
-      new CancelReservationCommand(id, user.sub),
-    );
+    return this.commandBus.execute(new CancelReservationCommand(id, user.sub));
   }
 
   @Patch(':id/complete')
@@ -130,7 +133,9 @@ export class ReservationsController {
 
   @Get('availability')
   @Roles('admin:manage', 'teacher:view', 'student:view')
-  @ApiOperation({ summary: 'Get free time slots for a given date and duration' })
+  @ApiOperation({
+    summary: 'Get free time slots for a given date and duration',
+  })
   async getAvailability(
     @Query('date') date: string,
     @Query('teacherId') teacherId: string,
@@ -153,11 +158,7 @@ export class ReservationsController {
       },
     });
 
-    const slots = calculateFreeSlots(
-      existingReservations,
-      date,
-      slotDuration,
-    );
+    const slots = calculateFreeSlots(existingReservations, date, slotDuration);
 
     return { date, teacherId, slotDuration, slots };
   }

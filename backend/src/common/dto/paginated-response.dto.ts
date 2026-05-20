@@ -4,7 +4,10 @@ export class PaginatedResponse<T> {
   @ApiProperty({ description: 'Array of items for the current page' })
   data: T[];
 
-  @ApiProperty({ example: 100, description: 'Total number of items across all pages' })
+  @ApiProperty({
+    example: 100,
+    description: 'Total number of items across all pages',
+  })
   total: number;
 
   @ApiProperty({ example: 1, description: 'Current page number' })

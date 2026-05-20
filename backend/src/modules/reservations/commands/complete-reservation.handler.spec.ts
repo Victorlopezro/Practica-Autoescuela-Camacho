@@ -39,7 +39,9 @@ describe('CompleteReservationHandler', () => {
       ],
     }).compile();
 
-    handler = module.get<CompleteReservationHandler>(CompleteReservationHandler);
+    handler = module.get<CompleteReservationHandler>(
+      CompleteReservationHandler,
+    );
     jest.clearAllMocks();
   });
 

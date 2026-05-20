@@ -14,7 +14,9 @@ export class CancelReservationHandler implements ICommandHandler<CancelReservati
   async execute(command: CancelReservationCommand) {
     const { reservationId, userId } = command;
 
-    const reservation = await this.prisma.reservation.findUnique({ where: { id: reservationId } });
+    const reservation = await this.prisma.reservation.findUnique({
+      where: { id: reservationId },
+    });
     if (!reservation) throw new NotFoundException('Reservation not found');
 
     if (reservation.status === 'completed') {
@@ -29,21 +31,30 @@ export class CancelReservationHandler implements ICommandHandler<CancelReservati
     let refundAmount = 0;
 
     // Deadline applies to all cancellations (pending or confirmed)
-    const deadline = new Date(Date.UTC(
-      reservation.startTime.getUTCFullYear(),
-      reservation.startTime.getUTCMonth(),
-      reservation.startTime.getUTCDate() - 1,
-      18, 0, 0, 0,
-    ));
+    const deadline = new Date(
+      Date.UTC(
+        reservation.startTime.getUTCFullYear(),
+        reservation.startTime.getUTCMonth(),
+        reservation.startTime.getUTCDate() - 1,
+        18,
+        0,
+        0,
+        0,
+      ),
+    );
 
     if (new Date() >= deadline) {
-      throw new BadRequestException('Cancellation deadline passed — must cancel before 18:00 UTC the day prior');
+      throw new BadRequestException(
+        'Cancellation deadline passed — must cancel before 18:00 UTC the day prior',
+      );
     }
 
     if (currentStatus === 'confirmed') {
       refundAmount = reservation.duration === 90 ? 2 : 1;
 
-      const student = await this.prisma.student.findUnique({ where: { id: reservation.studentId } });
+      const student = await this.prisma.student.findUnique({
+        where: { id: reservation.studentId },
+      });
       if (student) {
         await this.prisma.student.update({
           where: { id: reservation.studentId },
@@ -62,7 +73,14 @@ export class CancelReservationHandler implements ICommandHandler<CancelReservati
     });
 
     this.eventBus.publish(
-      new ReservationStatusChangedEvent(reservationId, currentStatus, 'cancelled', new Date(), userId, reservation.duration),
+      new ReservationStatusChangedEvent(
+        reservationId,
+        currentStatus,
+        'cancelled',
+        new Date(),
+        userId,
+        reservation.duration,
+      ),
     );
 
     return updated;

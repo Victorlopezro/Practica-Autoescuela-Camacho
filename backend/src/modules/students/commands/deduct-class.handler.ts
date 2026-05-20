@@ -15,7 +15,9 @@ export class DeductClassHandler implements ICommandHandler<DeductClassCommand> {
   async execute(command: DeductClassCommand) {
     const { studentId, duration, adjustedBy } = command;
 
-    const student = await this.prisma.student.findUnique({ where: { id: studentId } });
+    const student = await this.prisma.student.findUnique({
+      where: { id: studentId },
+    });
     if (!student) throw new NotFoundException('Student not found');
 
     const deductAmount = duration === 90 ? 2 : 1;
@@ -27,7 +29,8 @@ export class DeductClassHandler implements ICommandHandler<DeductClassCommand> {
       );
     }
 
-    const history = (student.balanceHistory as Array<Record<string, unknown>>) || [];
+    const history =
+      (student.balanceHistory as Array<Record<string, unknown>>) || [];
     history.push({
       amount: -deductAmount,
       reason: `Class deducted (${duration} min)`,
@@ -44,7 +47,12 @@ export class DeductClassHandler implements ICommandHandler<DeductClassCommand> {
     });
 
     this.eventBus.publish(
-      new BalanceAdjustedEvent(studentId, -deductAmount, `Class deducted (${duration} min)`, newBalance),
+      new BalanceAdjustedEvent(
+        studentId,
+        -deductAmount,
+        `Class deducted (${duration} min)`,
+        newBalance,
+      ),
     );
 
     return { remainingClasses: newBalance };

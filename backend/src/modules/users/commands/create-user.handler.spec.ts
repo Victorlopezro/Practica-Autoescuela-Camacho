@@ -50,18 +50,25 @@ describe('CreateUserHandler', () => {
     });
 
     const result = await handler.execute(
-      new CreateUserCommand('jdoe', 'secure123', 'teacher', undefined, 'admin-1'),
+      new CreateUserCommand(
+        'jdoe',
+        'secure123',
+        'teacher',
+        undefined,
+        'admin-1',
+      ),
     );
 
     expect(result.username).toBe('jdoe');
     expect(result.role).toBe('teacher');
-    expect(eventBus.publish).toHaveBeenCalledWith(
-      expect.any(UserCreatedEvent),
-    );
+    expect(eventBus.publish).toHaveBeenCalledWith(expect.any(UserCreatedEvent));
   });
 
   it('should throw ConflictException when username exists', async () => {
-    prisma.user.findUnique.mockResolvedValue({ id: 'existing', username: 'jdoe' });
+    prisma.user.findUnique.mockResolvedValue({
+      id: 'existing',
+      username: 'jdoe',
+    });
 
     await expect(
       handler.execute(new CreateUserCommand('jdoe', 'pass', 'student')),

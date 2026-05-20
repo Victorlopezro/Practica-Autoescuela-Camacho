@@ -14,7 +14,9 @@ export class LogIncidentHandler implements ICommandHandler<LogIncidentCommand> {
   async execute(command: LogIncidentCommand) {
     const { vehicleId, description, date } = command;
 
-    const vehicle = await this.prisma.vehicle.findUnique({ where: { id: vehicleId } });
+    const vehicle = await this.prisma.vehicle.findUnique({
+      where: { id: vehicleId },
+    });
     if (!vehicle) throw new NotFoundException('Vehicle not found');
 
     const incident = await this.prisma.vehicleIncident.create({

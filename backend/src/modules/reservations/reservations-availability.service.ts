@@ -5,7 +5,11 @@
  * Business hours: 8:00 - 20:00 UTC
  */
 export function calculateFreeSlots(
-  existingReservations: Array<{ startTime: Date; duration: number; status: string }>,
+  existingReservations: Array<{
+    startTime: Date;
+    duration: number;
+    status: string;
+  }>,
   date: string,
   slotDuration: 45 | 90,
 ): string[] {
@@ -17,7 +21,9 @@ export function calculateFreeSlots(
   const dayEnd = new Date(Date.UTC(year, month - 1, day, 20, 0, 0, 0));
 
   // Filter non-cancelled reservations for overlap calculation
-  const activeReservations = existingReservations.filter((r) => r.status !== 'cancelled');
+  const activeReservations = existingReservations.filter(
+    (r) => r.status !== 'cancelled',
+  );
 
   // Generate slots in 45-minute grid (aligned to :00 or :45)
   // If slotDuration is 45, slots start at 8:00, 8:45, 9:30, ...
@@ -26,12 +32,19 @@ export function calculateFreeSlots(
   const increment = 45; // minutes, the common grid increment
   let currentSlotStart = new Date(dayStart);
 
-  while (currentSlotStart.getTime() + slotDuration * 60 * 1000 <= dayEnd.getTime()) {
-    const slotEnd = new Date(currentSlotStart.getTime() + slotDuration * 60 * 1000);
+  while (
+    currentSlotStart.getTime() + slotDuration * 60 * 1000 <=
+    dayEnd.getTime()
+  ) {
+    const slotEnd = new Date(
+      currentSlotStart.getTime() + slotDuration * 60 * 1000,
+    );
 
     // Check if this slot overlaps with any active reservation
     const isOverlapping = activeReservations.some((reservation) => {
-      const resEnd = new Date(reservation.startTime.getTime() + reservation.duration * 60 * 1000);
+      const resEnd = new Date(
+        reservation.startTime.getTime() + reservation.duration * 60 * 1000,
+      );
       // Two intervals [s1, e1) and [s2, e2) overlap if s1 < e2 AND s2 < e1
       return currentSlotStart < resEnd && reservation.startTime < slotEnd;
     });
@@ -41,7 +54,9 @@ export function calculateFreeSlots(
     }
 
     // Advance by increment (45 minutes)
-    currentSlotStart = new Date(currentSlotStart.getTime() + increment * 60 * 1000);
+    currentSlotStart = new Date(
+      currentSlotStart.getTime() + increment * 60 * 1000,
+    );
   }
 
   return slots;

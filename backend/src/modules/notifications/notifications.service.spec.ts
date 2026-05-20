@@ -46,7 +46,10 @@ describe('NotificationsService', () => {
 
     prisma.notification.create.mockResolvedValue(mockNotification);
     mockWhatsAppProvider.send.mockResolvedValue({ success: true });
-    prisma.notification.update.mockResolvedValue({ ...mockNotification, status: 'sent' });
+    prisma.notification.update.mockResolvedValue({
+      ...mockNotification,
+      status: 'sent',
+    });
 
     const result = await service.sendNotification({
       recipient: 'res-1',
@@ -89,7 +92,10 @@ describe('NotificationsService', () => {
     };
 
     prisma.notification.create.mockResolvedValue(mockNotification);
-    mockWhatsAppProvider.send.mockResolvedValue({ success: false, error: 'Provider error' });
+    mockWhatsAppProvider.send.mockResolvedValue({
+      success: false,
+      error: 'Provider error',
+    });
     prisma.notification.update.mockResolvedValue({
       ...mockNotification,
       status: 'failed',

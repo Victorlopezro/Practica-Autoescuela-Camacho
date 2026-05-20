@@ -18,7 +18,7 @@ describe('JwtStrategy', () => {
       get: jest.fn().mockReturnValue('test-secret'),
     };
 
-    strategy = new JwtStrategy(configService as any, prisma as any);
+    strategy = new JwtStrategy(configService, prisma);
   });
 
   describe('validate', () => {
@@ -56,9 +56,9 @@ describe('JwtStrategy', () => {
         role: 'student',
       };
 
-      await expect(
-        strategy.validate(payload),
-      ).rejects.toThrow(UnauthorizedException);
+      await expect(strategy.validate(payload)).rejects.toThrow(
+        UnauthorizedException,
+      );
     });
   });
 });

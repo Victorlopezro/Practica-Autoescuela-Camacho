@@ -2,7 +2,11 @@ import { calculateFreeSlots } from './reservations-availability.service';
 
 describe('calculateFreeSlots', () => {
   const date = '2026-06-01';
-  const emptyReservations: Array<{ startTime: Date; duration: number; status: string }> = [];
+  const emptyReservations: Array<{
+    startTime: Date;
+    duration: number;
+    status: string;
+  }> = [];
 
   it('should return all slots when no reservations exist', () => {
     const slots = calculateFreeSlots(emptyReservations, date, 45);
@@ -93,8 +97,15 @@ describe('calculateFreeSlots', () => {
     for (let hour = 8; hour < 20; hour++) {
       for (let min = 0; min < 60; min += 45) {
         const start = new Date(Date.UTC(2026, 5, 1, hour, min, 0));
-        if (start.getTime() + 45 * 60 * 1000 <= new Date(Date.UTC(2026, 5, 1, 20, 0, 0)).getTime()) {
-          reservations.push({ startTime: start, duration: 45, status: 'confirmed' });
+        if (
+          start.getTime() + 45 * 60 * 1000 <=
+          new Date(Date.UTC(2026, 5, 1, 20, 0, 0)).getTime()
+        ) {
+          reservations.push({
+            startTime: start,
+            duration: 45,
+            status: 'confirmed',
+          });
         }
       }
     }

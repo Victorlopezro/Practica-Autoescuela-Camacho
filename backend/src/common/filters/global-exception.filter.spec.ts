@@ -60,7 +60,10 @@ describe('GlobalExceptionFilter', () => {
 
   it('should handle HttpException with array messages', () => {
     const exception = new HttpException(
-      { message: ['field1 is required', 'field2 is invalid'], error: 'Bad Request' },
+      {
+        message: ['field1 is required', 'field2 is invalid'],
+        error: 'Bad Request',
+      },
       HttpStatus.BAD_REQUEST,
     );
 
@@ -77,7 +80,9 @@ describe('GlobalExceptionFilter', () => {
 
   it('should log error details in non-production environment', () => {
     process.env.NODE_ENV = 'development';
-    const loggerSpy = jest.spyOn(Logger.prototype, 'error').mockImplementation(() => {});
+    const loggerSpy = jest
+      .spyOn(Logger.prototype, 'error')
+      .mockImplementation(() => {});
     const exception = new HttpException('Test error', HttpStatus.BAD_REQUEST);
 
     filter.catch(exception, mockHost);
@@ -88,7 +93,9 @@ describe('GlobalExceptionFilter', () => {
 
   it('should not log error details in production environment', () => {
     process.env.NODE_ENV = 'production';
-    const loggerSpy = jest.spyOn(Logger.prototype, 'error').mockImplementation(() => {});
+    const loggerSpy = jest
+      .spyOn(Logger.prototype, 'error')
+      .mockImplementation(() => {});
     const exception = new HttpException('Test error', HttpStatus.BAD_REQUEST);
 
     filter.catch(exception, mockHost);

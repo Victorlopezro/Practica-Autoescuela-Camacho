@@ -72,7 +72,9 @@ describe('CreateCheckoutSessionHandler', () => {
       ],
     }).compile();
 
-    handler = module.get<CreateCheckoutSessionHandler>(CreateCheckoutSessionHandler);
+    handler = module.get<CreateCheckoutSessionHandler>(
+      CreateCheckoutSessionHandler,
+    );
     jest.clearAllMocks();
   });
 
@@ -81,7 +83,9 @@ describe('CreateCheckoutSessionHandler', () => {
     prisma.payment.findUnique.mockResolvedValue(null);
     prisma.payment.create.mockResolvedValue(mockPayment);
 
-    const result = await handler.execute(new CreateCheckoutSessionCommand('res-1'));
+    const result = await handler.execute(
+      new CreateCheckoutSessionCommand('res-1'),
+    );
 
     // Provider is called first
     expect(mockStripeProvider.createCheckoutSession).toHaveBeenCalledWith({

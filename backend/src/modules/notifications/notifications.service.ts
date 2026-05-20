@@ -26,7 +26,7 @@ export class NotificationsService {
         recipient,
         channel,
         template,
-        data: data as Prisma.InputJsonValue ?? undefined,
+        data: (data as Prisma.InputJsonValue) ?? undefined,
         status: 'pending',
       },
     });
@@ -52,7 +52,8 @@ export class NotificationsService {
 
       return result;
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const errorMessage =
+        error instanceof Error ? error.message : 'Unknown error';
       this.logger.error(`[MOCK] Failed to send notification: ${errorMessage}`);
 
       await this.prisma.notification.update({

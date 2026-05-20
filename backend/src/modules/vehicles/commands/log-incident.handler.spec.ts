@@ -51,7 +51,11 @@ describe('LogIncidentHandler', () => {
     prisma.vehicleIncident.create.mockResolvedValue(mockIncident);
 
     const result = await handler.execute(
-      new LogIncidentCommand('vehicle-1', 'Left blinker not working', new Date('2026-05-18')),
+      new LogIncidentCommand(
+        'vehicle-1',
+        'Left blinker not working',
+        new Date('2026-05-18'),
+      ),
     );
 
     expect(result).toEqual(mockIncident);

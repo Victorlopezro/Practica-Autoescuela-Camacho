@@ -12,12 +12,17 @@ export class CreateReservationHandler implements ICommandHandler<CreateReservati
   ) {}
 
   async execute(command: CreateReservationCommand) {
-    const { studentId, teacherId, vehicleType, startTime, duration, userId } = command;
+    const { studentId, teacherId, vehicleType, startTime, duration, userId } =
+      command;
 
-    const teacher = await this.prisma.teacher.findUnique({ where: { id: teacherId } });
+    const teacher = await this.prisma.teacher.findUnique({
+      where: { id: teacherId },
+    });
     if (!teacher) throw new NotFoundException('Teacher not found');
 
-    const student = await this.prisma.student.findUnique({ where: { id: studentId } });
+    const student = await this.prisma.student.findUnique({
+      where: { id: studentId },
+    });
     if (!student) throw new NotFoundException('Student not found');
 
     const endTime = new Date(startTime.getTime() + duration * 60 * 1000);
@@ -36,9 +41,13 @@ export class CreateReservationHandler implements ICommandHandler<CreateReservati
       });
 
       for (const existing of potentialOverlaps) {
-        const existingEnd = new Date(existing.startTime.getTime() + existing.duration * 60 * 1000);
+        const existingEnd = new Date(
+          existing.startTime.getTime() + existing.duration * 60 * 1000,
+        );
         if (existingEnd > startTime) {
-          throw new ConflictException('Schedule conflict — teacher already has a reservation in this time slot');
+          throw new ConflictException(
+            'Schedule conflict — teacher already has a reservation in this time slot',
+          );
         }
       }
 
@@ -55,7 +64,14 @@ export class CreateReservationHandler implements ICommandHandler<CreateReservati
     });
 
     this.eventBus.publish(
-      new ReservationStatusChangedEvent(reservation.id, null, 'pending', new Date(), userId, reservation.duration),
+      new ReservationStatusChangedEvent(
+        reservation.id,
+        null,
+        'pending',
+        new Date(),
+        userId,
+        reservation.duration,
+      ),
     );
 
     return reservation;

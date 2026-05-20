@@ -14,11 +14,15 @@ export class CompleteReservationHandler implements ICommandHandler<CompleteReser
   async execute(command: CompleteReservationCommand) {
     const { reservationId, userId } = command;
 
-    const reservation = await this.prisma.reservation.findUnique({ where: { id: reservationId } });
+    const reservation = await this.prisma.reservation.findUnique({
+      where: { id: reservationId },
+    });
     if (!reservation) throw new NotFoundException('Reservation not found');
 
     if (reservation.status !== 'confirmed') {
-      throw new BadRequestException('Only confirmed reservations can be completed');
+      throw new BadRequestException(
+        'Only confirmed reservations can be completed',
+      );
     }
 
     const updated = await this.prisma.reservation.update({
@@ -27,7 +31,14 @@ export class CompleteReservationHandler implements ICommandHandler<CompleteReser
     });
 
     this.eventBus.publish(
-      new ReservationStatusChangedEvent(reservationId, 'confirmed', 'completed', new Date(), userId, reservation.duration),
+      new ReservationStatusChangedEvent(
+        reservationId,
+        'confirmed',
+        'completed',
+        new Date(),
+        userId,
+        reservation.duration,
+      ),
     );
 
     return updated;

@@ -57,7 +57,16 @@ export class LoginHandler implements ICommandHandler<LoginCommand> {
     const [userProfile, studentRecord] = await Promise.all([
       this.prisma.user.findUnique({
         where: { id: user.id },
-        select: { id: true, username: true, name: true, lastName: true, email: true, phone: true, role: true, teacherId: true },
+        select: {
+          id: true,
+          username: true,
+          name: true,
+          lastName: true,
+          email: true,
+          phone: true,
+          role: true,
+          teacherId: true,
+        },
       }),
       this.prisma.student.findUnique({
         where: { userId: user.id },
@@ -65,6 +74,10 @@ export class LoginHandler implements ICommandHandler<LoginCommand> {
       }),
     ]);
 
-    return { accessToken, refreshToken, user: { ...userProfile!, studentId: studentRecord?.id ?? null } };
+    return {
+      accessToken,
+      refreshToken,
+      user: { ...userProfile!, studentId: studentRecord?.id ?? null },
+    };
   }
 }

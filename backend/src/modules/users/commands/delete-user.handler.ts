@@ -10,7 +10,9 @@ export class DeleteUserHandler implements ICommandHandler<DeleteUserCommand> {
   async execute(command: DeleteUserCommand) {
     const { userId } = command;
 
-    const existing = await this.prisma.user.findUnique({ where: { id: userId } });
+    const existing = await this.prisma.user.findUnique({
+      where: { id: userId },
+    });
     if (!existing) throw new NotFoundException('User not found');
 
     await this.prisma.user.delete({ where: { id: userId } });

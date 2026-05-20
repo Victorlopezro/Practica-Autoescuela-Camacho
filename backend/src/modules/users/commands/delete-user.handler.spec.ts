@@ -27,12 +27,17 @@ describe('DeleteUserHandler', () => {
   });
 
   it('should delete user when found', async () => {
-    prisma.user.findUnique.mockResolvedValue({ id: 'user-1', username: 'jdoe' });
+    prisma.user.findUnique.mockResolvedValue({
+      id: 'user-1',
+      username: 'jdoe',
+    });
 
     const result = await handler.execute(new DeleteUserCommand('user-1'));
 
     expect(result).toEqual({ message: 'User deleted successfully' });
-    expect(prisma.user.delete).toHaveBeenCalledWith({ where: { id: 'user-1' } });
+    expect(prisma.user.delete).toHaveBeenCalledWith({
+      where: { id: 'user-1' },
+    });
   });
 
   it('should throw NotFoundException when user does not exist', async () => {

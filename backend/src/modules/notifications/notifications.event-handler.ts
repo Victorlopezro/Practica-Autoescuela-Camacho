@@ -14,7 +14,9 @@ export class ReservationNotificationHandler implements IEventHandler<Reservation
     const { reservationId, newStatus, duration } = event;
 
     if (newStatus === 'confirmed') {
-      this.logger.log(`Sending confirmation notification for reservation ${reservationId}`);
+      this.logger.log(
+        `Sending confirmation notification for reservation ${reservationId}`,
+      );
       await this.notificationsService.sendNotification({
         recipient: reservationId,
         channel: 'whatsapp',
@@ -28,7 +30,9 @@ export class ReservationNotificationHandler implements IEventHandler<Reservation
     }
 
     if (newStatus === 'cancelled') {
-      this.logger.log(`Sending cancellation notification for reservation ${reservationId}`);
+      this.logger.log(
+        `Sending cancellation notification for reservation ${reservationId}`,
+      );
       await this.notificationsService.sendNotification({
         recipient: reservationId,
         channel: 'whatsapp',
@@ -51,7 +55,9 @@ export class PaymentNotificationHandler implements IEventHandler<PaymentComplete
   async handle(event: PaymentCompletedEvent) {
     const { paymentId, reservationId, amount } = event;
 
-    this.logger.log(`Sending payment confirmation for reservation ${reservationId}`);
+    this.logger.log(
+      `Sending payment confirmation for reservation ${reservationId}`,
+    );
     await this.notificationsService.sendNotification({
       recipient: reservationId,
       channel: 'whatsapp',

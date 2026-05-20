@@ -38,9 +38,7 @@ describe('TeachersController', () => {
 
     const module: TestingModule = await Test.createTestingModule({
       controllers: [TeachersController],
-      providers: [
-        { provide: PrismaService, useValue: prisma },
-      ],
+      providers: [{ provide: PrismaService, useValue: prisma }],
     }).compile();
 
     controller = module.get<TeachersController>(TeachersController);
@@ -119,9 +117,9 @@ describe('TeachersController', () => {
     it('should throw NotFoundException when teacher not found', async () => {
       prisma.teacher.findUnique.mockResolvedValue(null);
 
-      await expect(
-        controller.findOne('unknown'),
-      ).rejects.toThrow(NotFoundException);
+      await expect(controller.findOne('unknown')).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 
@@ -129,9 +127,9 @@ describe('TeachersController', () => {
     it('should return stats for existing teacher', async () => {
       prisma.teacher.findUnique.mockResolvedValue(mockTeachers[0]);
       prisma.reservation.count
-        .mockResolvedValueOnce(10)  // totalReservations
-        .mockResolvedValueOnce(3)   // upcomingReservations
-        .mockResolvedValueOnce(7);  // completedReservations
+        .mockResolvedValueOnce(10) // totalReservations
+        .mockResolvedValueOnce(3) // upcomingReservations
+        .mockResolvedValueOnce(7); // completedReservations
 
       const result = await controller.getStats('teacher-1');
 
@@ -147,9 +145,9 @@ describe('TeachersController', () => {
     it('should throw NotFoundException when teacher does not exist', async () => {
       prisma.teacher.findUnique.mockResolvedValue(null);
 
-      await expect(
-        controller.getStats('unknown'),
-      ).rejects.toThrow(NotFoundException);
+      await expect(controller.getStats('unknown')).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 });

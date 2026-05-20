@@ -31,9 +31,7 @@ export class AuthController {
   @ApiOperation({ summary: 'Refresh access token' })
   @ApiBody({ type: RefreshDto })
   async refresh(@Body() dto: RefreshDto) {
-    return this.commandBus.execute(
-      new RefreshTokenCommand(dto.refreshToken),
-    );
+    return this.commandBus.execute(new RefreshTokenCommand(dto.refreshToken));
   }
 
   @Post('logout')
@@ -41,8 +39,6 @@ export class AuthController {
   @ApiOperation({ summary: 'Logout and revoke refresh token' })
   @ApiBody({ type: LogoutDto })
   async logout(@Body() dto: LogoutDto) {
-    return this.commandBus.execute(
-      new LogoutCommand(dto.refreshToken),
-    );
+    return this.commandBus.execute(new LogoutCommand(dto.refreshToken));
   }
 }

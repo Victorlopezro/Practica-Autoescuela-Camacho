@@ -36,7 +36,17 @@ export class UsersController {
   @ApiOperation({ summary: 'Create a new user (admin only)' })
   async create(@Body() dto: CreateUserDto, @CurrentUser() user: JwtPayload) {
     return this.commandBus.execute(
-      new CreateUserCommand(dto.username, dto.password, dto.role, dto.teacherId, user.sub, dto.name, dto.lastName, dto.email, dto.phone),
+      new CreateUserCommand(
+        dto.username,
+        dto.password,
+        dto.role,
+        dto.teacherId,
+        user.sub,
+        dto.name,
+        dto.lastName,
+        dto.email,
+        dto.phone,
+      ),
     );
   }
 
@@ -76,12 +86,25 @@ export class UsersController {
       this.prisma.user.findMany({
         skip,
         take: Number(limit),
-        select: { id: true, username: true, role: true, teacherId: true, createdAt: true, updatedAt: true },
+        select: {
+          id: true,
+          username: true,
+          role: true,
+          teacherId: true,
+          createdAt: true,
+          updatedAt: true,
+        },
         orderBy: { createdAt: 'desc' },
       }),
       this.prisma.user.count(),
     ]);
-    return { data, total, page: Number(page), limit: Number(limit), totalPages: Math.ceil(total / Number(limit)) };
+    return {
+      data,
+      total,
+      page: Number(page),
+      limit: Number(limit),
+      totalPages: Math.ceil(total / Number(limit)),
+    };
   }
 
   @Get(':id')
@@ -90,7 +113,14 @@ export class UsersController {
   async findOne(@Param('id') id: string) {
     const user = await this.prisma.user.findUnique({
       where: { id },
-      select: { id: true, username: true, role: true, teacherId: true, createdAt: true, updatedAt: true },
+      select: {
+        id: true,
+        username: true,
+        role: true,
+        teacherId: true,
+        createdAt: true,
+        updatedAt: true,
+      },
     });
     return user;
   }
@@ -104,7 +134,16 @@ export class UsersController {
     @CurrentUser() user: JwtPayload,
   ) {
     return this.commandBus.execute(
-      new UpdateUserCommand(id, dto.role, dto.teacherId, user.sub, dto.name, dto.lastName, dto.email, dto.phone),
+      new UpdateUserCommand(
+        id,
+        dto.role,
+        dto.teacherId,
+        user.sub,
+        dto.name,
+        dto.lastName,
+        dto.email,
+        dto.phone,
+      ),
     );
   }
 

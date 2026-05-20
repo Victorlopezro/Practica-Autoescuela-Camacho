@@ -78,7 +78,10 @@ describe('CancelReservationHandler', () => {
 
     prisma.reservation.findUnique.mockResolvedValue(confirmedReservation);
     prisma.student.findUnique.mockResolvedValue(mockStudent);
-    prisma.student.update.mockResolvedValue({ ...mockStudent, remainingClasses: 11 });
+    prisma.student.update.mockResolvedValue({
+      ...mockStudent,
+      remainingClasses: 11,
+    });
     prisma.reservation.update.mockResolvedValue({
       ...confirmedReservation,
       status: 'cancelled',

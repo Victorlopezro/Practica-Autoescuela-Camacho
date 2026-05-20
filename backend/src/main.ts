@@ -32,7 +32,9 @@ async function bootstrap() {
 
   const config = new DocumentBuilder()
     .setTitle('Autoescuela Camacho API')
-    .setDescription('Backend API for Autoescuela Camacho driving school management')
+    .setDescription(
+      'Backend API for Autoescuela Camacho driving school management',
+    )
     .setVersion('1.0')
     .addBearerAuth()
     .build();

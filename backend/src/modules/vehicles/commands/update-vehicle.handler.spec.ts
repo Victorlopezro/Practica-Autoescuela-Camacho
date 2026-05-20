@@ -70,7 +70,13 @@ describe('UpdateVehicleHandler', () => {
     prisma.vehicle.update.mockResolvedValue(mockVehicle);
 
     await handler.execute(
-      new UpdateVehicleCommand('vehicle-1', undefined, undefined, undefined, undefined),
+      new UpdateVehicleCommand(
+        'vehicle-1',
+        undefined,
+        undefined,
+        undefined,
+        undefined,
+      ),
     );
 
     expect(prisma.vehicle.update).toHaveBeenCalledWith({

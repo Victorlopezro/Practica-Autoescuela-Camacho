@@ -1,5 +1,3 @@
 export class CreateCheckoutSessionCommand {
-  constructor(
-    public readonly reservationId: string,
-  ) {}
+  constructor(public readonly reservationId: string) {}
 }

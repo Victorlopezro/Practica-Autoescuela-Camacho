@@ -17,8 +17,8 @@ export class AuditLogService {
       data: {
         userId: params.userId,
         action: params.action,
-        oldValue: params.oldValue as Prisma.InputJsonValue ?? undefined,
-        newValue: params.newValue as Prisma.InputJsonValue ?? undefined,
+        oldValue: (params.oldValue as Prisma.InputJsonValue) ?? undefined,
+        newValue: (params.newValue as Prisma.InputJsonValue) ?? undefined,
         reason: params.reason,
       },
     });

@@ -18,7 +18,9 @@ export class CreateCheckoutSessionHandler implements ICommandHandler<CreateCheck
   async execute(command: CreateCheckoutSessionCommand) {
     const { reservationId } = command;
 
-    const reservation = await this.prisma.reservation.findUnique({ where: { id: reservationId } });
+    const reservation = await this.prisma.reservation.findUnique({
+      where: { id: reservationId },
+    });
     if (!reservation) {
       throw new NotFoundException('Reservation not found');
     }
@@ -33,7 +35,9 @@ export class CreateCheckoutSessionHandler implements ICommandHandler<CreateCheck
     });
 
     // Find or create a Payment record — stripeSessionId is required in the schema
-    let payment = await this.prisma.payment.findUnique({ where: { reservationId } });
+    let payment = await this.prisma.payment.findUnique({
+      where: { reservationId },
+    });
     if (!payment) {
       payment = await this.prisma.payment.create({
         data: {

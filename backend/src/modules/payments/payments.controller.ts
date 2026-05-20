@@ -15,7 +15,9 @@ export class PaymentsController {
   @Post('create-session')
   @Roles('admin:manage')
   @ApiBearerAuth()
-  @ApiOperation({ summary: 'Create a Stripe checkout session for a reservation' })
+  @ApiOperation({
+    summary: 'Create a Stripe checkout session for a reservation',
+  })
   async createSession(@Body() dto: CreateCheckoutSessionDto) {
     return this.commandBus.execute(
       new CreateCheckoutSessionCommand(dto.reservationId),
@@ -27,7 +29,8 @@ export class PaymentsController {
   @ApiOperation({ summary: 'Handle Stripe webhook events' })
   async webhook(@Req() req: any) {
     const signature = req.headers?.['stripe-signature'] ?? '';
-    const rawBody = typeof req.body === 'string' ? req.body : JSON.stringify(req.body);
+    const rawBody =
+      typeof req.body === 'string' ? req.body : JSON.stringify(req.body);
 
     return this.commandBus.execute(
       new HandleStripeWebhookCommand(rawBody, signature),

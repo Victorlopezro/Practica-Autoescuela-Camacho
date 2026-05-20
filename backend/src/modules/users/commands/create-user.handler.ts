@@ -13,7 +13,17 @@ export class CreateUserHandler implements ICommandHandler<CreateUserCommand> {
   ) {}
 
   async execute(command: CreateUserCommand) {
-    const { username, password, role, teacherId, createdBy, name, lastName, email, phone } = command;
+    const {
+      username,
+      password,
+      role,
+      teacherId,
+      createdBy,
+      name,
+      lastName,
+      email,
+      phone,
+    } = command;
 
     const existing = await this.prisma.user.findUnique({ where: { username } });
     if (existing) throw new ConflictException('Username already exists');
@@ -21,8 +31,28 @@ export class CreateUserHandler implements ICommandHandler<CreateUserCommand> {
     const hashed = await argon2.hash(password);
 
     const user = await this.prisma.user.create({
-      data: { username, password: hashed, role, teacherId, createdById: createdBy, name, lastName, email, phone },
-      select: { id: true, username: true, name: true, lastName: true, email: true, phone: true, role: true, teacherId: true, createdAt: true },
+      data: {
+        username,
+        password: hashed,
+        role,
+        teacherId,
+        createdById: createdBy,
+        name,
+        lastName,
+        email,
+        phone,
+      },
+      select: {
+        id: true,
+        username: true,
+        name: true,
+        lastName: true,
+        email: true,
+        phone: true,
+        role: true,
+        teacherId: true,
+        createdAt: true,
+      },
     });
 
     this.eventBus.publish(new UserCreatedEvent(user.id, user.role, createdBy));

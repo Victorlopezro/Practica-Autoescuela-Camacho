@@ -14,19 +14,27 @@ export class ConfirmReservationHandler implements ICommandHandler<ConfirmReserva
   async execute(command: ConfirmReservationCommand) {
     const { reservationId, userId } = command;
 
-    const reservation = await this.prisma.reservation.findUnique({ where: { id: reservationId } });
+    const reservation = await this.prisma.reservation.findUnique({
+      where: { id: reservationId },
+    });
     if (!reservation) throw new NotFoundException('Reservation not found');
 
     if (reservation.status !== 'pending') {
-      throw new BadRequestException('Only pending reservations can be confirmed');
+      throw new BadRequestException(
+        'Only pending reservations can be confirmed',
+      );
     }
 
-    const student = await this.prisma.student.findUnique({ where: { id: reservation.studentId } });
+    const student = await this.prisma.student.findUnique({
+      where: { id: reservation.studentId },
+    });
     if (!student) throw new NotFoundException('Student not found');
 
     const deductAmount = reservation.duration === 90 ? 2 : 1;
     if (student.remainingClasses < deductAmount) {
-      throw new BadRequestException('Insufficient classes — student does not have enough remaining classes');
+      throw new BadRequestException(
+        'Insufficient classes — student does not have enough remaining classes',
+      );
     }
 
     const updated = await this.prisma.$transaction(async (tx) => {
@@ -42,7 +50,14 @@ export class ConfirmReservationHandler implements ICommandHandler<ConfirmReserva
     });
 
     this.eventBus.publish(
-      new ReservationStatusChangedEvent(reservationId, 'pending', 'confirmed', new Date(), userId, reservation.duration),
+      new ReservationStatusChangedEvent(
+        reservationId,
+        'pending',
+        'confirmed',
+        new Date(),
+        userId,
+        reservation.duration,
+      ),
     );
 
     return updated;

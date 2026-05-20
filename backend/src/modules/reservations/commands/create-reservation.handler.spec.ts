@@ -12,7 +12,11 @@ describe('CreateReservationHandler', () => {
   let eventBus: any;
 
   const mockTeacher = { id: 'teacher-1', name: 'John' };
-  const mockStudent = { id: 'student-1', remainingClasses: 10, balanceHistory: [] };
+  const mockStudent = {
+    id: 'student-1',
+    remainingClasses: 10,
+    balanceHistory: [],
+  };
 
   beforeEach(async () => {
     prisma = {
@@ -66,7 +70,14 @@ describe('CreateReservationHandler', () => {
     });
 
     const result = await handler.execute(
-      new CreateReservationCommand('student-1', 'teacher-1', 'coche-manual', startTime, 45, 'admin-1'),
+      new CreateReservationCommand(
+        'student-1',
+        'teacher-1',
+        'coche-manual',
+        startTime,
+        45,
+        'admin-1',
+      ),
     );
 
     expect(result).toEqual(mockReservation);
@@ -81,7 +92,14 @@ describe('CreateReservationHandler', () => {
 
     await expect(
       handler.execute(
-        new CreateReservationCommand('student-1', 'unknown-teacher', 'coche-manual', new Date(), 45, 'admin-1'),
+        new CreateReservationCommand(
+          'student-1',
+          'unknown-teacher',
+          'coche-manual',
+          new Date(),
+          45,
+          'admin-1',
+        ),
       ),
     ).rejects.toThrow(NotFoundException);
   });
@@ -92,7 +110,14 @@ describe('CreateReservationHandler', () => {
 
     await expect(
       handler.execute(
-        new CreateReservationCommand('unknown-student', 'teacher-1', 'coche-manual', new Date(), 45, 'admin-1'),
+        new CreateReservationCommand(
+          'unknown-student',
+          'teacher-1',
+          'coche-manual',
+          new Date(),
+          45,
+          'admin-1',
+        ),
       ),
     ).rejects.toThrow(NotFoundException);
   });
@@ -122,7 +147,14 @@ describe('CreateReservationHandler', () => {
 
     await expect(
       handler.execute(
-        new CreateReservationCommand('student-1', 'teacher-1', 'coche-manual', startTime, 45, 'admin-1'),
+        new CreateReservationCommand(
+          'student-1',
+          'teacher-1',
+          'coche-manual',
+          startTime,
+          45,
+          'admin-1',
+        ),
       ),
     ).rejects.toThrow(ConflictException);
   });
@@ -157,7 +189,14 @@ describe('CreateReservationHandler', () => {
     });
 
     await handler.execute(
-      new CreateReservationCommand('student-1', 'teacher-1', 'coche-manual', startTime, 45, 'admin-1'),
+      new CreateReservationCommand(
+        'student-1',
+        'teacher-1',
+        'coche-manual',
+        startTime,
+        45,
+        'admin-1',
+      ),
     );
 
     expect(eventBus.publish).toHaveBeenCalledWith(

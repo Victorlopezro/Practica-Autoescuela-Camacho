@@ -36,9 +36,7 @@ describe('DeleteVehicleHandler', () => {
     prisma.vehicle.findUnique.mockResolvedValue(mockVehicle);
     prisma.vehicle.delete.mockResolvedValue(mockVehicle);
 
-    const result = await handler.execute(
-      new DeleteVehicleCommand('vehicle-1'),
-    );
+    const result = await handler.execute(new DeleteVehicleCommand('vehicle-1'));
 
     expect(result).toEqual({ message: 'Vehicle deleted successfully' });
     expect(prisma.vehicle.delete).toHaveBeenCalledWith({

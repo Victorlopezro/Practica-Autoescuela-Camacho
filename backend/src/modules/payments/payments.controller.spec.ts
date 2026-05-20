@@ -13,9 +13,7 @@ describe('PaymentsController', () => {
 
     const module: TestingModule = await Test.createTestingModule({
       controllers: [PaymentsController],
-      providers: [
-        { provide: CommandBus, useValue: commandBus },
-      ],
+      providers: [{ provide: CommandBus, useValue: commandBus }],
     }).compile();
 
     controller = module.get<PaymentsController>(PaymentsController);
@@ -27,7 +25,9 @@ describe('PaymentsController', () => {
       const expected = { url: 'https://mock-checkout.example.com/pay/res-1' };
       commandBus.execute.mockResolvedValue(expected);
 
-      const result = await controller.createSession({ reservationId: '550e8400-e29b-41d4-a716-446655440000' });
+      const result = await controller.createSession({
+        reservationId: '550e8400-e29b-41d4-a716-446655440000',
+      });
 
       expect(commandBus.execute).toHaveBeenCalledWith(
         expect.any(CreateCheckoutSessionCommand),

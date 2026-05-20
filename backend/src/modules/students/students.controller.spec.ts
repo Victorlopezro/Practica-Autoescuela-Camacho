@@ -119,9 +119,9 @@ describe('StudentsController', () => {
     it('should throw NotFoundException when student not found', async () => {
       prisma.student.findUnique.mockResolvedValue(null);
 
-      await expect(
-        controller.findOne('unknown'),
-      ).rejects.toThrow(NotFoundException);
+      await expect(controller.findOne('unknown')).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 
@@ -145,11 +145,7 @@ describe('StudentsController', () => {
     it('should execute DeductClassCommand', async () => {
       commandBus.execute.mockResolvedValue({ remainingClasses: 9 });
 
-      await controller.deductClass(
-        'student-1',
-        { duration: 45 },
-        mockUser,
-      );
+      await controller.deductClass('student-1', { duration: 45 }, mockUser);
 
       expect(commandBus.execute).toHaveBeenCalledWith(
         expect.any(DeductClassCommand),
@@ -161,11 +157,7 @@ describe('StudentsController', () => {
     it('should execute RefillClassCommand', async () => {
       commandBus.execute.mockResolvedValue({ remainingClasses: 15 });
 
-      await controller.refillClass(
-        'student-1',
-        { amount: 5 },
-        mockUser,
-      );
+      await controller.refillClass('student-1', { amount: 5 }, mockUser);
 
       expect(commandBus.execute).toHaveBeenCalledWith(
         expect.any(RefillClassCommand),

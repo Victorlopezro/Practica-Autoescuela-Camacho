@@ -73,9 +73,7 @@ describe('RefillClassHandler', () => {
       remainingClasses: 15,
     });
 
-    await handler.execute(
-      new RefillClassCommand('student-1', 5, 'admin-1'),
-    );
+    await handler.execute(new RefillClassCommand('student-1', 5, 'admin-1'));
 
     expect(eventBus.publish).toHaveBeenCalledWith(
       expect.any(BalanceAdjustedEvent),
@@ -89,9 +87,7 @@ describe('RefillClassHandler', () => {
       remainingClasses: 15,
     });
 
-    await handler.execute(
-      new RefillClassCommand('student-1', 5, 'admin-1'),
-    );
+    await handler.execute(new RefillClassCommand('student-1', 5, 'admin-1'));
 
     const updateCall = prisma.student.update.mock.calls[0][0];
     expect(updateCall.data.balanceHistory).toEqual(

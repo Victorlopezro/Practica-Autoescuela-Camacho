@@ -1,6 +1,9 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { NotificationsService } from './notifications.service';
-import { ReservationNotificationHandler, PaymentNotificationHandler } from './notifications.event-handler';
+import {
+  ReservationNotificationHandler,
+  PaymentNotificationHandler,
+} from './notifications.event-handler';
 import { ReservationStatusChangedEvent } from '../reservations/events';
 import { PaymentCompletedEvent } from '../payments/events';
 
@@ -20,7 +23,9 @@ describe('ReservationNotificationHandler', () => {
       ],
     }).compile();
 
-    handler = module.get<ReservationNotificationHandler>(ReservationNotificationHandler);
+    handler = module.get<ReservationNotificationHandler>(
+      ReservationNotificationHandler,
+    );
     jest.clearAllMocks();
   });
 
@@ -103,7 +108,9 @@ describe('PaymentNotificationHandler', () => {
       ],
     }).compile();
 
-    handler = module.get<PaymentNotificationHandler>(PaymentNotificationHandler);
+    handler = module.get<PaymentNotificationHandler>(
+      PaymentNotificationHandler,
+    );
     jest.clearAllMocks();
   });
 

@@ -58,8 +58,14 @@ describe('ConfirmReservationHandler', () => {
     const updatedReservation = { ...mockReservation, status: 'confirmed' };
     prisma.$transaction.mockImplementation(async (cb: Function) => {
       const tx = {
-        student: { update: jest.fn().mockResolvedValue({ ...mockStudent, remainingClasses: 9 }) },
-        reservation: { update: jest.fn().mockResolvedValue(updatedReservation) },
+        student: {
+          update: jest
+            .fn()
+            .mockResolvedValue({ ...mockStudent, remainingClasses: 9 }),
+        },
+        reservation: {
+          update: jest.fn().mockResolvedValue(updatedReservation),
+        },
       };
       return cb(tx);
     });
@@ -113,7 +119,9 @@ describe('ConfirmReservationHandler', () => {
     prisma.$transaction.mockImplementation(async (cb: Function) => {
       const tx = {
         student: { update: jest.fn() },
-        reservation: { update: jest.fn().mockResolvedValue(updatedReservation) },
+        reservation: {
+          update: jest.fn().mockResolvedValue(updatedReservation),
+        },
       };
       return cb(tx);
     });

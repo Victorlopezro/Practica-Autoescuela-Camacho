@@ -2,7 +2,10 @@ import { Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
 import { NotificationsService } from './notifications.service';
 import { MockWhatsAppProvider } from './providers/mock-whatsapp-provider';
-import { ReservationNotificationHandler, PaymentNotificationHandler } from './notifications.event-handler';
+import {
+  ReservationNotificationHandler,
+  PaymentNotificationHandler,
+} from './notifications.event-handler';
 
 const eventHandlers = [
   ReservationNotificationHandler,

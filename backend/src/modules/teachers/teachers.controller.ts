@@ -18,10 +18,7 @@ export class TeachersController {
   @Get()
   @Roles('admin:manage', 'teacher:view', 'student:view')
   @ApiOperation({ summary: 'List all teachers (paginated)' })
-  async findAll(
-    @Query('page') page = '1',
-    @Query('limit') limit = '20',
-  ) {
+  async findAll(@Query('page') page = '1', @Query('limit') limit = '20') {
     const skip = (Number(page) - 1) * Number(limit);
     const [data, total] = await Promise.all([
       this.prisma.teacher.findMany({
@@ -49,7 +46,14 @@ export class TeachersController {
 
     const user = await this.prisma.user.findFirst({
       where: { teacherId: id },
-      select: { id: true, username: true, name: true, lastName: true, email: true, phone: true },
+      select: {
+        id: true,
+        username: true,
+        name: true,
+        lastName: true,
+        email: true,
+        phone: true,
+      },
     });
 
     return { ...teacher, user: user ?? null };
