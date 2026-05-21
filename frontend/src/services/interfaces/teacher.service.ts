@@ -18,6 +18,26 @@ export interface TeacherWithUserDto extends TeacherDto {
   user: TeacherUserProfile | null;
 }
 
+export interface CreateTeacherDTO {
+  username: string;
+  password: string;
+  name: string;
+  lastName?: string;
+  email?: string;
+  phone?: string;
+  vehicleIds?: string[];
+}
+
+export interface UpdateTeacherDTO {
+  username?: string;
+  password?: string;
+  name?: string;
+  lastName?: string;
+  email?: string;
+  phone?: string;
+  vehicleIds?: string[];
+}
+
 export interface TeacherStatsDto {
   id: string;
   name: string;
@@ -30,4 +50,7 @@ export interface ITeacherService {
   list(): Promise<TeacherDto[]>;
   getById(id: string): Promise<TeacherWithUserDto>;
   getStats(teacherId: string): Promise<TeacherStatsDto>;
+  createTeacher(data: CreateTeacherDTO): Promise<TeacherDto>;
+  updateTeacher(id: string, data: UpdateTeacherDTO): Promise<TeacherDto>;
+  deleteTeacher(id: string): Promise<void>;
 }
