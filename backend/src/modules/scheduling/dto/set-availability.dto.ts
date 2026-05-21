@@ -1,4 +1,4 @@
-import { IsInt, IsString, Min, Max, Length } from 'class-validator';
+import { IsInt, IsString, Min, Max, Matches } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class SetAvailabilityDto {
@@ -8,14 +8,14 @@ export class SetAvailabilityDto {
   @Max(6)
   dayOfWeek!: number;
 
-  @ApiProperty({ description: 'Start time in HH:mm', example: '08:00' })
+  @ApiProperty({ description: 'Start time in HH:mm or H:mm', example: '08:00' })
   @IsString()
-  @Length(5, 5)
+  @Matches(/^\d{1,2}:\d{2}$/, { message: 'startTime must be in HH:mm or H:mm format' })
   startTime!: string;
 
-  @ApiProperty({ description: 'End time in HH:mm', example: '14:00' })
+  @ApiProperty({ description: 'End time in HH:mm or H:mm', example: '14:00' })
   @IsString()
-  @Length(5, 5)
+  @Matches(/^\d{1,2}:\d{2}$/, { message: 'endTime must be in HH:mm or H:mm format' })
   endTime!: string;
 }
 

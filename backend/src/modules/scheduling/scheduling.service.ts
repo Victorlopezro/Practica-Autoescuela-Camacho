@@ -2,12 +2,15 @@ import {
   Injectable,
   NotFoundException,
   BadRequestException,
+  Logger,
 } from '@nestjs/common';
 import { PrismaService } from '../../common/services/prisma.service';
 import { endOfDay, startOfDay, parseISO } from 'date-fns';
 
 @Injectable()
 export class SchedulingService {
+  private readonly logger = new Logger(SchedulingService.name);
+
   constructor(private readonly prisma: PrismaService) {}
 
   async getTeacherAvailability(teacherId: string) {
@@ -36,29 +39,36 @@ export class SchedulingService {
     startTime: string,
     endTime: string,
   ) {
-    const teacher = await this.prisma.teacher.findUnique({
-      where: { id: teacherId },
-    });
-    if (!teacher) throw new NotFoundException('Teacher not found');
+    try {
+      const teacher = await this.prisma.teacher.findUnique({
+        where: { id: teacherId },
+      });
+      if (!teacher) throw new NotFoundException('Teacher not found');
 
-    // Validate time format
-    const timeRegex = /^([01]\d|2[0-3]):[0-5]\d$/;
-    if (!timeRegex.test(startTime) || !timeRegex.test(endTime)) {
-      throw new BadRequestException('Time must be in HH:mm format');
+      // Validate time format
+      const timeRegex = /^([01]\d|2[0-3]):[0-5]\d$/;
+      if (!timeRegex.test(startTime) || !timeRegex.test(endTime)) {
+        throw new BadRequestException('Time must be in HH:mm format');
+      }
+
+      // Validate start < end
+      if (startTime >= endTime) {
+        throw new BadRequestException('Start time must be before end time');
+      }
+
+      return this.prisma.teacherAvailability.upsert({
+        where: {
+          teacherId_dayOfWeek: { teacherId, dayOfWeek },
+        },
+        create: { teacherId, dayOfWeek, startTime, endTime },
+        update: { startTime, endTime },
+      });
+    } catch (error) {
+      this.logger.error(
+        `setAvailability failed for teacher ${teacherId} day ${dayOfWeek}: ${(error as Error).message}`,
+      );
+      throw error;
     }
-
-    // Validate start < end
-    if (startTime >= endTime) {
-      throw new BadRequestException('Start time must be before end time');
-    }
-
-    return this.prisma.teacherAvailability.upsert({
-      where: {
-        teacherId_dayOfWeek: { teacherId, dayOfWeek },
-      },
-      create: { teacherId, dayOfWeek, startTime, endTime },
-      update: { startTime, endTime },
-    });
   }
 
   async removeAvailability(teacherId: string, dayOfWeek: number) {

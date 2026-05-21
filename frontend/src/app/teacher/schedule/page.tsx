@@ -85,17 +85,23 @@ export default function TeacherSchedule() {
 
   const saveDay = async (dayIndex: number) => {
     if (!teacherId || !availability[dayIndex]) return;
+
+    // Client-side validation: start must be before end
+    const { start, end } = availability[dayIndex];
+    if (start >= end) {
+      setMessage({ type: 'error', text: `La hora de inicio debe ser anterior a la hora de fin en ${DAYS[dayIndex].label}` });
+      return;
+    }
+
     setSaving(true);
     try {
-      await services.scheduling.setAvailability(
-        teacherId,
-        dayIndex,
-        availability[dayIndex].start,
-        availability[dayIndex].end,
-      );
+      await services.scheduling.setAvailability(teacherId, dayIndex, start, end);
       setMessage({ type: 'success', text: `Guardado ${DAYS[dayIndex].label}` });
-    } catch {
-      setMessage({ type: 'error', text: `Error al guardar ${DAYS[dayIndex].label}` });
+    } catch (error: unknown) {
+      const err = error as { response?: { data?: { message?: string | string[] } } };
+      const apiMessage = err.response?.data?.message;
+      const errorText = Array.isArray(apiMessage) ? apiMessage[0] : apiMessage;
+      setMessage({ type: 'error', text: errorText || `Error al guardar ${DAYS[dayIndex].label}` });
     } finally {
       setSaving(false);
     }
