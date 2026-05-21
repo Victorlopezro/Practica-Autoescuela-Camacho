@@ -66,7 +66,7 @@ export class VehiclesController {
         skip,
         take: Number(limit),
         where,
-        orderBy: { createdAt: 'desc' },
+        orderBy: [{ createdAt: 'desc' }, { id: 'asc' }],
       }),
       this.prisma.vehicle.count({ where }),
     ]);
