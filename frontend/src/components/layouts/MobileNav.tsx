@@ -6,7 +6,7 @@ import { usePathname } from 'next/navigation';
 const studentLinks = [
   { href: '/student/dashboard', label: 'Inicio', icon: 'home' },
   { href: '/student/calendar', label: 'Calendario', icon: 'calendar_month' },
-  { href: '/student/bookings', label: 'Clases', icon: 'directions_car' },
+  { href: '/student/calendar', label: 'Calendario', icon: 'calendar_month' },
   { href: '/student/profile', label: 'Perfil', icon: 'person' },
 ];
 

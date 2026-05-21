@@ -28,6 +28,8 @@ export default function StudentCalendar() {
   const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
   const [bookingStatus, setBookingStatus] = useState<'idle' | 'loading' | 'validating' | 'done' | 'error'>('idle');
   const [bookingMessage, setBookingMessage] = useState<string | null>(null);
+  const [cancellingId, setCancellingId] = useState<string | null>(null);
+  const [cancelError, setCancelError] = useState<string | null>(null);
   const [rangeStart, setRangeStart] = useState<string>(TODAY);
 
   // Load student profile to get teacherId
@@ -145,6 +147,21 @@ export default function StudentCalendar() {
     } catch (err) {
       setBookingStatus('error');
       setBookingMessage(err instanceof Error ? err.message : 'Error al reservar');
+    }
+  };
+
+  const handleCancel = async (reservationId: string) => {
+    if (!window.confirm('¿Estás seguro de cancelar esta clase?')) return;
+    setCancellingId(reservationId);
+    setCancelError(null);
+    try {
+      await services.reservation.cancel(reservationId);
+      refreshReservations();
+      refreshBalance();
+    } catch (err) {
+      setCancelError(err instanceof Error ? err.message : 'Error al cancelar');
+    } finally {
+      setCancellingId(null);
     }
   };
 
@@ -366,6 +383,12 @@ export default function StudentCalendar() {
       {/* Existing Reservations */}
       <Card>
         <CardHeader title="Mis reservas" />
+        {cancelError && (
+          <div className="mx-3 mb-2 p-3 bg-error-container text-error rounded-lg text-sm flex items-center gap-2">
+            <span className="material-symbols-outlined text-[18px]">error</span>
+            {cancelError}
+          </div>
+        )}
         <DataView
           data={reservations}
           isLoading={false}
@@ -375,24 +398,38 @@ export default function StudentCalendar() {
           }>
           {(res) => (
             <div className="space-y-2">
-              {res.map((r) => (
+              {res.filter(r => r.status !== 'completed').map((r) => (
                 <div key={r.id} className="flex items-center justify-between gap-2 p-3 bg-surface-container-low rounded-lg">
                   <div className="min-w-0 flex-1">
                     <p className="text-sm font-medium text-on-surface truncate">
                       {new Date(r.startTime).toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric', month: 'short' })}
                     </p>
                     <p className="text-xs text-on-surface-variant truncate">
-                      {formatTime(r.startTime)} · {r.vehicleType} · {r.duration} min
+                      {formatTime(r.startTime)} · {r.vehicleType === 'car' ? 'Coche' : 'Moto'} · {r.duration} min
                     </p>
                   </div>
-                  <span className={`text-label-caps px-2 py-1 rounded-full font-semibold flex-shrink-0 ${
-                    r.status === 'confirmed' ? 'bg-primary-container text-primary' :
-                    r.status === 'completed' ? 'bg-surface-container text-on-surface-variant' :
-                    'bg-surface-container-high text-tertiary'
-                  }`}>
-                    {r.status === 'confirmed' ? 'Confirmada' :
-                     r.status === 'completed' ? 'Completada' : 'Pendiente'}
-                  </span>
+                  <div className="flex items-center gap-2 flex-shrink-0">
+                    <span className={`text-label-caps px-2 py-1 rounded-full font-semibold ${
+                      r.status === 'confirmed' ? 'bg-primary-container text-primary' :
+                      r.status === 'pending' ? 'bg-surface-container-high text-tertiary' :
+                      'bg-surface-container text-on-surface-variant'
+                    }`}>
+                      {r.status === 'confirmed' ? 'Confirmada' :
+                       r.status === 'pending' ? 'Pendiente' : 'Cancelada'}
+                    </span>
+                    {(r.status === 'confirmed' || r.status === 'pending') && (
+                      <button
+                        onClick={() => handleCancel(r.id)}
+                        disabled={cancellingId === r.id}
+                        className="text-xs text-error hover:text-error/80 disabled:opacity-50 p-1 cursor-pointer"
+                        title="Cancelar clase"
+                      >
+                        <span className="material-symbols-outlined text-[18px]">
+                          {cancellingId === r.id ? 'hourglass_top' : 'close'}
+                        </span>
+                      </button>
+                    )}
+                  </div>
                 </div>
               ))}
             </div>

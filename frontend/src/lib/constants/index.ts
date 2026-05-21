@@ -22,7 +22,7 @@ export const ROUTES = {
   student: {
     dashboard: '/student/dashboard',
     calendar: '/student/calendar',
-    bookings: '/student/bookings',
+    bookings: '/student/calendar',
     history: '/student/history',
     profile: '/student/profile',
     payments: '/student/payments',

@@ -5,8 +5,7 @@ import { usePathname } from 'next/navigation';
 
 const navItems = [
   { href: '/student/dashboard', label: 'Dashboard', icon: 'dashboard' },
-  { href: '/student/calendar', label: 'Calendario', icon: 'calendar_month' },
-  { href: '/student/bookings', label: 'Reservas', icon: 'directions_car' },
+  { href: '/student/calendar', label: 'Reservas', icon: 'calendar_month' },
   { href: '/student/history', label: 'Historial', icon: 'history' },
   { href: '/student/progress', label: 'Progreso', icon: 'trending_up' },
   { href: '/student/payments', label: 'Pagos', icon: 'payments' },
@@ -16,8 +15,7 @@ const navItems = [
 
 const breadcrumbMap: Record<string, { label: string; breadcrumbs: { label: string; href?: string }[] }> = {
   '/student/dashboard': { label: 'Dashboard', breadcrumbs: [{ label: 'INICIO', href: '/student/dashboard' }, { label: 'DASHBOARD' }] },
-  '/student/calendar': { label: 'Calendario', breadcrumbs: [{ label: 'INICIO', href: '/student/dashboard' }, { label: 'CALENDARIO' }] },
-  '/student/bookings': { label: 'Reservas', breadcrumbs: [{ label: 'INICIO', href: '/student/dashboard' }, { label: 'RESERVAS' }] },
+  '/student/calendar': { label: 'Reservas', breadcrumbs: [{ label: 'INICIO', href: '/student/dashboard' }, { label: 'RESERVAS' }] },
   '/student/history': { label: 'Historial', breadcrumbs: [{ label: 'INICIO', href: '/student/dashboard' }, { label: 'HISTORIAL' }] },
   '/student/progress': { label: 'Progreso', breadcrumbs: [{ label: 'INICIO', href: '/student/dashboard' }, { label: 'PROGRESO' }] },
   '/student/payments': { label: 'Pagos', breadcrumbs: [{ label: 'INICIO', href: '/student/dashboard' }, { label: 'PAGOS' }] },
