@@ -5,3 +5,4 @@ export type { IVehicleService, VehicleDto, VehicleIncidentDto } from './vehicle.
 export type { IReservationService, ReservationDto, AvailabilitySlot, CalendarReservationDto } from './reservation.service';
 export type { IPaymentService } from './payment.service';
 export type { ISchedulingService, TeacherAvailabilityDto, WeeklyAvailabilityDto, OverrideDto, SlotResultDto, SlotRangeDayDto, SlotRangeResultDto, VehicleTypeConfigDto, ValidationResultDto } from './scheduling.service';
+export type { IAdminService } from './admin.service';

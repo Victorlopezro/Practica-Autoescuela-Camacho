@@ -5,3 +5,4 @@ export { vehicleApi } from './vehicleApi';
 export { reservationApi } from './reservationApi';
 export { paymentApi } from './paymentApi';
 export { schedulingApi } from './schedulingApi';
+export { adminApi } from './adminApi';

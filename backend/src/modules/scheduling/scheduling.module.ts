@@ -6,5 +6,6 @@ import { SchedulingAiService } from './scheduling-ai.service';
 @Module({
   controllers: [SchedulingController],
   providers: [SchedulingService, SchedulingAiService],
+  exports: [SchedulingService],
 })
 export class SchedulingModule {}

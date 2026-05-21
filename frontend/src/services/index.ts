@@ -30,7 +30,14 @@ import type {
   SlotResultDto,
   VehicleTypeConfigDto,
   ValidationResultDto,
+  IAdminService,
 } from './interfaces';
+
+import type {
+  AdminPlanningDto,
+  DayPlanningDto,
+  PlanningReservationDto,
+} from '@/lib/dto/admin-planning.dto';
 
 /* ─── Helpers ─────────────────────────────────────────────────── */
 
@@ -392,6 +399,91 @@ const mockPaymentService: IPaymentService = {
   },
 };
 
+const mockAdminService: IAdminService = {
+  async getPlanning(from: string, to: string): Promise<AdminPlanningDto> {
+    await delay(400);
+    const fromDate = new Date(from + 'T00:00:00');
+
+    function generateDays(teacherSeed: number): DayPlanningDto[] {
+      const days: DayPlanningDto[] = [];
+      for (let i = 0; i < 7; i++) {
+        const d = new Date(fromDate);
+        d.setDate(fromDate.getDate() + i);
+        const dateStr = d.toISOString().split('T')[0];
+        const dayOfWeek = d.getDay();
+
+        // Weekend = unavailable
+        if (dayOfWeek === 0 || dayOfWeek === 6) {
+          days.push({
+            date: dateStr, dayOfWeek, isAvailable: false,
+            totalSlots: 0, bookedSlots: 0, freeSlots: 0, reservations: [],
+          });
+          continue;
+        }
+
+        const totalSlots = teacherSeed === 2 ? 6 : 8;
+        const idx = (i + teacherSeed) % 5;
+        let bookedSlots: number;
+        if (idx === 0) bookedSlots = totalSlots;
+        else if (idx === 1) bookedSlots = 0;
+        else if (idx === 2) bookedSlots = Math.floor(totalSlots * 0.6);
+        else bookedSlots = Math.floor(totalSlots * 0.3);
+
+        const studentNames = [
+          { name: 'Juan', lastName: 'Pérez' },
+          { name: 'Ana', lastName: 'García' },
+          { name: 'María', lastName: 'López' },
+          { name: 'Pedro', lastName: 'Martínez' },
+          { name: 'Laura', lastName: 'Sánchez' },
+          { name: 'David', lastName: 'Rodríguez' },
+        ];
+
+        const reservations: PlanningReservationDto[] = [];
+        for (let j = 0; j < bookedSlots; j++) {
+          const startH = 9 + j;
+          reservations.push({
+            id: `res-t${teacherSeed}-d${i}-s${j}`,
+            startTime: `${dateStr}T${String(startH).padStart(2, '0')}:00:00.000Z`,
+            duration: 45,
+            status: j === 0 && teacherSeed === 1 ? 'pending' : 'confirmed',
+            vehicleType: teacherSeed === 2 && j % 2 === 0 ? 'coche-automatico' : 'coche-manual',
+            student: studentNames[j % studentNames.length],
+          });
+        }
+
+        days.push({
+          date: dateStr, dayOfWeek, isAvailable: true,
+          totalSlots, bookedSlots, freeSlots: totalSlots - bookedSlots,
+          reservations,
+        });
+      }
+      return days;
+    }
+
+    const teacher1Days = generateDays(1);
+    const teacher2Days = generateDays(2);
+    // Make the first weekday an override holiday for teacher 2
+    const firstWeekdayIdx = teacher2Days.findIndex((d) => d.isAvailable);
+    if (firstWeekdayIdx >= 0) {
+      teacher2Days[firstWeekdayIdx] = {
+        ...teacher2Days[firstWeekdayIdx],
+        isAvailable: false,
+        reason: 'Festivo local',
+        totalSlots: 0, bookedSlots: 0, freeSlots: 0, reservations: [],
+      };
+    }
+
+    return {
+      from,
+      to,
+      teachers: [
+        { id: 'teacher-1', name: 'Carlos Martínez', doubleSession: false, days: teacher1Days },
+        { id: 'teacher-2', name: 'Laura Sánchez', doubleSession: true, days: teacher2Days },
+      ],
+    };
+  },
+};
+
 /* ─── Real API Implementations ────────────────────────────────── */
 
 import {
@@ -402,6 +494,7 @@ import {
   reservationApi,
   paymentApi,
   schedulingApi,
+  adminApi,
 } from './api';
 
 /* ─── Adapter Switch ──────────────────────────────────────────── */
@@ -416,6 +509,7 @@ export const services = {
   reservation: useMocks ? mockReservationService : reservationApi,
   payment: useMocks ? mockPaymentService : paymentApi,
   scheduling: useMocks ? mockSchedulingService : schedulingApi,
+  admin: useMocks ? mockAdminService : adminApi,
 };
 
 /* ─── Re-exports ───────────────────────────────────────────────── */
