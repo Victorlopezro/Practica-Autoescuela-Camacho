@@ -3,6 +3,7 @@ import {
   Get,
   Post,
   Patch,
+  Delete,
   Body,
   Param,
   Query,
@@ -16,10 +17,13 @@ import { Roles } from '../../common/decorators/roles.decorator';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import type { JwtPayload } from '../../common/decorators/current-user.decorator';
 import { PrismaService } from '../../common/services/prisma.service';
-import { AdjustBalanceDto } from './dto/adjust-balance.dto';
+import { AdjustBalanceDto, CreateStudentDto, UpdateStudentDto } from './dto';
 import { DeductClassDto } from './dto/deduct-class.dto';
 import { RefillClassDto } from './dto/refill-class.dto';
 import { AdjustBalanceCommand } from './commands/adjust-balance.command';
+import { CreateStudentCommand } from './commands/create-student.command';
+import { UpdateStudentCommand } from './commands/update-student.command';
+import { DeleteStudentCommand } from './commands/delete-student.command';
 import { DeductClassCommand } from './commands/deduct-class.command';
 import { RefillClassCommand } from './commands/refill-class.command';
 
@@ -192,5 +196,39 @@ export class StudentsController {
     return this.commandBus.execute(
       new RefillClassCommand(id, dto.amount, user.sub),
     );
+  }
+
+  @Post()
+  @Roles('admin:manage')
+  @ApiOperation({ summary: 'Create a new student (admin only)' })
+  async create(@Body() dto: CreateStudentDto) {
+    return this.commandBus.execute(
+      new CreateStudentCommand(
+        dto.username, dto.password, dto.name,
+        dto.lastName, dto.email, dto.phone,
+        dto.licenseType, dto.teacherId,
+      ),
+    );
+  }
+
+  @Patch(':id')
+  @Roles('admin:manage')
+  @ApiOperation({ summary: 'Update a student (admin only)' })
+  async update(@Param('id') id: string, @Body() dto: UpdateStudentDto) {
+    return this.commandBus.execute(
+      new UpdateStudentCommand(
+        id, dto.username, dto.password, dto.name,
+        dto.lastName, dto.email, dto.phone,
+        dto.licenseType, dto.teacherId,
+      ),
+    );
+  }
+
+  @Delete(':id')
+  @Roles('admin:manage')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: 'Delete a student (admin only)' })
+  async remove(@Param('id') id: string) {
+    await this.commandBus.execute(new DeleteStudentCommand(id));
   }
 }

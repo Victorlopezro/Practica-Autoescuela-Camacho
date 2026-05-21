@@ -4,8 +4,11 @@ import { NotFoundException } from '@nestjs/common';
 import { PrismaService } from '../../common/services/prisma.service';
 import { StudentsController } from './students.controller';
 import { AdjustBalanceCommand } from './commands/adjust-balance.command';
+import { CreateStudentCommand } from './commands/create-student.command';
 import { DeductClassCommand } from './commands/deduct-class.command';
 import { RefillClassCommand } from './commands/refill-class.command';
+import { UpdateStudentCommand } from './commands/update-student.command';
+import { DeleteStudentCommand } from './commands/delete-student.command';
 
 describe('StudentsController', () => {
   let controller: StudentsController;
@@ -163,6 +166,53 @@ describe('StudentsController', () => {
 
       expect(commandBus.execute).toHaveBeenCalledWith(
         expect.any(RefillClassCommand),
+      );
+    });
+  });
+
+  describe('create', () => {
+    it('should execute CreateStudentCommand', async () => {
+      const dto = {
+        username: 'jperez',
+        password: 'secure123',
+        name: 'Juan',
+        lastName: 'Pérez',
+        email: 'juan@example.com',
+        phone: '612345678',
+      };
+      commandBus.execute.mockResolvedValue({ id: 'student-1' });
+
+      const result = await controller.create(dto);
+
+      expect(commandBus.execute).toHaveBeenCalledWith(
+        expect.any(CreateStudentCommand),
+      );
+      expect(result).toEqual({ id: 'student-1' });
+    });
+  });
+
+  describe('update', () => {
+    it('should execute UpdateStudentCommand', async () => {
+      const dto = { name: 'Juan Carlos' };
+      commandBus.execute.mockResolvedValue({ id: 'student-1' });
+
+      const result = await controller.update('student-1', dto);
+
+      expect(commandBus.execute).toHaveBeenCalledWith(
+        expect.any(UpdateStudentCommand),
+      );
+      expect(result).toEqual({ id: 'student-1' });
+    });
+  });
+
+  describe('remove', () => {
+    it('should execute DeleteStudentCommand', async () => {
+      commandBus.execute.mockResolvedValue(undefined);
+
+      await controller.remove('student-1');
+
+      expect(commandBus.execute).toHaveBeenCalledWith(
+        expect.any(DeleteStudentCommand),
       );
     });
   });
