@@ -38,60 +38,47 @@ export default function TeacherCalendar() {
   const teacherId = user?.teacherId;
   const today = useMemo(() => new Date(), []);
 
-  const [currentMonth, setCurrentMonth] = useState(() => today.getMonth());
-  const [currentYear, setCurrentYear] = useState(() => today.getFullYear());
+  const TODAY_STR = today.toISOString().split('T')[0];
+
+  const [rangeStart, setRangeStart] = useState<string>(TODAY_STR);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
 
-  const monthStart = useMemo(() => {
-    const d = new Date(currentYear, currentMonth, 1);
+  // Compute range end (30 days from rangeStart)
+  const rangeEnd = useMemo(() => {
+    const d = new Date(rangeStart);
+    d.setDate(d.getDate() + 29);
     return d.toISOString().split('T')[0];
-  }, [currentMonth, currentYear]);
-
-  const monthEnd = useMemo(() => {
-    const d = new Date(currentYear, currentMonth + 1, 0);
-    return d.toISOString().split('T')[0];
-  }, [currentMonth, currentYear]);
+  }, [rangeStart]);
 
   const { data: reservations, isLoading, error, refresh } = useData<CalendarReservationDto[]>(
     async () => {
       if (!teacherId) return [];
       return services.reservation.getCalendar({
         teacherId,
-        from: monthStart,
-        to: monthEnd,
+        from: rangeStart,
+        to: rangeEnd,
       });
     },
-    [teacherId, monthStart, monthEnd],
+    [teacherId, rangeStart, rangeEnd],
   );
 
-  // Build month calendar grid
-  const calendarCells = useMemo(() => {
-    const firstDow = new Date(currentYear, currentMonth, 1).getDay(); // 0=Sun
-    const daysInMonth = new Date(currentYear, currentMonth + 1, 0).getDate();
-    const cells: Array<{ type: 'empty' } | { type: 'day'; day: number; date: string; isToday: boolean }> = [];
-
-    // Pad to Monday (dow === 0 → 6 padding, dow === 1 → 0, dow === 2 → 1, ...)
-    const padding = firstDow === 0 ? 6 : firstDow - 1;
-    for (let i = 0; i < padding; i++) {
-      cells.push({ type: 'empty' });
+  // Build 30-day calendar days array
+  const calendarDays = useMemo(() => {
+    const start = new Date(rangeStart);
+    const days: Array<{ date: string; day: number; dayOfWeek: number; isToday: boolean }> = [];
+    for (let i = 0; i < 30; i++) {
+      const d = new Date(start);
+      d.setDate(start.getDate() + i);
+      const dateStr = d.toISOString().split('T')[0];
+      days.push({
+        date: dateStr,
+        day: d.getDate(),
+        dayOfWeek: d.getDay(),
+        isToday: dateStr === TODAY_STR,
+      });
     }
-
-    const todayStr = today.toISOString().split('T')[0];
-    for (let d = 1; d <= daysInMonth; d++) {
-      const dateStr = `${currentYear}-${String(currentMonth + 1).padStart(2, '0')}-${String(d).padStart(2, '0')}`;
-      cells.push({ type: 'day', day: d, date: dateStr, isToday: dateStr === todayStr });
-    }
-    return cells;
-  }, [currentMonth, currentYear, today]);
-
-  // Group into weeks
-  const gridRows = useMemo(() => {
-    const rows: typeof calendarCells[] = [];
-    for (let i = 0; i < calendarCells.length; i += 7) {
-      rows.push(calendarCells.slice(i, i + 7));
-    }
-    return rows;
-  }, [calendarCells]);
+    return days;
+  }, [rangeStart, TODAY_STR]);
 
   // Build a map of date → reservations for quick lookup
   const reservationsByDate = useMemo(() => {
@@ -108,44 +95,72 @@ export default function TeacherCalendar() {
 
   const selectedDayReservations = selectedDate ? reservationsByDate.get(selectedDate) ?? [] : [];
 
-  const prevMonth = () => {
-    if (currentMonth === 0) {
-      setCurrentMonth(11);
-      setCurrentYear(y => y - 1);
-    } else {
-      setCurrentMonth(m => m - 1);
+  // Build grid cells with empty padding to align first day to Monday
+  const gridCells = useMemo(() => {
+    const cells: Array<{ type: 'day'; date: string; day: number; isToday: boolean } | { type: 'empty' }> = [];
+    if (calendarDays.length === 0) return cells;
+
+    const firstDow = calendarDays[0].dayOfWeek === 0 ? 7 : calendarDays[0].dayOfWeek;
+    for (let i = 1; i < firstDow; i++) {
+      cells.push({ type: 'empty' });
     }
+    for (const d of calendarDays) {
+      cells.push({ type: 'day', date: d.date, day: d.day, isToday: d.isToday });
+    }
+    return cells;
+  }, [calendarDays]);
+
+  // Group into rows of 7
+  const gridRows = useMemo(() => {
+    const rows: typeof gridCells[] = [];
+    for (let i = 0; i < gridCells.length; i += 7) {
+      rows.push(gridCells.slice(i, i + 7));
+    }
+    return rows;
+  }, [gridCells]);
+
+  const prevRange = () => {
+    const d = new Date(rangeStart);
+    d.setDate(d.getDate() - 30);
+    setRangeStart(d.toISOString().split('T')[0]);
     setSelectedDate(null);
   };
 
-  const nextMonth = () => {
-    if (currentMonth === 11) {
-      setCurrentMonth(0);
-      setCurrentYear(y => y + 1);
-    } else {
-      setCurrentMonth(m => m + 1);
-    }
+  const nextRange = () => {
+    const d = new Date(rangeStart);
+    d.setDate(d.getDate() + 30);
+    setRangeStart(d.toISOString().split('T')[0]);
     setSelectedDate(null);
   };
 
-  const monthName = new Date(currentYear, currentMonth).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
+  const goToToday = () => {
+    setRangeStart(TODAY_STR);
+    setSelectedDate(null);
+  };
+
+  const monthName = new Date(rangeStart).toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
 
   return (
     <div className="space-y-6">
-      {/* Month navigation */}
+      {/* 30-day range navigation */}
       <div className="flex items-center justify-between">
-        <h2 className="text-title-md font-bold text-on-surface capitalize">{monthName}</h2>
+        <div>
+          <h2 className="text-title-md font-bold text-on-surface capitalize">{monthName}</h2>
+          <p className="text-body-sm text-on-surface-variant mt-0.5">
+            {new Date(rangeStart).toLocaleDateString('es-ES', { day: 'numeric', month: 'long' })} — {new Date(rangeEnd).toLocaleDateString('es-ES', { day: 'numeric', month: 'long', year: 'numeric' })}
+          </p>
+        </div>
         <div className="flex items-center gap-1">
-          <button onClick={prevMonth} className="p-2 rounded-lg hover:bg-surface-container-low transition-colors cursor-pointer">
+          <button onClick={prevRange} className="p-2 rounded-lg hover:bg-surface-container-low transition-colors cursor-pointer">
             <span className="material-symbols-outlined text-[18px]">chevron_left</span>
           </button>
           <button
-            onClick={() => { setCurrentMonth(today.getMonth()); setCurrentYear(today.getFullYear()); setSelectedDate(null); }}
+            onClick={goToToday}
             className="px-2 py-1 text-xs font-medium text-primary hover:text-primary/80 transition-colors cursor-pointer"
           >
             Hoy
           </button>
-          <button onClick={nextMonth} className="p-2 rounded-lg hover:bg-surface-container-low transition-colors cursor-pointer">
+          <button onClick={nextRange} className="p-2 rounded-lg hover:bg-surface-container-low transition-colors cursor-pointer">
             <span className="material-symbols-outlined text-[18px]">chevron_right</span>
           </button>
         </div>
@@ -153,7 +168,7 @@ export default function TeacherCalendar() {
 
       {/* Calendar grid */}
       <Card accent>
-        <CardHeader title="Calendario" subtitle="Tus clases del mes" />
+        <CardHeader title="Calendario" subtitle="Tus clases en los próximos 30 días" />
         <DataView
           data={reservations ?? []}
           isLoading={isLoading}
@@ -210,6 +225,9 @@ export default function TeacherCalendar() {
                   )}
                 </div>
               ))}
+              <p className="text-xs text-on-surface-variant text-center mt-3">
+                Mostrando 30 días desde el {new Date(rangeStart).toLocaleDateString('es-ES')}
+              </p>
             </>
           )}
         </DataView>
