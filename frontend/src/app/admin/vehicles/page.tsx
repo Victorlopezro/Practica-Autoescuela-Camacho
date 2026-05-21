@@ -5,6 +5,7 @@ import { Card, CardHeader } from '@/components/layouts/Card';
 import { DataView } from '@/components/DataView';
 import { useData } from '@/hooks/useData';
 import { services } from '@/services';
+import { CreateVehicleModal, EditVehicleModal, DeleteVehicleModal } from '@/components/vehicles';
 import type { VehicleDto } from '@/services/interfaces';
 
 const typeLabel: Record<string, string> = {
@@ -48,6 +49,10 @@ export default function AdminVehicles() {
   const [expandedId, setExpandedId] = useState<string | null>(null);
   const [savingId, setSavingId] = useState<string | null>(null);
 
+  const [createOpen, setCreateOpen] = useState(false);
+  const [editVehicle, setEditVehicle] = useState<VehicleDto | null>(null);
+  const [deleteTarget, setDeleteTarget] = useState<{ id: string; plate: string } | null>(null);
+
   async function toggleAvailability(v: VehicleDto) {
     setSavingId(v.id);
     try {
@@ -70,6 +75,10 @@ export default function AdminVehicles() {
     setSavingId(null);
   }
 
+  function handleSuccess() {
+    refresh();
+  }
+
   const vehicles = result?.data ?? [];
 
   return (
@@ -87,7 +96,10 @@ export default function AdminVehicles() {
       {(items) => (
         <div className="space-y-4">
           <div className="flex justify-end">
-            <button className="bg-primary text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2">
+            <button
+              onClick={() => setCreateOpen(true)}
+              className="bg-primary text-white px-4 py-2 rounded-lg text-sm font-medium flex items-center gap-2 min-h-[44px]"
+            >
               <span className="material-symbols-outlined text-[18px]">add</span>
               Añadir
             </button>
@@ -108,10 +120,37 @@ export default function AdminVehicles() {
                   onToggle={() => setExpandedId(expandedId === v.id ? null : v.id)}
                   onToggleAvailability={() => toggleAvailability(v)}
                   onItvSave={(date) => handleItvSave(v, date)}
+                  onEdit={() => setEditVehicle(v)}
+                  onDelete={() => setDeleteTarget({ id: v.id, plate: v.plate })}
                 />
               );
             })}
           </div>
+
+          <CreateVehicleModal
+            open={createOpen}
+            onClose={() => setCreateOpen(false)}
+            onSuccess={handleSuccess}
+          />
+
+          {editVehicle && (
+            <EditVehicleModal
+              open={!!editVehicle}
+              onClose={() => setEditVehicle(null)}
+              onSuccess={handleSuccess}
+              vehicle={editVehicle}
+            />
+          )}
+
+          {deleteTarget && (
+            <DeleteVehicleModal
+              open={!!deleteTarget}
+              onClose={() => setDeleteTarget(null)}
+              onSuccess={handleSuccess}
+              vehiclePlate={deleteTarget.plate}
+              vehicleId={deleteTarget.id}
+            />
+          )}
         </div>
       )}
     </DataView>
@@ -119,7 +158,7 @@ export default function AdminVehicles() {
 }
 
 function VehicleCard({
-  vehicle: v, icon, label, isExpanded, saving, onToggle, onToggleAvailability, onItvSave,
+  vehicle: v, icon, label, isExpanded, saving, onToggle, onToggleAvailability, onItvSave, onEdit, onDelete,
 }: {
   vehicle: VehicleDto;
   icon: string;
@@ -129,6 +168,8 @@ function VehicleCard({
   onToggle: () => void;
   onToggleAvailability: () => void;
   onItvSave: (date: string) => void;
+  onEdit: () => void;
+  onDelete: () => void;
 }) {
   const [editingItv, setEditingItv] = useState(false);
   const [itvDraft, setItvDraft] = useState(toDateInputValue(v.itvExpiry));
@@ -140,12 +181,12 @@ function VehicleCard({
     <Card accent>
       {/* Header */}
       <div className="flex items-center gap-3">
-        <div className="w-12 h-12 bg-surface-container-high rounded-xl flex items-center justify-center">
+        <div className="w-12 h-12 bg-surface-container-high rounded-xl flex items-center justify-center shrink-0">
           <span className="material-symbols-outlined text-primary">{icon}</span>
         </div>
         <div className="flex-1 min-w-0">
-          <p className="text-sm font-medium text-on-surface">{v.plate}</p>
-          <p className="text-xs text-on-surface-variant">{label}</p>
+          <p className="text-sm font-medium text-on-surface truncate">{v.plate}</p>
+          <p className="text-xs text-on-surface-variant truncate">{label}</p>
         </div>
 
         {/* ITV badges */}
@@ -217,10 +258,28 @@ function VehicleCard({
         )}
       </div>
 
+      {/* Edit / Delete buttons */}
+      <div className="mt-3 flex items-center gap-2 border-t border-outline-variant/20 pt-3">
+        <button
+          onClick={onEdit}
+          className="flex items-center gap-1 text-xs text-primary font-medium min-h-[44px] px-3 rounded-lg hover:bg-surface-container-low"
+        >
+          <span className="material-symbols-outlined text-[16px]">edit</span>
+          Editar
+        </button>
+        <button
+          onClick={onDelete}
+          className="flex items-center gap-1 text-xs text-error font-medium min-h-[44px] px-3 rounded-lg hover:bg-surface-container-low"
+        >
+          <span className="material-symbols-outlined text-[16px]">delete</span>
+          Eliminar
+        </button>
+      </div>
+
       {/* Expand incidents */}
       <button
         onClick={onToggle}
-        className="mt-2 flex items-center gap-1 text-xs text-primary font-medium"
+        className="mt-2 flex items-center gap-1 text-xs text-primary font-medium min-h-[44px]"
       >
         <span className="material-symbols-outlined text-[16px]">
           {isExpanded ? 'expand_less' : 'expand_more'}
@@ -294,13 +353,13 @@ function AdminIncidentsSection({ vehicleId }: { vehicleId: string }) {
             />
             <button
               onClick={handleSubmit}
-              className="bg-primary text-white px-3 py-1 rounded-lg text-xs font-medium"
+              className="bg-primary text-white px-3 py-1 rounded-lg text-xs font-medium min-h-[44px]"
             >
               Guardar
             </button>
             <button
               onClick={() => { setShowForm(false); setDesc(''); }}
-              className="text-xs text-on-surface-variant"
+              className="text-xs text-on-surface-variant min-h-[44px]"
             >
               Cancelar
             </button>
@@ -309,7 +368,7 @@ function AdminIncidentsSection({ vehicleId }: { vehicleId: string }) {
       ) : (
         <button
           onClick={() => setShowForm(true)}
-          className="flex items-center gap-1 text-xs text-primary font-medium"
+          className="flex items-center gap-1 text-xs text-primary font-medium min-h-[44px]"
         >
           <span className="material-symbols-outlined text-[14px]">add</span>
           Nueva incidencia
