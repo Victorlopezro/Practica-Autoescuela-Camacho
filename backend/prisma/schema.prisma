@@ -51,6 +51,7 @@ model Student {
   id               String   @id @default(uuid()) @map("id")
   userId           String   @unique @map("user_id")
   teacherId        String?  @map("teacher_id")
+  licenseType      String?  @map("license_type")
   remainingClasses Int      @default(0) @map("remaining_classes")
   balanceHistory   Json?    @map("balance_history") // Array of { amount, reason, timestamp, adjustedBy }
 
@@ -65,8 +66,9 @@ model Teacher {
   name          String   @map("name")
   doubleSession Boolean  @default(false) @map("double_session")
 
-  availability  TeacherAvailability[]
-  overrides     AvailabilityOverride[]
+  availability    TeacherAvailability[]
+  overrides       AvailabilityOverride[]
+  teacherVehicles TeacherVehicle[]
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -120,7 +122,8 @@ model Vehicle {
   status    String   @default("available") @map("status") // available | in-use | maintenance | retired
   itvExpiry DateTime? @map("itv_expiry")
 
-  incidents VehicleIncident[]
+  incidents       VehicleIncident[]
+  teacherVehicles TeacherVehicle[]
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -138,6 +141,17 @@ model VehicleIncident {
   createdAt DateTime @default(now()) @map("created_at")
 
   @@map("vehicle_incidents")
+}
+
+model TeacherVehicle {
+  id        String   @id @default(cuid())
+  teacherId String   @map("teacher_id")
+  vehicleId String   @map("vehicle_id")
+  teacher   Teacher  @relation(fields: [teacherId], references: [id], onDelete: Cascade)
+  vehicle   Vehicle  @relation(fields: [vehicleId], references: [id], onDelete: Cascade)
+
+  @@unique([teacherId, vehicleId])
+  @@map("teacher_vehicles")
 }
 
 model Reservation {
