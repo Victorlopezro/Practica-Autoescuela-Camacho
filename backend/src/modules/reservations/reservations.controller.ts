@@ -18,11 +18,12 @@ import { Roles } from '../../common/decorators/roles.decorator';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import type { JwtPayload } from '../../common/decorators/current-user.decorator';
 import { PrismaService } from '../../common/services/prisma.service';
-import { CreateReservationDto } from './dto';
+import { CreateReservationDto, AdminCancelReservationDto } from './dto';
 import { CreateReservationCommand } from './commands/create-reservation.command';
 import { ConfirmReservationCommand } from './commands/confirm-reservation.command';
 import { CancelReservationCommand } from './commands/cancel-reservation.command';
 import { CompleteReservationCommand } from './commands/complete-reservation.command';
+import { AdminCancelReservationCommand } from './commands/admin-cancel-reservation.command';
 import { calculateFreeSlots } from './reservations-availability.service';
 
 @ApiTags('Reservations')
@@ -189,6 +190,21 @@ export class ReservationsController {
   async complete(@Param('id') id: string, @CurrentUser() user: JwtPayload) {
     return this.commandBus.execute(
       new CompleteReservationCommand(id, user.sub),
+    );
+  }
+
+  @Post(':id/admin-cancel')
+  @Roles('admin:manage')
+  @ApiOperation({
+    summary: 'Admin cancel a reservation — bypasses deadline, records reason, refunds if confirmed',
+  })
+  async adminCancel(
+    @Param('id') id: string,
+    @Body() dto: AdminCancelReservationDto,
+    @CurrentUser() user: JwtPayload,
+  ) {
+    return this.commandBus.execute(
+      new AdminCancelReservationCommand(id, user.sub, dto.reason),
     );
   }
 

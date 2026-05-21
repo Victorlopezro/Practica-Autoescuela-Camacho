@@ -26,6 +26,11 @@ export const reservationApi: IReservationService = {
     await apiClient.delete(`/reservations/${id}`);
   },
 
+  async cancelAsAdmin(id: string, reason: string): Promise<ReservationDto> {
+    const { data } = await apiClient.post<ReservationDto>(`/reservations/${id}/admin-cancel`, { reason });
+    return data;
+  },
+
   async complete(id: string): Promise<ReservationDto> {
     const { data } = await apiClient.patch<ReservationDto>(`/reservations/${id}/complete`);
     return data;

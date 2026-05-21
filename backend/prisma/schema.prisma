@@ -162,8 +162,10 @@ model Reservation {
   startTime   DateTime @map("start_time")
   duration    Int      @map("duration") // minutes: 45 or 90
   status      String   @default("pending") @map("status") // pending | confirmed | cancelled | completed
-  cancelledAt DateTime? @map("cancelled_at")
-  refundAmount Int?     @map("refund_amount")
+  cancelledAt        DateTime? @map("cancelled_at")
+  cancelledById      String?   @map("cancelled_by_id")
+  cancellationReason String?   @map("cancellation_reason")
+  refundAmount       Int?      @map("refund_amount")
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")

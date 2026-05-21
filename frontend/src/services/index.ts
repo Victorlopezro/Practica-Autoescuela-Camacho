@@ -296,6 +296,15 @@ const mockReservationService: IReservationService = {
   async cancel() {
     await delay(300);
   },
+  async cancelAsAdmin(id, reason) {
+    await delay(400);
+    return {
+      id, studentId: 'student-1', teacherId: 'teacher-1', vehicleType: 'car',
+      startTime: '2026-05-20T10:00:00Z', duration: 60,
+      status: 'cancelled', cancellationReason: reason,
+      createdAt: '2026-05-15T00:00:00Z', updatedAt: new Date().toISOString(),
+    } as ReservationDto;
+  },
   async complete(id) {
     await delay(300);
     return { id, studentId: 'student-1', teacherId: 'teacher-1', vehicleType: 'car', startTime: '2026-05-20T10:00:00Z', duration: 60, status: 'completed', createdAt: '2026-05-15T00:00:00Z', updatedAt: new Date().toISOString() };

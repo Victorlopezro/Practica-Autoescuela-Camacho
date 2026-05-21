@@ -21,6 +21,7 @@ const teacherLinks = [
 
 const adminLinks = [
   { href: '/admin/dashboard', label: 'Panel', icon: 'dashboard' },
+  { href: '/admin/reservations', label: 'Reservas', icon: 'book_online' },
   { href: '/admin/students', label: 'Alumnos', icon: 'group' },
   { href: '/admin/teachers', label: 'Profesores', icon: 'badge' },
   { href: '/admin/vehicles', label: 'Flota', icon: 'directions_car' },
