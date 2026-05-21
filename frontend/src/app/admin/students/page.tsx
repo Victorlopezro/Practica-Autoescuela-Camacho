@@ -5,7 +5,7 @@ import { Card } from '@/components/layouts/Card';
 import { DataView } from '@/components/DataView';
 import { useData } from '@/hooks/useData';
 import { services } from '@/services';
-import { CreateStudentModal, EditStudentModal, DeleteStudentModal } from '@/components/students';
+import { CreateStudentModal, EditStudentModal, DeleteStudentModal, AdjustBalanceModal } from '@/components/students';
 import type { StudentWithUserDto } from '@/services/interfaces';
 
 interface DisplayStudent {
@@ -41,6 +41,7 @@ export default function AdminStudents() {
   const [createOpen, setCreateOpen] = useState(false);
   const [editStudent, setEditStudent] = useState<StudentWithUserDto | null>(null);
   const [deleteTarget, setDeleteTarget] = useState<{ id: string; name: string } | null>(null);
+  const [adjustTarget, setAdjustTarget] = useState<{ id: string; name: string; remainingClasses: number } | null>(null);
 
   function handleSuccess() {
     refresh();
@@ -88,6 +89,14 @@ export default function AdminStudents() {
                   </div>
                   <div className="flex items-center gap-1 shrink-0">
                     <button
+                      onClick={() => setAdjustTarget({ id: s.id, name: s.name, remainingClasses: s.remainingClasses })}
+                      className="w-11 h-11 flex items-center justify-center rounded-lg hover:bg-surface-container-low text-secondary"
+                      aria-label="Ajustar clases"
+                      title="Ajustar clases"
+                    >
+                      <span className="material-symbols-outlined text-[20px]">exposure</span>
+                    </button>
+                    <button
                       onClick={() => setEditStudent(s.raw)}
                       className="w-11 h-11 flex items-center justify-center rounded-lg hover:bg-surface-container-low text-on-surface-variant"
                       aria-label="Editar"
@@ -129,6 +138,17 @@ export default function AdminStudents() {
               onSuccess={handleSuccess}
               studentName={deleteTarget.name}
               studentId={deleteTarget.id}
+            />
+          )}
+
+          {adjustTarget && (
+            <AdjustBalanceModal
+              open={!!adjustTarget}
+              onClose={() => setAdjustTarget(null)}
+              onSuccess={handleSuccess}
+              studentId={adjustTarget.id}
+              studentName={adjustTarget.name}
+              currentBalance={adjustTarget.remainingClasses}
             />
           )}
         </div>

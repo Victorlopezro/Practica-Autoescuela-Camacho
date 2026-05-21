@@ -57,6 +57,7 @@ export interface IStudentService {
   getBalance(studentId: string): Promise<Pick<StudentDto, 'remainingClasses' | 'balanceHistory'>>;
   deductClass(studentId: string, duration: number): Promise<StudentDto>;
   refillClass(studentId: string, amount: number): Promise<StudentDto>;
+  adjustBalance(studentId: string, amount: number, reason: string): Promise<StudentDto>;
   createStudent(data: CreateStudentDTO): Promise<StudentDto>;
   updateStudent(id: string, data: UpdateStudentDTO): Promise<StudentDto>;
   deleteStudent(id: string): Promise<void>;

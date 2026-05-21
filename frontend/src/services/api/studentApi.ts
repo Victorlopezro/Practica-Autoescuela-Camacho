@@ -1,6 +1,11 @@
 import apiClient from './client';
 import type { IStudentService, StudentDto, PaginatedStudents, CreateStudentDTO, UpdateStudentDTO } from '../interfaces/student.service';
 
+interface AdjustBalancePayload {
+  amount: number;
+  reason: string;
+}
+
 export const studentApi: IStudentService = {
   async list(page = 1, limit = 20): Promise<PaginatedStudents> {
     const { data } = await apiClient.get<PaginatedStudents>('/students', {
@@ -37,6 +42,11 @@ export const studentApi: IStudentService = {
   async updateStudent(id: string, data: UpdateStudentDTO): Promise<StudentDto> {
     const { data: result } = await apiClient.patch<StudentDto>(`/students/${id}`, data);
     return result;
+  },
+
+  async adjustBalance(studentId: string, amount: number, reason: string): Promise<StudentDto> {
+    const { data } = await apiClient.patch<StudentDto>(`/students/${studentId}/balance`, { amount, reason } satisfies AdjustBalancePayload);
+    return data;
   },
 
   async deleteStudent(id: string): Promise<void> {

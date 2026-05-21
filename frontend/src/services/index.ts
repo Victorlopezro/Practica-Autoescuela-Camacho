@@ -176,6 +176,15 @@ const mockStudentService: IStudentService = {
       updatedAt: new Date().toISOString(),
     };
   },
+  async adjustBalance(_, amount, reason) {
+    await delay(400);
+    return {
+      id: 'student-1', userId: 'user-1', teacherId: 'teacher-1',
+      remainingClasses: 15 + amount, balanceHistory: [{ amount, reason, date: new Date().toISOString(), adjustedBy: 'admin-1' }],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+  },
   async deleteStudent() { await delay(300); },
 };
 
