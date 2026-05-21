@@ -299,6 +299,14 @@ const mockReservationService: IReservationService = {
       { startTime: '2026-05-20T11:00:00Z', endTime: '2026-05-20T12:00:00Z' },
     ];
   },
+  async getCalendar() {
+    await delay(300);
+    return [
+      { id: 'res-1', studentId: 'student-1', teacherId: 'teacher-1', vehicleType: 'car', startTime: '2026-05-20T10:00:00Z', duration: 60, status: 'confirmed', createdAt: '2026-05-15T00:00:00Z', updatedAt: '2026-05-15T00:00:00Z', student: { id: 'student-1', name: 'Juan', lastName: 'Pérez', username: 'jperez' }, teacher: { id: 'teacher-1', name: 'Juan Pérez' } },
+      { id: 'res-2', studentId: 'student-1', teacherId: 'teacher-1', vehicleType: 'car', startTime: '2026-05-22T10:00:00Z', duration: 60, status: 'pending', createdAt: '2026-05-16T00:00:00Z', updatedAt: '2026-05-16T00:00:00Z', student: { id: 'student-1', name: 'Juan', lastName: 'Pérez', username: 'jperez' }, teacher: { id: 'teacher-1', name: 'Juan Pérez' } },
+      { id: 'res-3', studentId: 'student-2', teacherId: 'teacher-2', vehicleType: 'car', startTime: '2026-05-19T17:00:00Z', duration: 60, status: 'completed', createdAt: '2026-05-14T00:00:00Z', updatedAt: '2026-05-15T00:00:00Z', student: { id: 'student-2', name: 'María', lastName: 'García', username: 'mgarcia' }, teacher: { id: 'teacher-2', name: 'María García' } },
+    ];
+  },
 };
 
 const mockSchedulingService: ISchedulingService = {
@@ -328,6 +336,21 @@ const mockSchedulingService: ISchedulingService = {
       slots.push(new Date(`2026-05-20T${h.toString().padStart(2, '0')}:00:00Z`).toISOString());
     }
     return { date: '2026-05-20', slots, slotDuration: 45, doubleSession: true };
+  },
+  async getSlotsRange() {
+    await delay(300);
+    const days = [];
+    for (let d = 0; d < 7; d++) {
+      const date = new Date('2026-05-20');
+      date.setDate(date.getDate() + d);
+      const dateStr = date.toISOString().split('T')[0];
+      const daySlots: string[] = [];
+      for (let h = 8; h < 14; h++) {
+        daySlots.push(new Date(`${dateStr}T${h.toString().padStart(2, '0')}:00:00Z`).toISOString());
+      }
+      days.push({ date: dateStr, slots: daySlots, slotDuration: 45 });
+    }
+    return { teacherId: 'teacher-1', vehicleType: 'coche-manual', days };
   },
   async validateSlot() {
     await delay(400);

@@ -1,11 +1,13 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { NotFoundException } from '@nestjs/common';
+import { CommandBus } from '@nestjs/cqrs';
 import { PrismaService } from '../../common/services/prisma.service';
 import { TeachersController } from './teachers.controller';
 
 describe('TeachersController', () => {
   let controller: TeachersController;
   let prisma: any;
+  let commandBus: any;
 
   const mockTeachers = [
     { id: 'teacher-1', name: 'John Doe', createdAt: new Date() },
@@ -36,9 +38,16 @@ describe('TeachersController', () => {
       },
     };
 
+    commandBus = {
+      execute: jest.fn(),
+    };
+
     const module: TestingModule = await Test.createTestingModule({
       controllers: [TeachersController],
-      providers: [{ provide: PrismaService, useValue: prisma }],
+      providers: [
+        { provide: PrismaService, useValue: prisma },
+        { provide: CommandBus, useValue: commandBus },
+      ],
     }).compile();
 
     controller = module.get<TeachersController>(TeachersController);
@@ -147,6 +156,68 @@ describe('TeachersController', () => {
 
       await expect(controller.getStats('unknown')).rejects.toThrow(
         NotFoundException,
+      );
+    });
+  });
+
+  describe('create', () => {
+    it('should execute CreateTeacherCommand with DTO data', async () => {
+      const dto = {
+        username: 'jdoe',
+        password: 'secure123',
+        name: 'John',
+        lastName: 'Doe',
+        email: 'john@example.com',
+        phone: '612345680',
+        vehicleIds: ['vehicle-1'],
+      };
+      const expectedResult = { id: 'teacher-1', name: 'John', user: {}, vehicles: [] };
+      commandBus.execute.mockResolvedValue(expectedResult);
+
+      const result = await controller.create(dto);
+
+      expect(result).toEqual(expectedResult);
+      expect(commandBus.execute).toHaveBeenCalledWith(
+        expect.objectContaining({
+          username: 'jdoe',
+          password: 'secure123',
+          name: 'John',
+        }),
+      );
+    });
+  });
+
+  describe('update', () => {
+    it('should execute UpdateTeacherCommand with DTO data', async () => {
+      const dto = {
+        name: 'John Updated',
+        phone: '612345681',
+      };
+      const expectedResult = { id: 'teacher-1', name: 'John Updated', user: {}, vehicles: [] };
+      commandBus.execute.mockResolvedValue(expectedResult);
+
+      const result = await controller.update('teacher-1', dto);
+
+      expect(result).toEqual(expectedResult);
+      expect(commandBus.execute).toHaveBeenCalledWith(
+        expect.objectContaining({
+          id: 'teacher-1',
+          name: 'John Updated',
+          phone: '612345681',
+        }),
+      );
+    });
+  });
+
+  describe('remove', () => {
+    it('should execute DeleteTeacherCommand and return no content', async () => {
+      commandBus.execute.mockResolvedValue(undefined);
+
+      const result = await controller.remove('teacher-1');
+
+      expect(result).toBeUndefined();
+      expect(commandBus.execute).toHaveBeenCalledWith(
+        expect.objectContaining({ id: 'teacher-1' }),
       );
     });
   });

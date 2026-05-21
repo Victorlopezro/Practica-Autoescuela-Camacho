@@ -91,6 +91,67 @@ export class ReservationsController {
     };
   }
 
+  @Get('calendar')
+  @Roles('admin:manage', 'teacher:view', 'student:view')
+  @ApiOperation({ summary: 'Get reservations with student/teacher names for calendar views' })
+  async getCalendar(
+    @Query('teacherId') teacherId?: string,
+    @Query('studentId') studentId?: string,
+    @Query('from') from?: string,
+    @Query('to') to?: string,
+  ) {
+    const where: Prisma.ReservationWhereInput = {};
+    if (teacherId) where.teacherId = teacherId;
+    if (studentId) where.studentId = studentId;
+    if (from || to) {
+      where.startTime = {};
+      if (from) where.startTime.gte = new Date(from);
+      if (to) where.startTime.lte = new Date(to);
+    }
+
+    const reservations = await this.prisma.reservation.findMany({
+      where,
+      orderBy: { startTime: 'asc' },
+    });
+
+    // Enrich with student user info and teacher names
+    const studentIds = [...new Set(reservations.map((r) => r.studentId))];
+    const teacherIds = [...new Set(reservations.map((r) => r.teacherId))];
+
+    const [students, teachers] = await Promise.all([
+      this.prisma.student.findMany({
+        where: { id: { in: studentIds } },
+      }),
+      this.prisma.teacher.findMany({
+        where: { id: { in: teacherIds } },
+      }),
+    ]);
+
+    // Get user info for each student (join via student.userId -> user.id)
+    const userIds = students.map((s) => s.userId).filter(Boolean);
+    const users = userIds.length > 0
+      ? await this.prisma.user.findMany({
+          where: { id: { in: userIds } },
+          select: { id: true, name: true, lastName: true, username: true },
+        })
+      : [];
+
+    const userById = new Map(users.map((u) => [u.id, u]));
+    const studentUserMap = new Map<string, { id: string; name: string | null; lastName: string | null; username: string }>();
+    for (const s of students) {
+      const user = userById.get(s.userId);
+      if (user) studentUserMap.set(s.id, user);
+    }
+
+    const teacherNameMap = new Map(teachers.map((t) => [t.id, t.name]));
+
+    return reservations.map((r) => ({
+      ...r,
+      student: r.studentId ? (studentUserMap.get(r.studentId) ?? null) : null,
+      teacherName: r.teacherId ? (teacherNameMap.get(r.teacherId) ?? null) : null,
+    }));
+  }
+
   @Get(':id')
   @Roles('admin:manage', 'teacher:view')
   @ApiOperation({ summary: 'Get reservation by ID' })
@@ -116,7 +177,7 @@ export class ReservationsController {
   }
 
   @Delete(':id')
-  @Roles('admin:manage', 'teacher:view')
+  @Roles('admin:manage', 'teacher:view', 'student:view')
   @ApiOperation({ summary: 'Cancel a reservation (refund if applicable)' })
   async remove(@Param('id') id: string, @CurrentUser() user: JwtPayload) {
     return this.commandBus.execute(new CancelReservationCommand(id, user.sub));

@@ -1,19 +1,33 @@
 import {
   Controller,
   Get,
+  Post,
+  Patch,
+  Delete,
+  Body,
   Param,
   Query,
+  HttpCode,
+  HttpStatus,
   NotFoundException,
 } from '@nestjs/common';
+import { CommandBus } from '@nestjs/cqrs';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { PrismaService } from '../../common/services/prisma.service';
+import { CreateTeacherDto, UpdateTeacherDto } from './dto';
+import { CreateTeacherCommand } from './commands/create-teacher.command';
+import { UpdateTeacherCommand } from './commands/update-teacher.command';
+import { DeleteTeacherCommand } from './commands/delete-teacher.command';
 
 @ApiTags('Teachers')
 @ApiBearerAuth()
 @Controller({ path: 'teachers', version: '1' })
 export class TeachersController {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly commandBus: CommandBus,
+    private readonly prisma: PrismaService,
+  ) {}
 
   @Get()
   @Roles('admin:manage', 'teacher:view', 'student:view')
@@ -92,5 +106,39 @@ export class TeachersController {
       upcomingReservations,
       completedReservations,
     };
+  }
+
+  @Post()
+  @Roles('admin:manage')
+  @ApiOperation({ summary: 'Create a new teacher (admin only)' })
+  async create(@Body() dto: CreateTeacherDto) {
+    return this.commandBus.execute(
+      new CreateTeacherCommand(
+        dto.username, dto.password, dto.name,
+        dto.lastName, dto.email, dto.phone,
+        dto.vehicleIds,
+      ),
+    );
+  }
+
+  @Patch(':id')
+  @Roles('admin:manage')
+  @ApiOperation({ summary: 'Update a teacher (admin only)' })
+  async update(@Param('id') id: string, @Body() dto: UpdateTeacherDto) {
+    return this.commandBus.execute(
+      new UpdateTeacherCommand(
+        id, dto.username, dto.password, dto.name,
+        dto.lastName, dto.email, dto.phone,
+        dto.vehicleIds,
+      ),
+    );
+  }
+
+  @Delete(':id')
+  @Roles('admin:manage')
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @ApiOperation({ summary: 'Delete a teacher (admin only)' })
+  async remove(@Param('id') id: string) {
+    await this.commandBus.execute(new DeleteTeacherCommand(id));
   }
 }

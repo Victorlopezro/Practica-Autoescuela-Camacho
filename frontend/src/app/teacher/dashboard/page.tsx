@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { DataView } from '@/components/DataView';
 import { useAuth } from '@/hooks/useAuth';
 import { useData } from '@/hooks/useData';
@@ -138,9 +139,9 @@ export default function TeacherDashboard() {
                       Alumno — {next.vehicleType === 'car' ? 'Práctica B' : 'Práctica A'} — {next.duration}min
                     </p>
                     <div className="flex gap-3 mt-4">
-                      <button className="px-4 py-2 bg-white text-[#2b3f94] rounded-lg text-label-caps font-bold hover:bg-surface-container transition-colors cursor-pointer">
+                      <Link href="/teacher/calendar" className="px-4 py-2 bg-white text-[#2b3f94] rounded-lg text-label-caps font-bold hover:bg-surface-container transition-colors cursor-pointer inline-block">
                         VER DETALLES
-                      </button>
+                      </Link>
                       <button className="px-4 py-2 border border-white/30 text-white rounded-lg text-label-caps font-bold hover:bg-white/10 transition-colors cursor-pointer">
                         NOTIFICAR
                       </button>

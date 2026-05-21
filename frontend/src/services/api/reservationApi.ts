@@ -1,5 +1,5 @@
 import apiClient from './client';
-import type { IReservationService, ReservationDto, AvailabilitySlot } from '../interfaces/reservation.service';
+import type { IReservationService, ReservationDto, AvailabilitySlot, CalendarReservationDto } from '../interfaces/reservation.service';
 
 export const reservationApi: IReservationService = {
   async list(params = {}): Promise<{ data: ReservationDto[]; total: number }> {
@@ -28,6 +28,11 @@ export const reservationApi: IReservationService = {
 
   async complete(id: string): Promise<ReservationDto> {
     const { data } = await apiClient.patch<ReservationDto>(`/reservations/${id}/complete`);
+    return data;
+  },
+
+  async getCalendar(params?: { teacherId?: string; studentId?: string; from?: string; to?: string }): Promise<CalendarReservationDto[]> {
+    const { data } = await apiClient.get<CalendarReservationDto[]>('/reservations/calendar', { params });
     return data;
   },
 

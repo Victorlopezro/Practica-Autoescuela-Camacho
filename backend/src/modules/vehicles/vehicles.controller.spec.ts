@@ -21,6 +21,9 @@ describe('VehiclesController', () => {
     itvExpiry: null,
     createdAt: new Date(),
     updatedAt: new Date(),
+    available: true,
+    itvWarning: false,
+    itvCritical: false,
   };
 
   beforeEach(async () => {

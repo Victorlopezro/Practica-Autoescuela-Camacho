@@ -101,6 +101,25 @@ export class SchedulingController {
 
   /* ───── Slot Listing ───── */
 
+  @Get('slots/range')
+  @Roles('admin:manage', 'teacher:view', 'student:view')
+  @ApiOperation({ summary: 'Get available slots for a teacher across N days' })
+  async getSlotsRange(
+    @Query('teacherId') teacherId: string,
+    @Query('startDate') startDate: string,
+    @Query('vehicleType') vehicleType: string,
+    @Query('days') days = '30',
+    @Query('doubleSession') doubleSession?: string,
+  ) {
+    return this.scheduling.getAvailableSlotsInRange(
+      teacherId,
+      startDate,
+      Number(days),
+      vehicleType,
+      doubleSession === 'true',
+    );
+  }
+
   @Get('slots')
   @Roles('admin:manage', 'teacher:view', 'student:view')
   @ApiOperation({ summary: 'Get available slots for a teacher on a date' })

@@ -3,6 +3,7 @@ import type {
   ISchedulingService,
   TeacherAvailabilityDto,
   SlotResultDto,
+  SlotRangeResultDto,
   VehicleTypeConfigDto,
   ValidationResultDto,
 } from '../interfaces/scheduling.service';
@@ -27,6 +28,13 @@ export const schedulingApi: ISchedulingService = {
 
   async removeOverride(teacherId: string, date: string): Promise<void> {
     await apiClient.delete(`/scheduling/teachers/${teacherId}/overrides/${date}`);
+  },
+
+  async getSlotsRange(teacherId: string, startDate: string, vehicleType: string, days = 30, doubleSession?: boolean): Promise<SlotRangeResultDto> {
+    const { data } = await apiClient.get<SlotRangeResultDto>('/scheduling/slots/range', {
+      params: { teacherId, startDate, vehicleType, days, doubleSession: doubleSession ? 'true' : undefined },
+    });
+    return data;
   },
 
   async getSlots(teacherId: string, date: string, vehicleType: string, doubleSession?: boolean): Promise<SlotResultDto> {

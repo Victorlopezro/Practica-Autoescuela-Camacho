@@ -61,6 +61,10 @@ describe('CreateReservationHandler', () => {
 
     prisma.$transaction.mockImplementation(async (cb: Function) => {
       const tx = {
+        student: {
+          findUnique: jest.fn().mockResolvedValue(mockStudent),
+          update: jest.fn().mockResolvedValue(mockStudent),
+        },
         reservation: {
           findMany: jest.fn().mockResolvedValue([]),
           create: jest.fn().mockResolvedValue(mockReservation),
@@ -137,6 +141,10 @@ describe('CreateReservationHandler', () => {
 
     prisma.$transaction.mockImplementation(async (cb: Function) => {
       const tx = {
+        student: {
+          findUnique: jest.fn().mockResolvedValue(mockStudent),
+          update: jest.fn().mockResolvedValue(mockStudent),
+        },
         reservation: {
           findMany: jest.fn().mockResolvedValue([existingReservation]),
           create: jest.fn(),
@@ -180,6 +188,10 @@ describe('CreateReservationHandler', () => {
 
     prisma.$transaction.mockImplementation(async (cb: Function) => {
       const tx = {
+        student: {
+          findUnique: jest.fn().mockResolvedValue(mockStudent),
+          update: jest.fn().mockResolvedValue(mockStudent),
+        },
         reservation: {
           findMany: jest.fn().mockResolvedValue([]),
           create: jest.fn().mockResolvedValue(mockReservation),

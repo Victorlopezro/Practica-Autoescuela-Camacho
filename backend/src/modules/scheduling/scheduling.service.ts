@@ -154,6 +154,37 @@ export class SchedulingService {
     }
   }
 
+  async getAvailableSlotsInRange(
+    teacherId: string,
+    startDate: string,
+    days: number,
+    vehicleType: string,
+    doubleSession?: boolean,
+  ) {
+    const results: Array<{ date: string; slots: string[]; slotDuration: number }> = [];
+    const start = parseISO(startDate);
+
+    for (let i = 0; i < days; i++) {
+      const currentDate = new Date(start);
+      currentDate.setDate(start.getDate() + i);
+      const dateStr = currentDate.toISOString().split('T')[0];
+
+      const dayResult = await this.getAvailableSlots(
+        teacherId,
+        dateStr,
+        vehicleType,
+        doubleSession,
+      );
+      results.push({
+        date: dateStr,
+        slots: dayResult.slots,
+        slotDuration: dayResult.slotDuration,
+      });
+    }
+
+    return { teacherId, vehicleType, days: results };
+  }
+
   async getAvailableSlots(
     teacherId: string,
     date: string,
@@ -164,6 +195,12 @@ export class SchedulingService {
       where: { id: teacherId },
     });
     if (!teacher) throw new NotFoundException('Teacher not found');
+
+    // Get vehicle type duration upfront
+    const typeConfig = await this.prisma.vehicleTypeConfig.findUnique({
+      where: { type: vehicleType },
+    });
+    const slotDuration = typeConfig?.duration ?? 45;
 
     const dateObj = parseISO(date);
     const dayOfWeek = dateObj.getDay();
@@ -184,7 +221,7 @@ export class SchedulingService {
 
     // If override marks as unavailable, no slots
     if (override && !override.isAvailable) {
-      return { date, slots: [], doubleSession: teacher.doubleSession };
+      return { date, slots: [], slotDuration, doubleSession: teacher.doubleSession };
     }
 
     // Determine effective time range
@@ -198,14 +235,8 @@ export class SchedulingService {
       startTime = baseAvailability.startTime;
       endTime = baseAvailability.endTime;
     } else {
-      return { date, slots: [], doubleSession: teacher.doubleSession };
+      return { date, slots: [], slotDuration, doubleSession: teacher.doubleSession };
     }
-
-    // Get vehicle type duration
-    const typeConfig = await this.prisma.vehicleTypeConfig.findUnique({
-      where: { type: vehicleType },
-    });
-    const slotDuration = typeConfig?.duration ?? 45;
 
     // Get existing reservations for conflict check
     const dayStart = startOfDay(dateObj);

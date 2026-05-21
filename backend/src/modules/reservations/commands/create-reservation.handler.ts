@@ -1,4 +1,8 @@
-import { ConflictException, NotFoundException } from '@nestjs/common';
+import {
+  BadRequestException,
+  ConflictException,
+  NotFoundException,
+} from '@nestjs/common';
 import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
 import { PrismaService } from '../../../common/services/prisma.service';
 import { CreateReservationCommand } from './create-reservation.command';
@@ -25,9 +29,27 @@ export class CreateReservationHandler implements ICommandHandler<CreateReservati
     });
     if (!student) throw new NotFoundException('Student not found');
 
+    // Check remaining classes before booking
+    if (student.remainingClasses <= 0) {
+      throw new BadRequestException(
+        'No tienes clases disponibles. Compra un pack para poder reservar.',
+      );
+    }
+
     const endTime = new Date(startTime.getTime() + duration * 60 * 1000);
 
     const reservation = await this.prisma.$transaction(async (tx) => {
+      // Re-fetch student inside transaction to prevent race conditions
+      const currentStudent = await tx.student.findUnique({
+        where: { id: studentId },
+        select: { remainingClasses: true },
+      });
+      if (!currentStudent || currentStudent.remainingClasses <= 0) {
+        throw new BadRequestException(
+          'No tienes clases disponibles. Compra un pack para poder reservar.',
+        );
+      }
+
       // Find all non-cancelled reservations for this teacher that could potentially overlap
       // A reservation overlaps if: existingStart < newEnd AND existingStart + existingDuration > newStart
       // Prisma can't do computed fields in WHERE, so we fetch candidates where startTime < endTime and filter in-memory
@@ -50,6 +72,13 @@ export class CreateReservationHandler implements ICommandHandler<CreateReservati
           );
         }
       }
+
+      // Decrement remaining classes
+      const classesToConsume = duration >= 90 ? 2 : 1;
+      await tx.student.update({
+        where: { id: studentId },
+        data: { remainingClasses: { decrement: classesToConsume } },
+      });
 
       return tx.reservation.create({
         data: {

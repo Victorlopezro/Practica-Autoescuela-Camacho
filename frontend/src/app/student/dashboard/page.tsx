@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { Card, CardHeader } from '@/components/layouts/Card';
 import { DataView } from '@/components/DataView';
 import { useAuth } from '@/hooks/useAuth';
@@ -78,9 +79,9 @@ export default function StudentDashboard() {
                 <h3 className="font-semibold leading-tight mb-2">Reservar Clases</h3>
                 <p className="text-surface-container-high text-body-sm opacity-90">Asegura tu sitio con el Instructor Camacho para la próxima semana.</p>
               </div>
-              <button className="mt-6 w-full py-3 bg-white text-[#2b3f94] rounded-lg font-bold text-label-caps hover:bg-surface-container transition-colors active:scale-95 duration-150 cursor-pointer">
+              <Link href="/student/calendar" className="mt-6 w-full py-3 bg-white text-[#2b3f94] rounded-lg font-bold text-label-caps hover:bg-surface-container transition-colors active:scale-95 duration-150 block text-center cursor-pointer">
                 PROGRAMAR AHORA
-              </button>
+              </Link>
             </div>
 
             {/* Glassmorphism stats */}

@@ -15,6 +15,11 @@ export interface AvailabilitySlot {
   endTime: string;
 }
 
+export interface CalendarReservationDto extends ReservationDto {
+  student?: { id: string; name: string | null; lastName: string | null; username: string } | null;
+  teacher?: { id: string; name: string } | null;
+}
+
 export interface IReservationService {
   list(params?: { status?: string; teacherId?: string; studentId?: string; page?: number; limit?: number }): Promise<{ data: ReservationDto[]; total: number }>;
   getById(id: string): Promise<ReservationDto>;
@@ -23,4 +28,5 @@ export interface IReservationService {
   cancel(id: string): Promise<void>;
   complete(id: string): Promise<ReservationDto>;
   getAvailability(date: string, teacherId: string, duration?: number): Promise<AvailabilitySlot[]>;
+  getCalendar(params?: { teacherId?: string; studentId?: string; from?: string; to?: string }): Promise<CalendarReservationDto[]>;
 }

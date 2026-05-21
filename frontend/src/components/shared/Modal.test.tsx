@@ -17,15 +17,15 @@ describe('Modal', () => {
     expect(screen.getByText('Modal content')).toBeInTheDocument();
   });
 
-  it('does not have open attribute when closed', () => {
-    const { container } = render(
+  it('renders nothing when closed', () => {
+    render(
       <Modal open={false} onClose={() => {}} title="Test Modal">
         <p>Modal content</p>
       </Modal>,
     );
 
-    const dialog = container.querySelector('dialog');
-    expect(dialog).not.toHaveAttribute('open');
+    expect(screen.queryByText('Test Modal')).not.toBeInTheDocument();
+    expect(screen.queryByText('Modal content')).not.toBeInTheDocument();
   });
 
   it('calls onClose when close button is clicked', async () => {
