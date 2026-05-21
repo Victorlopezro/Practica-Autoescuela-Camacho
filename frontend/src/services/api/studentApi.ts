@@ -1,5 +1,5 @@
 import apiClient from './client';
-import type { IStudentService, StudentDto, PaginatedStudents } from '../interfaces/student.service';
+import type { IStudentService, StudentDto, PaginatedStudents, CreateStudentDTO, UpdateStudentDTO } from '../interfaces/student.service';
 
 export const studentApi: IStudentService = {
   async list(page = 1, limit = 20): Promise<PaginatedStudents> {
@@ -27,5 +27,19 @@ export const studentApi: IStudentService = {
   async refillClass(studentId: string, amount: number): Promise<StudentDto> {
     const { data } = await apiClient.post<StudentDto>(`/students/${studentId}/refill-class`, { amount });
     return data;
+  },
+
+  async createStudent(data: CreateStudentDTO): Promise<StudentDto> {
+    const { data: result } = await apiClient.post<StudentDto>('/students', data);
+    return result;
+  },
+
+  async updateStudent(id: string, data: UpdateStudentDTO): Promise<StudentDto> {
+    const { data: result } = await apiClient.patch<StudentDto>(`/students/${id}`, data);
+    return result;
+  },
+
+  async deleteStudent(id: string): Promise<void> {
+    await apiClient.delete(`/students/${id}`);
   },
 };
