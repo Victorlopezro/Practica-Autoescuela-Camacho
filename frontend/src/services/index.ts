@@ -10,9 +10,13 @@ import type {
   AuthUserDto,
   IStudentService,
   StudentDto,
+  CreateStudentDTO,
+  UpdateStudentDTO,
   ITeacherService,
   TeacherDto,
   TeacherStatsDto,
+  CreateTeacherDTO,
+  UpdateTeacherDTO,
   IVehicleService,
   VehicleDto,
   VehicleIncidentDto,
@@ -151,6 +155,28 @@ const mockStudentService: IStudentService = {
       updatedAt: new Date().toISOString(),
     };
   },
+  async createStudent(data) {
+    await delay(400);
+    return {
+      id: makeId(),
+      userId: makeId(),
+      teacherId: data.teacherId ?? null,
+      remainingClasses: 0,
+      balanceHistory: [],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+  },
+  async updateStudent(id, data) {
+    await delay(400);
+    return {
+      id, userId: 'user-1', teacherId: data.teacherId ?? null,
+      remainingClasses: 15, balanceHistory: [],
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+  },
+  async deleteStudent() { await delay(300); },
 };
 
 const mockTeacherService: ITeacherService = {
@@ -175,6 +201,15 @@ const mockTeacherService: ITeacherService = {
     await delay(300);
     return { id: 'teacher-1', name: 'Carlos Martínez', totalReservations: 45, upcomingReservations: 3, completedReservations: 38 };
   },
+  async createTeacher(data) {
+    await delay(400);
+    return { id: makeId(), name: data.name, createdAt: new Date().toISOString(), updatedAt: new Date().toISOString() };
+  },
+  async updateTeacher(id, data) {
+    await delay(400);
+    return { id, name: data.name ?? 'Carlos Martínez', createdAt: '2025-01-01T00:00:00Z', updatedAt: new Date().toISOString() };
+  },
+  async deleteTeacher() { await delay(300); },
 };
 
 function mockVehicleMetadata<T extends Record<string, unknown>>(v: T) {
@@ -341,3 +376,6 @@ export const services = {
   payment: useMocks ? mockPaymentService : paymentApi,
   scheduling: useMocks ? mockSchedulingService : schedulingApi,
 };
+
+/* ─── Re-exports ───────────────────────────────────────────────── */
+export type { CreateStudentDTO, UpdateStudentDTO, CreateTeacherDTO, UpdateTeacherDTO } from './interfaces';
