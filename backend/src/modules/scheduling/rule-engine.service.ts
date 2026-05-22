@@ -185,9 +185,7 @@ export class RuleEngineService implements OnModuleInit {
    * High-level check for CreateReservationHandler.
    * Returns whether a reservation is blocked, by which rule, and any warnings.
    */
-  async canCreateReservation(
-    context: RuleContext,
-  ): Promise<CanCreateResult> {
+  async canCreateReservation(context: RuleContext): Promise<CanCreateResult> {
     const evaluations = await this.evaluateTeacherRules(
       context.teacherId,
       context,
@@ -207,10 +205,7 @@ export class RuleEngineService implements OnModuleInit {
   //  Applies-to checking
   // ──────────────────────────────────────────────
 
-  private doesRuleApplyToTeacher(
-    rule: CachedRule,
-    teacherId: string,
-  ): boolean {
+  private doesRuleApplyToTeacher(rule: CachedRule, teacherId: string): boolean {
     if (!rule.appliesTo) return true; // applies to all teachers
 
     // If appliesTo has a teachers array, check membership
@@ -254,14 +249,23 @@ export class RuleEngineService implements OnModuleInit {
     if (resolvedValue === undefined) return false;
 
     // Numeric operators need numeric values
-    if (operator === 'lt' || operator === 'gt' || operator === 'lte' || operator === 'gte') {
+    if (
+      operator === 'lt' ||
+      operator === 'gt' ||
+      operator === 'lte' ||
+      operator === 'gte'
+    ) {
       const resolvedNum = resolvedValue as number;
       const condNum = rawValue as number;
       switch (operator) {
-        case 'lt': return resolvedNum < condNum;
-        case 'gt': return resolvedNum > condNum;
-        case 'lte': return resolvedNum <= condNum;
-        case 'gte': return resolvedNum >= condNum;
+        case 'lt':
+          return resolvedNum < condNum;
+        case 'gt':
+          return resolvedNum > condNum;
+        case 'lte':
+          return resolvedNum <= condNum;
+        case 'gte':
+          return resolvedNum >= condNum;
       }
     }
 
@@ -281,14 +285,11 @@ export class RuleEngineService implements OnModuleInit {
       return !this.evaluateIn(resolvedValue, rawValue);
     }
 
-    this.logger.warn(`Unknown operator: ${operator}`);
+    this.logger.warn(`Unknown operator: ${String(operator)}`);
     return false;
   }
 
-  private resolveFieldValue(
-    field: string,
-    context: RuleContext,
-  ): unknown {
+  private resolveFieldValue(field: string, context: RuleContext): unknown {
     switch (field) {
       case 'vehicleType':
         return context.vehicleType;
@@ -327,7 +328,7 @@ export class RuleEngineService implements OnModuleInit {
     // Check if values look like time ranges ("HH:MM-HH:MM")
     if (
       typeof value[0] === 'string' &&
-      (value[0] as string).includes('-') &&
+      value[0].includes('-') &&
       typeof resolvedValue === 'number'
     ) {
       // Time range check — value elements are "09:00-14:00" format
@@ -336,10 +337,7 @@ export class RuleEngineService implements OnModuleInit {
         if (!start || !end) return false;
         const startMin = this.timeToMinutes(start);
         const endMin = this.timeToMinutes(end);
-        return (
-          (resolvedValue as number) >= startMin &&
-          (resolvedValue as number) < endMin
-        );
+        return resolvedValue >= startMin && resolvedValue < endMin;
       });
     }
 

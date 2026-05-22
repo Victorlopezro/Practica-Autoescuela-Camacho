@@ -108,14 +108,13 @@ Donde:
         // Fallback: accept the slot but flag as medium risk
         return {
           valid: true,
-          reason:
-            'No se pudo validar con IA — aceptado con precaución',
+          reason: 'No se pudo validar con IA — aceptado con precaución',
           riskLevel: 'medium',
         };
       }
 
       const data = await response.json();
-      const content = data.choices?.[0]?.message?.content ?? '';
+      const content = String(data.choices?.[0]?.message?.content ?? '');
 
       try {
         // Clean markdown code fences if present
@@ -123,13 +122,12 @@ Donde:
           .replace(/```json?\s*/gi, '')
           .replace(/```/g, '')
           .trim();
-        return JSON.parse(cleaned);
+        return JSON.parse(cleaned) as ValidationResult;
       } catch {
         this.logger.warn(`Failed to parse AI response: ${content}`);
         return {
           valid: true,
-          reason:
-            'Respuesta de IA no válida — aceptado con precaución',
+          reason: 'Respuesta de IA no válida — aceptado con precaución',
           riskLevel: 'medium',
         };
       }
@@ -229,7 +227,7 @@ IMPORTANTE: usa el nombre COMPLETO del profesor (nombre y apellido) cuando sea p
       }
 
       const data = await response.json();
-      const content = data.choices?.[0]?.message?.content ?? '';
+      const content = String(data.choices?.[0]?.message?.content ?? '');
 
       const cleaned = content
         .replace(/```json?\s*/gi, '')

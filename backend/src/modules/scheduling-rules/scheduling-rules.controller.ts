@@ -9,7 +9,6 @@ import {
   Query,
   HttpCode,
   HttpStatus,
-  NotFoundException,
   Logger,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
@@ -19,7 +18,6 @@ import type { JwtPayload } from '../../common/decorators/current-user.decorator'
 import { PrismaService } from '../../common/services/prisma.service';
 import { SchedulingRulesService } from './services/scheduling-rules.service';
 import { SchedulingAiService } from '../scheduling/scheduling-ai.service';
-import type { StructuredRule } from '../scheduling/scheduling-ai.service';
 import {
   CreateSchedulingRuleDto,
   UpdateSchedulingRuleDto,
@@ -50,7 +48,9 @@ export class SchedulingRulesController {
 
   @Get()
   @Roles('admin:manage')
-  @ApiOperation({ summary: 'List scheduling rules with pagination and filters' })
+  @ApiOperation({
+    summary: 'List scheduling rules with pagination and filters',
+  })
   async findAll(@Query() query: SchedulingRuleQueryDto) {
     return this.rulesService.findAll(query);
   }
@@ -65,10 +65,7 @@ export class SchedulingRulesController {
   @Patch(':id')
   @Roles('admin:manage')
   @ApiOperation({ summary: 'Update a scheduling rule' })
-  async update(
-    @Param('id') id: string,
-    @Body() dto: UpdateSchedulingRuleDto,
-  ) {
+  async update(@Param('id') id: string, @Body() dto: UpdateSchedulingRuleDto) {
     return this.rulesService.update(id, dto);
   }
 
@@ -82,10 +79,10 @@ export class SchedulingRulesController {
 
   @Post(':id/translate')
   @Roles('admin:manage')
-  @ApiOperation({ summary: 'Translate natural language rule to structured JSON via AI' })
-  async translate(
-    @Param('id') id: string,
-  ) {
+  @ApiOperation({
+    summary: 'Translate natural language rule to structured JSON via AI',
+  })
+  async translate(@Param('id') id: string) {
     const rule = await this.rulesService.findOne(id);
 
     const result = await this.aiService.translateRule(rule.naturalLanguage);
@@ -95,16 +92,23 @@ export class SchedulingRulesController {
     }
 
     const updateData: Record<string, unknown> = {
-      structuredRules: result.data as unknown as Record<string, unknown>,
+      structuredRules: result.data,
     };
 
     // If AI extracted teacher names, resolve them to IDs
-    const appliesToTeachers = (result.data as StructuredRule).appliesTo?.teachers;
-    if (appliesToTeachers && Array.isArray(appliesToTeachers) && appliesToTeachers.length > 0) {
+    const aiResponse = result.data as { appliesTo?: { teachers?: string[] } };
+    const appliesToTeachers = aiResponse.appliesTo?.teachers;
+    if (
+      appliesToTeachers &&
+      Array.isArray(appliesToTeachers) &&
+      appliesToTeachers.length > 0
+    ) {
       const teacherIds = await this.resolveTeacherNames(appliesToTeachers);
       if (teacherIds.length > 0) {
         updateData.appliesTo = { teachers: teacherIds };
-        this.logger.log(`Resolved appliesTo teachers: ${appliesToTeachers.join(', ')} → ${teacherIds.join(', ')}`);
+        this.logger.log(
+          `Resolved appliesTo teachers: ${appliesToTeachers.join(', ')} → ${teacherIds.join(', ')}`,
+        );
       }
     }
 
@@ -122,28 +126,33 @@ export class SchedulingRulesController {
       select: { id: true, name: true },
     });
 
-    const ids = names.map((name) => {
-      const lowerName = name.toLowerCase();
+    const ids = names
+      .map((name) => {
+        const lowerName = name.toLowerCase();
 
-      // Try exact match
-      const exact = allTeachers.find((t) => t.name.toLowerCase() === lowerName);
-      if (exact) return exact.id;
+        // Try exact match
+        const exact = allTeachers.find(
+          (t) => t.name.toLowerCase() === lowerName,
+        );
+        if (exact) return exact.id;
 
-      // Try partial match (e.g. "juan" matches "Juan Pérez")
-      const partial = allTeachers.find((t) =>
-        t.name.toLowerCase().includes(lowerName) ||
-        lowerName.includes(t.name.toLowerCase()),
-      );
-      if (partial) return partial.id;
+        // Try partial match (e.g. "juan" matches "Juan Pérez")
+        const partial = allTeachers.find(
+          (t) =>
+            t.name.toLowerCase().includes(lowerName) ||
+            lowerName.includes(t.name.toLowerCase()),
+        );
+        if (partial) return partial.id;
 
-      // Try first-name-only match (e.g. "luis" matches "Luis López")
-      const firstName = allTeachers.find((t) =>
-        t.name.toLowerCase().split(' ')[0] === lowerName,
-      );
-      if (firstName) return firstName.id;
+        // Try first-name-only match (e.g. "luis" matches "Luis López")
+        const firstName = allTeachers.find(
+          (t) => t.name.toLowerCase().split(' ')[0] === lowerName,
+        );
+        if (firstName) return firstName.id;
 
-      return null;
-    }).filter((id): id is string => id !== null);
+        return null;
+      })
+      .filter((id): id is string => id !== null);
 
     return ids;
   }
