@@ -6,3 +6,13 @@ export type { IReservationService, ReservationDto, AvailabilitySlot, CalendarRes
 export type { IPaymentService } from './payment.service';
 export type { ISchedulingService, TeacherAvailabilityDto, WeeklyAvailabilityDto, OverrideDto, SlotResultDto, SlotRangeDayDto, SlotRangeResultDto, VehicleTypeConfigDto, ValidationResultDto } from './scheduling.service';
 export type { IAdminService } from './admin.service';
+export type {
+  ISchedulingRuleService,
+  SchedulingRuleDto,
+  CreateSchedulingRuleDto,
+  UpdateSchedulingRuleDto,
+  SchedulingRuleQueryDto,
+  PaginatedRulesDto,
+  RuleType,
+  RULE_TYPES,
+} from './scheduling-rule.service';

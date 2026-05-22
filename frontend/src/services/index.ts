@@ -31,6 +31,10 @@ import type {
   VehicleTypeConfigDto,
   ValidationResultDto,
   IAdminService,
+  ISchedulingRuleService,
+  SchedulingRuleDto,
+  CreateSchedulingRuleDto,
+  PaginatedRulesDto,
 } from './interfaces';
 
 import type {
@@ -484,6 +488,166 @@ const mockAdminService: IAdminService = {
   },
 };
 
+const mockSchedulingRuleService: ISchedulingRuleService = {
+  async findAll(query) {
+    await delay(300);
+    const rules: SchedulingRuleDto[] = [
+      {
+        id: 'rule-1',
+        name: 'Horario laboral',
+        naturalLanguage: 'Horario laboral de 08:00 a 20:00',
+        structuredRules: {
+          conditions: [{ field: 'time', operator: 'lt', value: '08:00' }],
+          logic: 'AND',
+          onMatch: 'block',
+          confidence: 'high',
+        },
+        ruleType: 'availability',
+        action: 'block',
+        priority: 1,
+        enabled: true,
+        appliesTo: null,
+        createdById: 'admin-1',
+        createdAt: '2026-05-01T00:00:00Z',
+        updatedAt: '2026-05-01T00:00:00Z',
+      },
+      {
+        id: 'rule-2',
+        name: 'Incremento de cuadrícula',
+        naturalLanguage: 'Intervalo mínimo de 45 min entre slots',
+        structuredRules: null,
+        ruleType: 'overlap',
+        action: 'block',
+        priority: 1,
+        enabled: true,
+        appliesTo: null,
+        createdById: 'admin-1',
+        createdAt: '2026-05-01T00:00:00Z',
+        updatedAt: '2026-05-01T00:00:00Z',
+      },
+      {
+        id: 'rule-3',
+        name: 'Restricción fin de semana',
+        naturalLanguage: 'No programar clases los fines de semana',
+        structuredRules: null,
+        ruleType: 'general',
+        action: 'warn',
+        priority: 10,
+        enabled: false,
+        appliesTo: null,
+        createdById: 'admin-1',
+        createdAt: '2026-05-10T00:00:00Z',
+        updatedAt: '2026-05-10T00:00:00Z',
+      },
+    ];
+
+    const page = query.page ?? 1;
+    const limit = query.limit ?? 10;
+    const total = rules.length;
+    const totalPages = Math.ceil(total / limit);
+
+    return {
+      data: rules.slice((page - 1) * limit, page * limit),
+      total,
+      page,
+      limit,
+      totalPages,
+    };
+  },
+  async findOne(id) {
+    await delay(200);
+    return {
+      id,
+      name: 'Horario laboral',
+      naturalLanguage: 'Horario laboral de 08:00 a 20:00',
+      structuredRules: null,
+      ruleType: 'hard',
+      action: 'block',
+      priority: 1,
+      enabled: true,
+      appliesTo: null,
+      createdById: 'admin-1',
+      createdAt: '2026-05-01T00:00:00Z',
+      updatedAt: '2026-05-01T00:00:00Z',
+    };
+  },
+  async create(dto: CreateSchedulingRuleDto) {
+    await delay(400);
+    return {
+      id: makeId(),
+      ...dto,
+      action: dto.action ?? 'block',
+      priority: dto.priority ?? 100,
+      enabled: dto.enabled ?? true,
+      naturalLanguage: dto.naturalLanguage,
+      structuredRules: null,
+      appliesTo: null,
+      createdById: 'admin-1',
+      createdAt: new Date().toISOString(),
+      updatedAt: new Date().toISOString(),
+    };
+  },
+  async update(id, dto) {
+    await delay(300);
+    return {
+      id,
+      name: dto.name ?? 'Horario laboral',
+      naturalLanguage: 'Horario laboral de 08:00 a 20:00',
+      structuredRules: null,
+      ruleType: dto.ruleType ?? 'availability',
+      action: dto.action ?? 'block',
+      priority: dto.priority ?? 1,
+      enabled: dto.enabled ?? true,
+      appliesTo: null,
+      createdById: 'admin-1',
+      createdAt: '2026-05-01T00:00:00Z',
+      updatedAt: new Date().toISOString(),
+    };
+  },
+  async remove() {
+    await delay(300);
+  },
+  async translate(id) {
+    await delay(800);
+    return {
+      id,
+      name: 'Horario laboral',
+      naturalLanguage: 'Horario laboral de 08:00 a 20:00',
+      structuredRules: {
+        conditions: [{ field: 'time', operator: 'lt', value: '08:00' }],
+        logic: 'AND',
+        onMatch: 'block',
+        confidence: 'high',
+      },
+      ruleType: 'hard',
+      action: 'block',
+      priority: 1,
+      enabled: true,
+      appliesTo: null,
+      createdById: 'admin-1',
+      createdAt: '2026-05-01T00:00:00Z',
+      updatedAt: new Date().toISOString(),
+    };
+  },
+  async toggle(id, enabled) {
+    await delay(300);
+    return {
+      id,
+      name: 'Horario laboral',
+      naturalLanguage: 'Horario laboral de 08:00 a 20:00',
+      structuredRules: null,
+      ruleType: 'hard',
+      action: 'block',
+      priority: 1,
+      enabled,
+      appliesTo: null,
+      createdById: 'admin-1',
+      createdAt: '2026-05-01T00:00:00Z',
+      updatedAt: new Date().toISOString(),
+    };
+  },
+};
+
 /* ─── Real API Implementations ────────────────────────────────── */
 
 import {
@@ -495,6 +659,7 @@ import {
   paymentApi,
   schedulingApi,
   adminApi,
+  schedulingRuleApi,
 } from './api';
 
 /* ─── Adapter Switch ──────────────────────────────────────────── */
@@ -510,6 +675,7 @@ export const services = {
   payment: useMocks ? mockPaymentService : paymentApi,
   scheduling: useMocks ? mockSchedulingService : schedulingApi,
   admin: useMocks ? mockAdminService : adminApi,
+  schedulingRule: useMocks ? mockSchedulingRuleService : schedulingRuleApi,
 };
 
 /* ─── Re-exports ───────────────────────────────────────────────── */
