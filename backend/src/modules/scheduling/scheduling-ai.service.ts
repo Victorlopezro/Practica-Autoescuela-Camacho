@@ -168,7 +168,16 @@ Formato de salida:
   "confidence": "high"
 }
 
-Campos permitidos para "field": student.licenseType, student.remainingClasses, teacher.doubleSession, vehicleType, time, duration, dayOfWeek, overlap
+Campos permitidos para "field": student.licenseType, student.remainingClasses, teacher.doubleSession, vehicleType, time, duration, dayOfWeek, date, overlap
+
+IMPORTANTE — Diferencia entre dayOfWeek y date:
+- dayOfWeek: DÍA DE LA SEMANA (0=Domingo, 1=Lunes, ..., 6=Sábado). Se usa con operadores numéricos: eq, neq, lt, gt, in. El VALOR debe ser un NÚMERO (ej: 0, 1, 5) o array de números para "in".
+  ✅ Ejemplo correcto: { "field": "dayOfWeek", "operator": "in", "value": [0, 6] } (findes de semana)
+  ❌ Ejemplo INCORRECTO: { "field": "dayOfWeek", "operator": "eq", "value": "2026-06-03" }
+- date: FECHA ESPECÍFICA en formato ISO "YYYY-MM-DD". Se usa para días festivos, puentes, fechas concretas.
+  ✅ Ejemplo correcto: { "field": "date", "operator": "eq", "value": "2026-06-03" }
+  ✅ Ejemplo correcto: { "field": "date", "operator": "gte", "value": "2026-06-03" } (desde una fecha)
+  ✅ Ejemplo correcto: { "field": "date", "operator": "lte", "value": "2026-06-05" } (hasta una fecha)
 
 Operadores permitidos: eq, neq, lt, gt, in, notIn
 
