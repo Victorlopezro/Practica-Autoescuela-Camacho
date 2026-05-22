@@ -67,7 +67,7 @@ export default function AdminSchedulingRules() {
   /* ── Handlers ── */
 
   const resetCreateForm = useCallback(() => {
-    setCreateForm({ name: '', naturalLanguage: '', ruleType: 'hard', action: 'block', priority: 100, enabled: true });
+    setCreateForm({ name: '', naturalLanguage: '', ruleType: 'availability', action: 'block', priority: 100, enabled: true });
     setCreateOpen(false);
   }, []);
 
