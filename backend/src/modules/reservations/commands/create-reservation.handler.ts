@@ -1,10 +1,12 @@
 import {
   BadRequestException,
   ConflictException,
+  Logger,
   NotFoundException,
 } from '@nestjs/common';
 import { CommandHandler, ICommandHandler, EventBus } from '@nestjs/cqrs';
 import { PrismaService } from '../../../common/services/prisma.service';
+import { RuleEngineService } from '../../scheduling/rule-engine.service';
 import { CreateReservationCommand } from './create-reservation.command';
 import { ReservationStatusChangedEvent } from '../events/reservation-status-changed.event';
 
@@ -13,6 +15,7 @@ export class CreateReservationHandler implements ICommandHandler<CreateReservati
   constructor(
     private readonly prisma: PrismaService,
     private readonly eventBus: EventBus,
+    private readonly ruleEngine: RuleEngineService,
   ) {}
 
   async execute(command: CreateReservationCommand) {
@@ -34,6 +37,39 @@ export class CreateReservationHandler implements ICommandHandler<CreateReservati
       throw new BadRequestException(
         'No tienes clases disponibles. Compra un pack para poder reservar.',
       );
+    }
+
+    // Rule engine check (feature-flag guarded)
+    if (process.env.RULES_ENGINE_ENABLED === 'true') {
+      const dateStr = startTime.toISOString().split('T')[0];
+      const timeStr = `${String(startTime.getHours()).padStart(2, '0')}:${String(startTime.getMinutes()).padStart(2, '0')}`;
+      const result = await this.ruleEngine.canCreateReservation({
+        teacherId,
+        date: dateStr,
+        startTime: timeStr,
+        duration,
+        vehicleType,
+        student: {
+          id: studentId,
+          licenseType: student.licenseType ?? undefined,
+          remainingClasses: student.remainingClasses,
+        },
+        doubleSession: duration >= 90,
+      });
+
+      if (result.blocked) {
+        throw new BadRequestException(
+          result.blockingRule?.reason ??
+            'Reserva bloqueada por reglas de scheduling.',
+        );
+      }
+
+      if (result.warnings.length > 0) {
+        Logger.log(
+          `Rule warnings for reservation: ${result.warnings.map((w) => w.ruleName).join(', ')}`,
+          CreateReservationHandler.name,
+        );
+      }
     }
 
     const endTime = new Date(startTime.getTime() + duration * 60 * 1000);

@@ -5,13 +5,17 @@ import {
   Logger,
 } from '@nestjs/common';
 import { PrismaService } from '../../common/services/prisma.service';
+import { RuleEngineService } from './rule-engine.service';
 import { endOfDay, startOfDay, parseISO } from 'date-fns';
 
 @Injectable()
 export class SchedulingService {
   private readonly logger = new Logger(SchedulingService.name);
 
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly ruleEngine: RuleEngineService,
+  ) {}
 
   async getTeacherAvailability(teacherId: string) {
     const teacher = await this.prisma.teacher.findUnique({
@@ -275,9 +279,30 @@ export class SchedulingService {
         return slotStart < resEnd && r.startTime < slotEnd;
       });
 
-      if (!overlaps) {
-        slots.push(slotStart.toISOString());
+      if (overlaps) {
+        currentMin += gridIncrement;
+        continue;
       }
+
+      // Rule engine filtering (feature-flag guarded)
+      if (process.env.RULES_ENGINE_ENABLED === 'true') {
+        const slotTimeStr = `${String(slotStart.getHours()).padStart(2, '0')}:${String(slotStart.getMinutes()).padStart(2, '0')}`;
+        const result = await this.ruleEngine.canCreateReservation({
+          teacherId,
+          date,
+          startTime: slotTimeStr,
+          duration: effectiveDuration,
+          vehicleType,
+          doubleSession: !!(doubleSession && teacher.doubleSession),
+        });
+
+        if (result.blocked) {
+          currentMin += gridIncrement;
+          continue;
+        }
+      }
+
+      slots.push(slotStart.toISOString());
 
       currentMin += gridIncrement;
     }

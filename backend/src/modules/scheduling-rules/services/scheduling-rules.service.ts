@@ -110,6 +110,13 @@ export class SchedulingRulesService {
     return rule;
   }
 
+  async findAllActive() {
+    return this.prisma.schedulingRule.findMany({
+      where: { enabled: true, deletedAt: null },
+      orderBy: { priority: 'asc' },
+    });
+  }
+
   async remove(id: string) {
     await this.findOne(id); // ensures it exists and is not soft-deleted
 
