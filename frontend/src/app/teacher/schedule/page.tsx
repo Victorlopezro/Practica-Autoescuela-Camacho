@@ -227,12 +227,12 @@ export default function TeacherSchedule() {
               if (!teacherId) return;
               const next = !doubleSession;
               setDoubleSession(next);
-              // Save doubleSession preference (handled by teacher update endpoint)
               try {
-                // For now just optimistic update — backend handles via teacher profile
+                await services.teacher.updateTeacher(teacherId, { doubleSession: next });
                 setMessage({ type: 'success', text: next ? 'Doble sesión activada' : 'Doble sesión desactivada' });
               } catch {
                 setDoubleSession(!next);
+                setMessage({ type: 'error', text: 'Error al guardar preferencia' });
               }
             }}
             className={`w-12 h-7 rounded-full transition-colors relative ${

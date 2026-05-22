@@ -10,5 +10,6 @@ export class UpdateTeacherCommand implements ICommand {
     public readonly email?: string,
     public readonly phone?: string,
     public readonly vehicleIds?: string[],
+    public readonly doubleSession?: boolean,
   ) {}
 }

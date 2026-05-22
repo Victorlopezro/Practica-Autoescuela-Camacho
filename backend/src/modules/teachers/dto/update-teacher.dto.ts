@@ -1,6 +1,7 @@
 import {
   IsString,
   IsOptional,
+  IsBoolean,
   IsArray,
   IsEmail,
   MinLength,
@@ -52,4 +53,9 @@ export class UpdateTeacherDto {
   @IsString({ each: true })
   @ArrayUnique()
   vehicleIds?: string[];
+
+  @ApiPropertyOptional({ description: 'Allow double sessions (90 min)' })
+  @IsOptional()
+  @IsBoolean()
+  doubleSession?: boolean;
 }

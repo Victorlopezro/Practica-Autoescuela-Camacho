@@ -33,6 +33,7 @@ export interface UpdateTeacherDTO {
   password?: string;
   name?: string;
   lastName?: string;
+  doubleSession?: boolean;
   email?: string;
   phone?: string;
   vehicleIds?: string[];

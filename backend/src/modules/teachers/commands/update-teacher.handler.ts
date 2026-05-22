@@ -9,7 +9,7 @@ export class UpdateTeacherHandler implements ICommandHandler<UpdateTeacherComman
   constructor(private readonly prisma: PrismaService) {}
 
   async execute(command: UpdateTeacherCommand) {
-    const { id, username, password, name, lastName, email, phone, vehicleIds } = command;
+    const { id, username, password, name, lastName, email, phone, vehicleIds, doubleSession } = command;
 
     const teacher = await this.prisma.teacher.findUnique({ where: { id } });
     if (!teacher) throw new NotFoundException('Teacher not found');
@@ -44,9 +44,10 @@ export class UpdateTeacherHandler implements ICommandHandler<UpdateTeacherComman
         });
       }
 
-      // Update Teacher name
+      // Update Teacher name + doubleSession
       const teacherData: Record<string, unknown> = {};
       if (name !== undefined) teacherData.name = name;
+      if (doubleSession !== undefined) teacherData.doubleSession = doubleSession;
 
       if (Object.keys(teacherData).length > 0) {
         await tx.teacher.update({
