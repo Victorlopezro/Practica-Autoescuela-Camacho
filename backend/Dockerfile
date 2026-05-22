@@ -30,7 +30,7 @@ COPY --from=builder /app/dist ./dist
 COPY prisma/ ./prisma/
 RUN pnpm prisma generate
 
-COPY docker/entrypoint.sh ./
+COPY entrypoint.sh ./
 RUN chmod +x entrypoint.sh
 
 EXPOSE 3000

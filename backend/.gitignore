@@ -39,8 +39,7 @@ Thumbs.db
 # TypeScript
 *.tsbuildinfo
 
-# Docker
-docker/data/
+
 
 # InsForge & AI agent skills
 .insforge
