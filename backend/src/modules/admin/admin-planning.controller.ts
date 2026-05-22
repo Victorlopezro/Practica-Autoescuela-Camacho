@@ -4,6 +4,7 @@ import { startOfDay, endOfDay, parseISO, addDays, eachDayOfInterval, format } fr
 import { Roles } from '../../common/decorators/roles.decorator';
 import { PrismaService } from '../../common/services/prisma.service';
 import { SchedulingService } from '../scheduling/scheduling.service';
+import { RuleEngineService, RuleContext } from '../scheduling/rule-engine.service';
 import type {
   TeacherAvailability,
   AvailabilityOverride,
@@ -22,6 +23,7 @@ export class AdminPlanningController {
   constructor(
     private readonly prisma: PrismaService,
     private readonly scheduling: SchedulingService,
+    private readonly ruleEngine: RuleEngineService,
   ) {}
 
   @Get()
@@ -95,13 +97,16 @@ export class AdminPlanningController {
 
     // Build day-by-day planning
     const days = eachDayOfInterval({ start: fromDate, end: toDate });
-    const dayPlannings: DayPlanningDto[] = days.map((date) =>
-      this.buildDayPlanning(
-        date,
-        availabilityData.availability,
-        availabilityData.overrides,
-        reservations,
-        studentUserMap,
+    const dayPlannings: DayPlanningDto[] = await Promise.all(
+      days.map((date) =>
+        this.buildDayPlanning(
+          teacher.id,
+          date,
+          availabilityData.availability,
+          availabilityData.overrides,
+          reservations,
+          studentUserMap,
+        ),
       ),
     );
 
@@ -113,7 +118,8 @@ export class AdminPlanningController {
     };
   }
 
-  private buildDayPlanning(
+  private async buildDayPlanning(
+    teacherId: string,
     date: Date,
     availability: TeacherAvailability[],
     overrides: AvailabilityOverride[],
@@ -129,7 +135,7 @@ export class AdminPlanningController {
       string,
       { name: string | null; lastName: string | null } | null
     >,
-  ): DayPlanningDto {
+  ): Promise<DayPlanningDto> {
     const dayOfWeek = date.getDay();
     const dateStr = format(date, 'yyyy-MM-dd');
 
@@ -176,6 +182,33 @@ export class AdminPlanningController {
         date: dateStr,
         dayOfWeek,
         isAvailable: false,
+        totalSlots: 0,
+        bookedSlots: 0,
+        freeSlots: 0,
+        reservations: [],
+      };
+    }
+
+    // Evaluate rule engine for this day/teacher
+    const ruleContext: RuleContext = {
+      teacherId,
+      date: dateStr,
+      startTime: startTime,
+      duration: 45,
+      vehicleType: 'coche-manual',
+      doubleSession: false,
+    };
+    const ruleResults = await this.ruleEngine.evaluateTeacherRules(
+      teacherId,
+      ruleContext,
+    );
+    const blockingRule = ruleResults.find((r) => r.action === 'block');
+    if (blockingRule) {
+      return {
+        date: dateStr,
+        dayOfWeek,
+        isAvailable: false,
+        reason: blockingRule.reason,
         totalSlots: 0,
         bookedSlots: 0,
         freeSlots: 0,

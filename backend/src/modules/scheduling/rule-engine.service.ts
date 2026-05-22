@@ -297,6 +297,9 @@ export class RuleEngineService implements OnModuleInit {
         // Parse startTime "HH:mm" → total minutes for comparison
         return this.timeToMinutes(context.startTime);
 
+      case 'date':
+        return context.date; // ISO date string "2026-05-23"
+
       case 'dayOfWeek':
         return new Date(context.date).getDay(); // 0=Sunday, 6=Saturday
 

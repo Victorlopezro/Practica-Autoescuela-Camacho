@@ -1,10 +1,13 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { EventBus } from '@nestjs/cqrs';
 import { ConflictException, NotFoundException } from '@nestjs/common';
+import { ConfigService } from '@nestjs/config';
 import { PrismaService } from '../../../common/services/prisma.service';
 import { CreateReservationHandler } from './create-reservation.handler';
 import { CreateReservationCommand } from './create-reservation.command';
 import { ReservationStatusChangedEvent } from '../events/reservation-status-changed.event';
+import { RuleEngineService } from '../../scheduling/rule-engine.service';
+import { SchedulingRulesService } from '../../scheduling-rules/services/scheduling-rules.service';
 
 describe('CreateReservationHandler', () => {
   let handler: CreateReservationHandler;
@@ -26,11 +29,23 @@ describe('CreateReservationHandler', () => {
     };
     eventBus = { publish: jest.fn() };
 
+    const ruleEngine = {
+      canCreateReservation: jest.fn().mockResolvedValue({
+        blocked: false,
+        blockingRule: undefined,
+        warnings: [],
+      }),
+      evaluateTeacherRules: jest.fn().mockResolvedValue([]),
+    };
+
     const module: TestingModule = await Test.createTestingModule({
       providers: [
         CreateReservationHandler,
         { provide: PrismaService, useValue: prisma },
         { provide: EventBus, useValue: eventBus },
+        { provide: RuleEngineService, useValue: ruleEngine },
+        { provide: ConfigService, useValue: { get: jest.fn().mockReturnValue('true') } },
+        { provide: SchedulingRulesService, useValue: { findAllActive: jest.fn().mockResolvedValue([]) } },
       ],
     }).compile();
 

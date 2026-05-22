@@ -30,6 +30,8 @@ COPY --from=builder /app/dist ./dist
 COPY prisma/ ./prisma/
 RUN pnpm prisma generate
 
+COPY .env.production ./.env
+
 COPY entrypoint.sh ./
 RUN chmod +x entrypoint.sh
 

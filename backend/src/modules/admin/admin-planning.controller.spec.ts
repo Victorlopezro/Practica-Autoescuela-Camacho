@@ -1,12 +1,14 @@
 import { Test, TestingModule } from '@nestjs/testing';
 import { PrismaService } from '../../common/services/prisma.service';
 import { SchedulingService } from '../scheduling/scheduling.service';
+import { RuleEngineService } from '../scheduling/rule-engine.service';
 import { AdminPlanningController } from './admin-planning.controller';
 
 describe('AdminPlanningController', () => {
   let controller: AdminPlanningController;
   let prisma: any;
   let scheduling: any;
+  let ruleEngine: any;
 
   const mockTeachers = [
     { id: 'teacher-1', name: 'John Doe', doubleSession: false },
@@ -66,11 +68,16 @@ describe('AdminPlanningController', () => {
       getTeacherAvailability: jest.fn(),
     };
 
+    ruleEngine = {
+      evaluateTeacherRules: jest.fn().mockResolvedValue([]),
+    };
+
     const module: TestingModule = await Test.createTestingModule({
       controllers: [AdminPlanningController],
       providers: [
         { provide: PrismaService, useValue: prisma },
         { provide: SchedulingService, useValue: scheduling },
+        { provide: RuleEngineService, useValue: ruleEngine },
       ],
     }).compile();
 
