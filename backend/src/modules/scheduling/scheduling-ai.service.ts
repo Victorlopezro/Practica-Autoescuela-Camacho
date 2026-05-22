@@ -28,6 +28,8 @@ export interface StructuredRule {
   logic: 'AND' | 'OR';
   onMatch: 'allow' | 'block' | 'warn';
   confidence: 'high' | 'medium' | 'low';
+  /** Nombres de profesores a los que aplica esta regla (opcional — si no está, aplica a todos) */
+  appliesTo?: { teachers: string[] };
 }
 
 export interface StructuredRuleSuccess {
@@ -181,7 +183,17 @@ IMPORTANTE — Diferencia entre dayOfWeek y date:
 
 Operadores permitidos: eq, neq, lt, gt, in, notIn
 
-Donde "in" recibe un array de valores, los demás reciben un string o número.`;
+Donde "in" recibe un array de valores, los demás reciben un string o número.
+
+RESTRICCIÓN A PROFESORES ESPECÍFICOS (opcional):
+Si el texto menciona profesores concretos (ej: "juan y luis", "los profesores juan y luis", "juan perez"), incluye el campo "appliesTo" con un array de NOMBRE COMPLETO de los profesores. Si no menciona profesores, OMITE el campo appliesTo.
+
+Ejemplos:
+- "No hay clases el 3 de junio" → NO incluir appliesTo (aplica a todos)
+- "Juan y Luis no dan clases el 3 de junio" → { "appliesTo": { "teachers": ["Juan Pérez", "Luis López"] } }
+- "El profesor Juan Pérez no trabaja los domingos" → { "appliesTo": { "teachers": ["Juan Pérez"] } }
+
+IMPORTANTE: usa el nombre COMPLETO del profesor (nombre y apellido) cuando sea posible. Si el texto solo menciona el nombre de pila (ej: "juan"), usa ese nombre solo.`;
 
     const userPrompt = `Traduce la siguiente regla a JSON estructurado:\n\n${naturalLanguage}`;
 

@@ -10,13 +10,16 @@ import {
   HttpCode,
   HttpStatus,
   NotFoundException,
+  Logger,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import type { JwtPayload } from '../../common/decorators/current-user.decorator';
+import { PrismaService } from '../../common/services/prisma.service';
 import { SchedulingRulesService } from './services/scheduling-rules.service';
 import { SchedulingAiService } from '../scheduling/scheduling-ai.service';
+import type { StructuredRule } from '../scheduling/scheduling-ai.service';
 import {
   CreateSchedulingRuleDto,
   UpdateSchedulingRuleDto,
@@ -27,9 +30,12 @@ import {
 @ApiBearerAuth()
 @Controller({ path: 'scheduling/rules', version: '1' })
 export class SchedulingRulesController {
+  private readonly logger = new Logger(SchedulingRulesController.name);
+
   constructor(
     private readonly rulesService: SchedulingRulesService,
     private readonly aiService: SchedulingAiService,
+    private readonly prisma: PrismaService,
   ) {}
 
   @Post()
@@ -88,10 +94,57 @@ export class SchedulingRulesController {
       return result;
     }
 
-    const updated = await this.rulesService.update(id, {
+    const updateData: Record<string, unknown> = {
       structuredRules: result.data as unknown as Record<string, unknown>,
-    });
+    };
+
+    // If AI extracted teacher names, resolve them to IDs
+    const appliesToTeachers = (result.data as StructuredRule).appliesTo?.teachers;
+    if (appliesToTeachers && Array.isArray(appliesToTeachers) && appliesToTeachers.length > 0) {
+      const teacherIds = await this.resolveTeacherNames(appliesToTeachers);
+      if (teacherIds.length > 0) {
+        updateData.appliesTo = { teachers: teacherIds };
+        this.logger.log(`Resolved appliesTo teachers: ${appliesToTeachers.join(', ')} → ${teacherIds.join(', ')}`);
+      }
+    }
+
+    const updated = await this.rulesService.update(id, updateData);
 
     return updated;
+  }
+
+  /**
+   * Resolve teacher names (full or partial) to their DB IDs.
+   * Tries exact match first, then partial/contains match.
+   */
+  private async resolveTeacherNames(names: string[]): Promise<string[]> {
+    const allTeachers = await this.prisma.teacher.findMany({
+      select: { id: true, name: true },
+    });
+
+    const ids = names.map((name) => {
+      const lowerName = name.toLowerCase();
+
+      // Try exact match
+      const exact = allTeachers.find((t) => t.name.toLowerCase() === lowerName);
+      if (exact) return exact.id;
+
+      // Try partial match (e.g. "juan" matches "Juan Pérez")
+      const partial = allTeachers.find((t) =>
+        t.name.toLowerCase().includes(lowerName) ||
+        lowerName.includes(t.name.toLowerCase()),
+      );
+      if (partial) return partial.id;
+
+      // Try first-name-only match (e.g. "luis" matches "Luis López")
+      const firstName = allTeachers.find((t) =>
+        t.name.toLowerCase().split(' ')[0] === lowerName,
+      );
+      if (firstName) return firstName.id;
+
+      return null;
+    }).filter((id): id is string => id !== null);
+
+    return ids;
   }
 }
