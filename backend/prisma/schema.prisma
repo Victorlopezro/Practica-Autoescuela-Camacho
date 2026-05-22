@@ -21,9 +21,10 @@ model User {
 
   refreshTokens RefreshToken[]
   auditLogs     AuditLog[]
-  createdById   String?          @map("created_by_id")
-  createdBy     User?            @relation("CreatedUsers", fields: [createdById], references: [id])
-  createdUsers  User[]           @relation("CreatedUsers")
+  createdById   String?            @map("created_by_id")
+  createdBy     User?              @relation("CreatedUsers", fields: [createdById], references: [id])
+  createdUsers  User[]             @relation("CreatedUsers")
+  schedulingRules SchedulingRule[]
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
@@ -171,6 +172,29 @@ model Reservation {
   updatedAt DateTime @updatedAt @map("updated_at")
 
   @@map("reservations")
+}
+
+// ─── Scheduling Rules ────────────────────────────────────────────────────
+
+model SchedulingRule {
+  id              String    @id @default(uuid()) @map("id")
+  name            String    @map("name")
+  naturalLanguage String    @map("natural_language")
+  structuredRules Json?     @map("structured_rules") // null before AI translates
+  ruleType        String    @map("rule_type") // availability | overlap | duration | vehicle | general
+  action          String    @default("block") @map("action") // allow | block | warn
+  priority        Int       @default(100) @map("priority")
+  enabled         Boolean   @default(true) @map("enabled")
+  appliesTo       Json?     @map("applies_to") // { teacherIds?, licenseTypes?, vehicleTypes? }
+  createdById     String    @map("created_by_id")
+  createdBy       User      @relation(fields: [createdById], references: [id])
+  deletedAt       DateTime? @map("deleted_at")
+
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+
+  @@index([enabled, deletedAt, priority])
+  @@map("scheduling_rules")
 }
 
 // ─── Payments ────────────────────────────────────────────────────────────

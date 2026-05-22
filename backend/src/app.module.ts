@@ -17,6 +17,7 @@ import { NotificationsModule } from './modules/notifications/notifications.modul
 import { AuditLogModule } from './modules/audit-log/audit-log.module';
 import { HealthModule } from './modules/health/health.module';
 import { SchedulingModule } from './modules/scheduling/scheduling.module';
+import { SchedulingRulesModule } from './modules/scheduling-rules/scheduling-rules.module';
 import { AdminModule } from './modules/admin/admin.module';
 
 @Module({
@@ -44,6 +45,7 @@ import { AdminModule } from './modules/admin/admin.module';
     AuditLogModule,
     HealthModule,
     SchedulingModule,
+    SchedulingRulesModule,
     AdminModule,
   ],
   controllers: [],

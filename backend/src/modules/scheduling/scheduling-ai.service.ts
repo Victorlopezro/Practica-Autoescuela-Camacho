@@ -17,6 +17,31 @@ export interface ValidationResult {
   riskLevel: 'none' | 'low' | 'medium' | 'high';
 }
 
+export interface StructuredCondition {
+  field: string;
+  operator: 'eq' | 'neq' | 'lt' | 'gt' | 'in' | 'notIn';
+  value: string | string[] | number;
+}
+
+export interface StructuredRule {
+  conditions: StructuredCondition[];
+  logic: 'AND' | 'OR';
+  onMatch: 'allow' | 'block' | 'warn';
+  confidence: 'high' | 'medium' | 'low';
+}
+
+export interface StructuredRuleSuccess {
+  success: true;
+  data: StructuredRule;
+}
+
+export interface StructuredRuleError {
+  success: false;
+  error: string;
+}
+
+export type StructuredRuleResult = StructuredRuleSuccess | StructuredRuleError;
+
 @Injectable()
 export class SchedulingAiService {
   private readonly logger = new Logger(SchedulingAiService.name);
@@ -127,5 +152,86 @@ Donde:
 - Doble sesión: ${context.doubleSession ? 'sí' : 'no'}
 
 ¿Es un slot válido? Responde SOLO en JSON.`;
+  }
+
+  async translateRule(naturalLanguage: string): Promise<StructuredRuleResult> {
+    const systemPrompt = `Eres un traductor de reglas de scheduling para autoescuela. Conviertes texto en español a una estructura JSON de reglas de disponibilidad. Responde SOLO con el JSON.
+
+Formato de salida:
+{
+  "conditions": [
+    { "field": "student.licenseType", "operator": "eq", "value": "A2" },
+    { "field": "time", "operator": "lt", "value": "08:00" }
+  ],
+  "logic": "AND",
+  "onMatch": "block",
+  "confidence": "high"
+}
+
+Campos permitidos para "field": student.licenseType, student.remainingClasses, teacher.doubleSession, vehicleType, time, duration, dayOfWeek, overlap
+
+Operadores permitidos: eq, neq, lt, gt, in, notIn
+
+Donde "in" recibe un array de valores, los demás reciben un string o número.`;
+
+    const userPrompt = `Traduce la siguiente regla a JSON estructurado:\n\n${naturalLanguage}`;
+
+    try {
+      const response = await fetch(
+        'https://openrouter.ai/api/v1/chat/completions',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${this.apiKey}`,
+            'HTTP-Referer': 'https://autoescuela-camacho.app',
+          },
+          body: JSON.stringify({
+            model: 'openai/gpt-4o-mini',
+            messages: [
+              { role: 'system', content: systemPrompt },
+              { role: 'user', content: userPrompt },
+            ],
+            temperature: 0.1,
+            max_tokens: 500,
+          }),
+        },
+      );
+
+      if (!response.ok) {
+        const text = await response.text();
+        this.logger.warn(`AI translation failed: ${response.status} ${text}`);
+        return {
+          success: false,
+          error: `Error del servicio de IA: ${response.status}`,
+        };
+      }
+
+      const data = await response.json();
+      const content = data.choices?.[0]?.message?.content ?? '';
+
+      const cleaned = content
+        .replace(/```json?\s*/gi, '')
+        .replace(/```/g, '')
+        .trim();
+
+      const parsed = JSON.parse(cleaned) as StructuredRule;
+
+      // Basic structure validation
+      if (!Array.isArray(parsed.conditions)) {
+        return {
+          success: false,
+          error: 'La respuesta de IA no contiene un array de conditions válido',
+        };
+      }
+
+      return { success: true, data: parsed };
+    } catch (error) {
+      this.logger.error(`AI translation error: ${error}`);
+      return {
+        success: false,
+        error: 'Error al traducir la regla con IA. Inténtalo de nuevo.',
+      };
+    }
   }
 }
