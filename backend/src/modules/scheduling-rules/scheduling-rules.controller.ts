@@ -25,7 +25,7 @@ import {
 
 @ApiTags('Scheduling Rules')
 @ApiBearerAuth()
-@Controller({ path: 'v1/scheduling/rules', version: '1' })
+@Controller({ path: 'scheduling/rules', version: '1' })
 export class SchedulingRulesController {
   constructor(
     private readonly rulesService: SchedulingRulesService,
