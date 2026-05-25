@@ -6,12 +6,14 @@ import { DataView } from '@/components/DataView';
 import { Modal } from '@/components/shared/Modal';
 import { useData } from '@/hooks/useData';
 import { services } from '@/services';
+import { LICENSE_TYPES } from '@/lib/constants';
 import type {
   SchedulingRuleDto,
   CreateSchedulingRuleDto,
   UpdateSchedulingRuleDto,
   PaginatedRulesDto,
   RuleType,
+  AppliesTo,
 } from '@/services/interfaces';
 
 /* ─── Helpers ─────────────────────────────────────────────────── */
@@ -32,10 +34,175 @@ const RULE_TYPE_COLORS: Record<string, string> = {
   general: 'bg-surface-container-high text-on-surface-variant',
 };
 
+const VEHICLE_TYPES = [
+  { value: 'coche-manual', label: 'Coche Manual' },
+  { value: 'coche-automatico', label: 'Coche Automático' },
+  { value: 'moto-manual', label: 'Moto Manual' },
+  { value: 'camion', label: 'Camión' },
+  { value: 'autobus', label: 'Autobús' },
+] as const;
+
 const ruleTypeBadge = (type: string) => RULE_TYPE_COLORS[type] ?? 'bg-surface-container-high text-on-surface-variant';
 const ruleTypeLabel = (type: string) => RULE_TYPE_LABELS[type] ?? type;
 
-const actionLabel = (action: string) => (action === 'block' ? 'Bloquear' : 'Advertir');
+const actionLabel = (action: string) => (action === 'block' ? 'Bloquear' : action === 'warn' ? 'Advertir' : 'Permitir');
+
+const SELECTOR_LABELS: Record<string, string> = {
+  teachers: 'Profesores',
+  licenseTypes: 'Tipos de licencia',
+  vehicleTypes: 'Tipos de vehículo',
+};
+
+/** Human-readable summary of appliesTo for the rule card */
+function appliesToSummary(a: Record<string, unknown> | null, teacherNames: Map<string, string>): string | null {
+  if (!a) return null;
+  const parts: string[] = [];
+  const teachers = a.teachers as string[] | undefined;
+  const licenseTypes = a.licenseTypes as string[] | undefined;
+  const vehicleTypes = a.vehicleTypes as string[] | undefined;
+  if (teachers && teachers.length > 0) {
+    const names = teachers.map((id) => teacherNames.get(id) ?? id).join(', ');
+    parts.push(`Profesores: ${names}`);
+  }
+  if (licenseTypes && licenseTypes.length > 0) {
+    parts.push(`Licencias: ${licenseTypes.join(', ')}`);
+  }
+  if (vehicleTypes && vehicleTypes.length > 0) {
+    parts.push(`Vehículos: ${vehicleTypes.join(', ')}`);
+  }
+  return parts.length > 0 ? parts.join(' · ') : null;
+}
+
+/* ─── Shared appliesTo widget ──────────────────────────────────── */
+
+function AppliesToSection({
+  value,
+  onChange,
+  teachers,
+}: {
+  value: AppliesTo | undefined;
+  onChange: (a: AppliesTo | undefined) => void;
+  teachers: Array<{ id: string; name: string }>;
+}) {
+  const selectedTeachers = value?.teachers ?? [];
+  const selectedLicenses = value?.licenseTypes ?? [];
+  const selectedVehicles = value?.vehicleTypes ?? [];
+
+  const toggleArray = (arr: string[], item: string) =>
+    arr.includes(item) ? arr.filter((x) => x !== item) : [...arr, item];
+
+  const build = (partial: Partial<AppliesTo>): AppliesTo | undefined => {
+    const merged = {
+      teachers: selectedTeachers,
+      licenseTypes: selectedLicenses,
+      vehicleTypes: selectedVehicles,
+      ...partial,
+    };
+    // If all empty → undefined (applies to everyone)
+    if (
+      merged.teachers.length === 0 &&
+      merged.licenseTypes.length === 0 &&
+      merged.vehicleTypes.length === 0
+    ) {
+      return undefined;
+    }
+    // Remove empty arrays
+    const result: AppliesTo = {};
+    if (merged.teachers.length > 0) result.teachers = merged.teachers;
+    if (merged.licenseTypes.length > 0) result.licenseTypes = merged.licenseTypes;
+    if (merged.vehicleTypes.length > 0) result.vehicleTypes = merged.vehicleTypes;
+    return result;
+  };
+
+  return (
+    <fieldset className="space-y-4 border border-outline-variant/30 rounded-xl p-4">
+      <legend className="text-sm font-medium text-on-surface px-1">
+        Ámbito de aplicación
+      </legend>
+      <p className="text-xs text-on-surface-variant -mt-2">
+        Si no seleccionas nada, la regla aplica a todos.
+      </p>
+
+      {/* Teachers */}
+      <div>
+        <label className="block text-xs font-medium text-on-surface-variant mb-2">
+          {SELECTOR_LABELS.teachers}
+        </label>
+        <div className="max-h-40 overflow-y-auto space-y-1.5">
+          {teachers.length === 0 && (
+            <p className="text-xs text-on-surface-variant/60 italic">Cargando profesores…</p>
+          )}
+          {teachers.map((t) => (
+            <label
+              key={t.id}
+              className="flex items-center gap-2 cursor-pointer hover:bg-surface-container-low rounded px-1 py-0.5"
+            >
+              <input
+                type="checkbox"
+                checked={selectedTeachers.includes(t.id)}
+                onChange={() =>
+                  onChange(build({ teachers: toggleArray(selectedTeachers, t.id) }))
+                }
+                className="rounded border-outline-variant accent-primary"
+              />
+              <span className="text-sm text-on-surface">{t.name}</span>
+            </label>
+          ))}
+        </div>
+      </div>
+
+      {/* License types */}
+      <div>
+        <label className="block text-xs font-medium text-on-surface-variant mb-2">
+          {SELECTOR_LABELS.licenseTypes}
+        </label>
+        <div className="flex flex-wrap gap-2">
+          {Object.entries(LICENSE_TYPES).map(([key, lt]) => (
+            <label
+              key={key}
+              className="flex items-center gap-1.5 cursor-pointer hover:bg-surface-container-low rounded px-2 py-1"
+            >
+              <input
+                type="checkbox"
+                checked={selectedLicenses.includes(key)}
+                onChange={() =>
+                  onChange(build({ licenseTypes: toggleArray(selectedLicenses, key) }))
+                }
+                className="rounded border-outline-variant accent-primary"
+              />
+              <span className="text-xs text-on-surface">{lt.label}</span>
+            </label>
+          ))}
+        </div>
+      </div>
+
+      {/* Vehicle types */}
+      <div>
+        <label className="block text-xs font-medium text-on-surface-variant mb-2">
+          {SELECTOR_LABELS.vehicleTypes}
+        </label>
+        <div className="flex flex-wrap gap-2">
+          {VEHICLE_TYPES.map((vt) => (
+            <label
+              key={vt.value}
+              className="flex items-center gap-1.5 cursor-pointer hover:bg-surface-container-low rounded px-2 py-1"
+            >
+              <input
+                type="checkbox"
+                checked={selectedVehicles.includes(vt.value)}
+                onChange={() =>
+                  onChange(build({ vehicleTypes: toggleArray(selectedVehicles, vt.value) }))
+                }
+                className="rounded border-outline-variant accent-primary"
+              />
+              <span className="text-xs text-on-surface">{vt.label}</span>
+            </label>
+          ))}
+        </div>
+      </div>
+    </fieldset>
+  );
+}
 
 /* ─── Page ─────────────────────────────────────────────────────── */
 
@@ -44,6 +211,13 @@ export default function AdminSchedulingRules() {
     () => services.schedulingRule.findAll({ page: 1, limit: 100 }),
     [],
   );
+
+  const { data: teachersData } = useData(
+    () => services.teacher.list(),
+    [],
+  );
+
+  const teachers = useMemo(() => teachersData ?? [], [teachersData]);
 
   /* Modals state */
   const [createOpen, setCreateOpen] = useState(false);
@@ -72,7 +246,15 @@ export default function AdminSchedulingRules() {
   }, []);
 
   const openEdit = useCallback((rule: SchedulingRuleDto) => {
-    setEditForm({ name: rule.name, ruleType: rule.ruleType, action: rule.action, priority: rule.priority, enabled: rule.enabled });
+    const appliesTo = rule.appliesTo as AppliesTo | null;
+    setEditForm({
+      name: rule.name,
+      ruleType: rule.ruleType,
+      action: rule.action,
+      priority: rule.priority,
+      enabled: rule.enabled,
+      appliesTo: appliesTo ?? undefined,
+    });
     setEditRule(rule);
   }, []);
 
@@ -124,6 +306,11 @@ export default function AdminSchedulingRules() {
 
   /* ── Derived data ── */
   const rules = useMemo(() => (data ? data.data : []), [data]);
+
+  const teacherNameMap = useMemo(
+    () => new Map(teachers.map((t) => [t.id, t.name])),
+    [teachers],
+  );
 
   return (
     <DataView data={data} isLoading={isLoading} error={error} onRetry={refresh}>
@@ -190,6 +377,11 @@ export default function AdminSchedulingRules() {
                           </span>
                         )}
                       </div>
+                      {appliesToSummary(rule.appliesTo, teacherNameMap) && (
+                        <p className="text-label-caps text-tertiary mt-1 truncate">
+                          {appliesToSummary(rule.appliesTo, teacherNameMap)}
+                        </p>
+                      )}
                     </div>
 
                     {/* Right: toggle + actions */}
@@ -332,6 +524,12 @@ export default function AdminSchedulingRules() {
                 <p className="text-xs text-on-surface-variant mt-1">A menor número, mayor prioridad.</p>
               </div>
 
+              <AppliesToSection
+                value={createForm.appliesTo}
+                onChange={(a) => setCreateForm((f) => ({ ...f, appliesTo: a }))}
+                teachers={teachers}
+              />
+
               <div className="flex justify-end gap-2 pt-2">
                 <button
                   type="button"
@@ -421,6 +619,12 @@ export default function AdminSchedulingRules() {
                     className="w-full rounded-lg border border-outline-variant/30 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                   />
                 </div>
+
+                <AppliesToSection
+                  value={editForm.appliesTo}
+                  onChange={(a) => setEditForm((f) => ({ ...f, appliesTo: a }))}
+                  teachers={teachers}
+                />
 
                 <div className="flex justify-end gap-2 pt-2">
                   <button

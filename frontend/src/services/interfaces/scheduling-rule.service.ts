@@ -19,6 +19,15 @@ export interface SchedulingRuleDto {
   updatedAt: string;
 }
 
+export interface AppliesTo {
+  /** Teacher IDs that this rule applies to (empty = all teachers) */
+  teachers?: string[];
+  /** License types this rule applies to (empty = all licenses) */
+  licenseTypes?: string[];
+  /** Vehicle types this rule applies to (empty = all vehicles) */
+  vehicleTypes?: string[];
+}
+
 export interface CreateSchedulingRuleDto {
   name: string;
   naturalLanguage: string;
@@ -26,6 +35,7 @@ export interface CreateSchedulingRuleDto {
   action?: RuleAction;
   priority?: number;
   enabled?: boolean;
+  appliesTo?: AppliesTo;
 }
 
 export interface UpdateSchedulingRuleDto {
@@ -34,6 +44,7 @@ export interface UpdateSchedulingRuleDto {
   action?: RuleAction;
   priority?: number;
   enabled?: boolean;
+  appliesTo?: AppliesTo;
 }
 
 export interface SchedulingRuleQueryDto {

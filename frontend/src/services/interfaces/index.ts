@@ -15,4 +15,5 @@ export type {
   PaginatedRulesDto,
   RuleType,
   RULE_TYPES,
+  AppliesTo,
 } from './scheduling-rule.service';
