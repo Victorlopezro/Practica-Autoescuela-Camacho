@@ -32,7 +32,7 @@ export interface Admin extends User {
   permissions: AdminPermission[];
 }
 
-export type LicenseType = 'B' | 'A' | 'C' | 'D' | 'AM';
+export type LicenseType = 'AM' | 'A1' | 'A2' | 'B' | 'B-automatico';
 
 export interface StudentProgress {
   theory: number;
@@ -84,7 +84,7 @@ export interface Vehicle {
   status: VehicleStatus;
 }
 
-export type VehicleType = 'car' | 'motorcycle' | 'truck' | 'bus';
+export type VehicleType = 'coche-manual' | 'coche-automatico' | 'moto-pista' | 'moto-circulacion';
 
 export type VehicleStatus = 'available' | 'in_use' | 'maintenance';
 

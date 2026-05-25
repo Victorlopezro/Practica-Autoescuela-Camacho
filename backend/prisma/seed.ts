@@ -71,7 +71,7 @@ async function main() {
     },
     {
       user: { id: 'u-stud-0002', username: 'lfernandez', name: 'Laura', lastName: 'Fernández', email: 'laura.fernandez@email.com', phone: '600333002' },
-      student: { id: 's-0002', teacherId: 't-0002', licenseType: 'B', remainingClasses: 5, balanceHistory: [{ amount: 7500, reason: 'Pago 5 clases', timestamp: '2026-05-02T11:00:00Z', adjustedBy: 'admin' }] },
+      student: { id: 's-0002', teacherId: 't-0002', licenseType: 'B-automatico', remainingClasses: 5, balanceHistory: [{ amount: 7500, reason: 'Pago 5 clases', timestamp: '2026-05-02T11:00:00Z', adjustedBy: 'admin' }] },
     },
     {
       user: { id: 'u-stud-0003', username: 'mmartinez', name: 'Mario', lastName: 'Martínez', email: 'mario.martinez@email.com', phone: '600333003' },
@@ -83,11 +83,11 @@ async function main() {
     },
     {
       user: { id: 'u-stud-0005', username: 'dtorres', name: 'Diego', lastName: 'Torres', email: 'diego.torres@email.com', phone: '600333005' },
-      student: { id: 's-0005', teacherId: 't-0004', licenseType: 'A1', remainingClasses: 8, balanceHistory: [{ amount: 12000, reason: 'Pago 8 clases', timestamp: '2026-05-08T14:00:00Z', adjustedBy: 'admin' }] },
+      student: { id: 's-0005', teacherId: 't-0004', licenseType: 'AM', remainingClasses: 8, balanceHistory: [{ amount: 12000, reason: 'Pago 8 clases', timestamp: '2026-05-08T14:00:00Z', adjustedBy: 'admin' }] },
     },
     {
       user: { id: 'u-stud-0006', username: 'cruz', name: 'Carmen', lastName: 'Ruiz', email: 'carmen.ruiz@email.com', phone: '600333006' },
-      student: { id: 's-0006', teacherId: 't-0002', licenseType: 'B', remainingClasses: 15, balanceHistory: [{ amount: 22500, reason: 'Pago 15 clases', timestamp: '2026-05-03T12:00:00Z', adjustedBy: 'admin' }] },
+      student: { id: 's-0006', teacherId: 't-0002', licenseType: 'A1', remainingClasses: 15, balanceHistory: [{ amount: 22500, reason: 'Pago 15 clases', timestamp: '2026-05-03T12:00:00Z', adjustedBy: 'admin' }] },
     },
   ];
 

@@ -39,7 +39,7 @@ export const mockTeachers: Teacher[] = [
     lastName: 'Martínez',
     role: 'teacher',
     phone: '612345680',
-    licenseTypes: ['B', 'A'],
+    licenseTypes: ['B', 'A2'],
     availability: [
       { dayOfWeek: 1, startTime: '09:00', endTime: '14:00' },
       { dayOfWeek: 2, startTime: '09:00', endTime: '14:00' },
@@ -93,7 +93,7 @@ export const mockVehicles: Vehicle[] = [
     brand: 'Toyota',
     model: 'Corolla',
     year: 2022,
-    type: 'car',
+    type: 'coche-manual',
     status: 'available',
   },
   {
@@ -102,7 +102,7 @@ export const mockVehicles: Vehicle[] = [
     brand: 'Citroën',
     model: 'C3',
     year: 2021,
-    type: 'car',
+    type: 'coche-manual',
     status: 'in_use',
   },
   {
@@ -111,7 +111,7 @@ export const mockVehicles: Vehicle[] = [
     brand: 'Yamaha',
     model: 'MT-07',
     year: 2023,
-    type: 'motorcycle',
+    type: 'moto-pista',
     status: 'available',
   },
 ];

@@ -95,8 +95,18 @@ export class SchedulingRulesController {
       structuredRules: result.data,
     };
 
-    // If AI extracted teacher names, resolve them to IDs
-    const aiResponse = result.data as { appliesTo?: { teachers?: string[] } };
+    // If AI extracted appliesTo fields, process them
+    const aiResponse = result.data as {
+      appliesTo?: {
+        teachers?: string[];
+        licenseTypes?: string[];
+        vehicleTypes?: string[];
+      };
+    };
+
+    const appliesToBuild: Record<string, string[]> = {};
+
+    // Resolve teacher names to IDs
     const appliesToTeachers = aiResponse.appliesTo?.teachers;
     if (
       appliesToTeachers &&
@@ -105,11 +115,34 @@ export class SchedulingRulesController {
     ) {
       const teacherIds = await this.resolveTeacherNames(appliesToTeachers);
       if (teacherIds.length > 0) {
-        updateData.appliesTo = { teachers: teacherIds };
+        appliesToBuild.teachers = teacherIds;
         this.logger.log(
           `Resolved appliesTo teachers: ${appliesToTeachers.join(', ')} → ${teacherIds.join(', ')}`,
         );
       }
+    }
+
+    // Pass through licenseTypes and vehicleTypes directly (already string values)
+    const licenseTypes = aiResponse.appliesTo?.licenseTypes;
+    if (
+      licenseTypes &&
+      Array.isArray(licenseTypes) &&
+      licenseTypes.length > 0
+    ) {
+      appliesToBuild.licenseTypes = licenseTypes;
+    }
+
+    const vehicleTypes = aiResponse.appliesTo?.vehicleTypes;
+    if (
+      vehicleTypes &&
+      Array.isArray(vehicleTypes) &&
+      vehicleTypes.length > 0
+    ) {
+      appliesToBuild.vehicleTypes = vehicleTypes;
+    }
+
+    if (Object.keys(appliesToBuild).length > 0) {
+      updateData.appliesTo = appliesToBuild;
     }
 
     const updated = await this.rulesService.update(id, updateData);

@@ -59,11 +59,11 @@ export const DAYS_OF_WEEK = [
 ] as const;
 
 export const LICENSE_TYPES = {
-  B: { label: 'Coche (B)', description: 'Vehículos de categoría B' },
-  A: { label: 'Motocicleta (A)', description: 'Motocicletas' },
-  C: { label: 'Camión (C)', description: 'Vehículos de carga' },
-  D: { label: 'Autobús (D)', description: 'Vehículos de transporte' },
   AM: { label: 'Ciclomotor (AM)', description: 'Ciclomotores' },
+  A1: { label: 'Moto ligera (A1)', description: 'Motocicletas hasta 125cc' },
+  A2: { label: 'Moto (A2)', description: 'Motocicletas de potencia limitada' },
+  B: { label: 'Coche manual (B)', description: 'Turismos con cambio manual' },
+  'B-automatico': { label: 'Coche automático (B)', description: 'Turismos con cambio automático' },
 } as const;
 
 export const BOOKING_STATUSES = {

@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { services } from '@/services';
 import type { TeacherDto, StudentWithUserDto } from '@/services/interfaces';
 
-const LICENSE_TYPES = ['B', 'A1', 'A2', 'AM', 'C1', 'C', 'D'] as const;
+const LICENSE_TYPES = ['AM', 'A1', 'A2', 'B', 'B-automatico'] as const;
 
 interface FormData {
   name: string;

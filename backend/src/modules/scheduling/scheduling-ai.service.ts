@@ -28,8 +28,18 @@ export interface StructuredRule {
   logic: 'AND' | 'OR';
   onMatch: 'allow' | 'block' | 'warn';
   confidence: 'high' | 'medium' | 'low';
-  /** Nombres de profesores a los que aplica esta regla (opcional — si no está, aplica a todos) */
-  appliesTo?: { teachers: string[] };
+  /**
+   * Ámbito de aplicación de la regla.
+   * Si no está o está vacío, la regla aplica a todos.
+   */
+  appliesTo?: {
+    /** Nombres de profesores a los que aplica (opcional) */
+    teachers?: string[];
+    /** Tipos de licencia a los que aplica, ej: ['A2', 'B'] (opcional) */
+    licenseTypes?: string[];
+    /** Tipos de vehículo a los que aplica, ej: ['coche-manual', 'moto-pista'] (opcional) */
+    vehicleTypes?: string[];
+  };
 }
 
 export interface StructuredRuleSuccess {
@@ -183,13 +193,27 @@ Operadores permitidos: eq, neq, lt, gt, in, notIn
 
 Donde "in" recibe un array de valores, los demás reciben un string o número.
 
-RESTRICCIÓN A PROFESORES ESPECÍFICOS (opcional):
-Si el texto menciona profesores concretos (ej: "juan y luis", "los profesores juan y luis", "juan perez"), incluye el campo "appliesTo" con un array de NOMBRE COMPLETO de los profesores. Si no menciona profesores, OMITE el campo appliesTo.
+ÁMBITO DE APLICACIÓN (appliesTo — opcional):
+El campo "appliesTo" define a quién aplica la regla. Puede contener:
+- teachers: array de NOMBRES de profesores (ej: ["Juan Pérez", "María López"])
+- licenseTypes: array de tipos de carnet (ej: ["A2", "B", "AM", "A1", "B-automatico"])
+- vehicleTypes: array de tipos de vehículo (ej: ["coche-manual", "coche-automatico", "moto-pista", "moto-circulacion"])
+
+REGLAS PARA appliesTo:
+1. Si el texto NO menciona profesores, tipos de carnet, o vehículos específicos → OMITE appliesTo (aplica a todos)
+2. Si menciona profesores → incluye teachers con los nombres completos
+3. Si menciona tipos de carnet (ej: "carnet A2", "permiso B", "alumnos del B", "los de la A2") → incluye licenseTypes
+4. Si menciona tipos de vehículo (ej: "motos", "coches manuales", "automáticos") → incluye vehicleTypes
+5. Valores válidos para licenseTypes: AM, A1, A2, B, B-automatico
+6. Valores válidos para vehicleTypes: coche-manual, coche-automatico, moto-pista, moto-circulacion
 
 Ejemplos:
-- "No hay clases el 3 de junio" → NO incluir appliesTo (aplica a todos)
+- "No hay clases el 3 de junio" → SIN appliesTo
 - "Juan y Luis no dan clases el 3 de junio" → { "appliesTo": { "teachers": ["Juan Pérez", "Luis López"] } }
-- "El profesor Juan Pérez no trabaja los domingos" → { "appliesTo": { "teachers": ["Juan Pérez"] } }
+- "Los alumnos del carnet A2 no pueden reservar los sábados" → { "appliesTo": { "licenseTypes": ["A2"] } }
+- "Las motos no pueden dar clases dobles" → { "appliesTo": { "vehicleTypes": ["moto-pista", "moto-circulacion"] } }
+- "María no da clases de coche automático" → { "appliesTo": { "teachers": ["María López"], "vehicleTypes": ["coche-automatico"] } }
+- "Los del carnet B automático solo con profesores con experiencia" → { "appliesTo": { "licenseTypes": ["B-automatico"] } }
 
 IMPORTANTE: usa el nombre COMPLETO del profesor (nombre y apellido) cuando sea posible. Si el texto solo menciona el nombre de pila (ej: "juan"), usa ese nombre solo.`;
 
