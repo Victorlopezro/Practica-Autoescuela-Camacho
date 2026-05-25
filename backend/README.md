@@ -47,9 +47,11 @@ cp .env.example .env
 | `STRIPE_WEBHOOK_SECRET` | Stripe webhook secret | `whsec_...` |
 | `WHATSAPP_PHONE_ID` | Meta WhatsApp phone ID | |
 | `WHATSAPP_TOKEN` | Meta WhatsApp token | |
-| `PORT` | Puerto del servidor | `3000` |
+| `PORT` | Puerto del servidor | `8080` |
 | `NODE_ENV` | Entorno | `development` / `production` |
 | `CORS_ORIGIN` | Orígenes CORS permitidos | `http://localhost:5173` |
+| `BOOKING_DEADLINE_HOUR` | Hora límite (UTC) para reservar día siguiente | `18` |
+| `RULES_ENGINE_ENABLED` | Habilita el motor de reglas | `true` |
 
 ## Requisitos
 
@@ -152,8 +154,58 @@ Crea un usuario admin por defecto:
 
 ## Deploy (InsForge)
 
-1. Install CLI: `npm install -g @insforge/cli`
-2. Login: `npx @insforge/cli login`
-3. Link: `npx @insforge/cli link`
-4. Set env vars (DATABASE_URL, JWT secrets, etc.)
-5. Deploy: `npx @insforge/cli deploy`
+La API se deploya como **Compute Service** en Fly.io via InsForge CLI.
+
+### Prerrequisitos
+
+- CLI instalado: `npm install -g @insforge/cli`
+- Login: `npx @insforge/cli login`
+- Variables de entorno en `.env.production` (se copia al container como `.env`)
+
+### Deploy (source build)
+
+```bash
+cd backend
+npx @insforge/cli compute deploy . --name autoescuela-api
+```
+
+Esto buildcea la imagen vía Depot (build remoto en Fly.io) y crea/actualiza el servicio.
+
+### Deploy (modo imagen — workaround si source mode falla)
+
+A veces el source mode falla con _Internal server error_ tras build exitoso. Workaround:
+
+```bash
+# El build previo ya subió la imagen — deployala por nombre:
+npx @insforge/cli compute deploy --image <image-url> --name autoescuela-api
+```
+
+La URL de imagen aparece en el log del source build (ej: `registry.fly.io/autoescuela-api-...:cli-...`).
+
+### Notas importantes
+
+| Issue | Solución |
+|-------|----------|
+| El container DEBE escuchar en **puerto 8080** | `PORT=8080` en `.env.production` e `insforge.json` |
+| `EXPOSE` en Dockerfile es informativo, pero mantenerlo en 8080 para consistencia | `EXPOSE 8080` |
+| `prisma migrate deploy` en entrypoint **cuelga el container** | No hay tabla `_prisma_migrations` — migraciones se aplican manualmente vía SQL |
+| Health check configurado en `/v1/health` | Verificar con `curl https://<url>/v1/health` |
+
+### Migraciones
+
+Todas las migraciones se aplican **manualmente** contra Supabase PostgreSQL:
+
+```sql
+-- Ejecutar en Supabase SQL Editor o vía `supabase_execute_sql`
+INSERT INTO scheduling_rules (name, description, field, operator, value, action, priority, enabled)
+VALUES ('Deadline de reserva', 'Bloquea reservas después de las 18:00 del día anterior',
+        'isDeadlinePassed', 'eq', 'true', 'block', 1, true);
+```
+
+No ejecutar `prisma migrate deploy` — no existe el esquema de Prisma Migrate en esta DB.
+
+### Endpoint
+
+```
+https://autoescuela-api-efbb4d66-68d2-4abf-9578-7b9b3ae2900a.fly.dev
+```
