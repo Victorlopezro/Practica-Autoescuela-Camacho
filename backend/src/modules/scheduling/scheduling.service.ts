@@ -34,7 +34,12 @@ export class SchedulingService {
       }),
     ]);
 
-    return { teacherId, doubleSession: teacher.doubleSession, availability, overrides };
+    return {
+      teacherId,
+      doubleSession: teacher.doubleSession,
+      availability,
+      overrides,
+    };
   }
 
   async setAvailability(
@@ -165,7 +170,11 @@ export class SchedulingService {
     vehicleType: string,
     doubleSession?: boolean,
   ) {
-    const results: Array<{ date: string; slots: string[]; slotDuration: number }> = [];
+    const results: Array<{
+      date: string;
+      slots: string[];
+      slotDuration: number;
+    }> = [];
     const start = parseISO(startDate);
 
     for (let i = 0; i < days; i++) {
@@ -225,7 +234,12 @@ export class SchedulingService {
 
     // If override marks as unavailable, no slots
     if (override && !override.isAvailable) {
-      return { date, slots: [], slotDuration, doubleSession: teacher.doubleSession };
+      return {
+        date,
+        slots: [],
+        slotDuration,
+        doubleSession: teacher.doubleSession,
+      };
     }
 
     // Determine effective time range
@@ -239,7 +253,12 @@ export class SchedulingService {
       startTime = baseAvailability.startTime;
       endTime = baseAvailability.endTime;
     } else {
-      return { date, slots: [], slotDuration, doubleSession: teacher.doubleSession };
+      return {
+        date,
+        slots: [],
+        slotDuration,
+        doubleSession: teacher.doubleSession,
+      };
     }
 
     // Get existing reservations for conflict check
@@ -257,9 +276,8 @@ export class SchedulingService {
 
     // Generate slots in 45-minute grid
     const slots: string[] = [];
-    const effectiveDuration = doubleSession && teacher.doubleSession
-      ? slotDuration * 2
-      : slotDuration;
+    const effectiveDuration =
+      doubleSession && teacher.doubleSession ? slotDuration * 2 : slotDuration;
 
     const [startH, startM] = startTime.split(':').map(Number);
     const [endH, endM] = endTime.split(':').map(Number);
@@ -271,7 +289,9 @@ export class SchedulingService {
     while (currentMin + effectiveDuration <= endMin) {
       const slotStart = new Date(dateObj);
       slotStart.setHours(0, currentMin, 0, 0);
-      const slotEnd = new Date(slotStart.getTime() + effectiveDuration * 60 * 1000);
+      const slotEnd = new Date(
+        slotStart.getTime() + effectiveDuration * 60 * 1000,
+      );
 
       // Check overlap with existing reservations
       const overlaps = existingReservations.some((r) => {

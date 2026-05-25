@@ -1,4 +1,10 @@
-import { IsString, IsDateString, IsInt, IsOptional, Min } from 'class-validator';
+import {
+  IsString,
+  IsDateString,
+  IsInt,
+  IsOptional,
+  Min,
+} from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class ValidateSlotDto {
@@ -23,7 +29,10 @@ export class ValidateSlotDto {
   @Min(1)
   duration!: number;
 
-  @ApiProperty({ description: 'Whether this is a double session', required: false })
+  @ApiProperty({
+    description: 'Whether this is a double session',
+    required: false,
+  })
   @IsOptional()
   @IsString()
   doubleSession?: string; // "true" | "false" as string from query params

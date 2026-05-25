@@ -12,7 +12,10 @@ export class SetOverrideDto {
   @IsDateString()
   date!: string;
 
-  @ApiProperty({ description: 'Whether the teacher is available', default: false })
+  @ApiProperty({
+    description: 'Whether the teacher is available',
+    default: false,
+  })
   @IsBoolean()
   isAvailable!: boolean;
 

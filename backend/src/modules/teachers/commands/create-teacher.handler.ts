@@ -9,7 +9,8 @@ export class CreateTeacherHandler implements ICommandHandler<CreateTeacherComman
   constructor(private readonly prisma: PrismaService) {}
 
   async execute(command: CreateTeacherCommand) {
-    const { username, password, name, lastName, email, phone, vehicleIds } = command;
+    const { username, password, name, lastName, email, phone, vehicleIds } =
+      command;
 
     // Check duplicate username
     const existing = await this.prisma.user.findUnique({ where: { username } });
@@ -46,8 +47,14 @@ export class CreateTeacherHandler implements ICommandHandler<CreateTeacherComman
           teacherId: teacher.id,
         },
         select: {
-          id: true, username: true, name: true, lastName: true,
-          email: true, phone: true, role: true, createdAt: true,
+          id: true,
+          username: true,
+          name: true,
+          lastName: true,
+          email: true,
+          phone: true,
+          role: true,
+          createdAt: true,
         },
       });
 

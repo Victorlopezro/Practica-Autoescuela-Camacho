@@ -54,7 +54,9 @@ describe('DeleteTeacherHandler', () => {
           delete: jest.fn().mockResolvedValue(mockTeacher),
         },
         user: {
-          findFirst: jest.fn().mockResolvedValue({ id: 'user-1', teacherId: 'teacher-1' }),
+          findFirst: jest
+            .fn()
+            .mockResolvedValue({ id: 'user-1', teacherId: 'teacher-1' }),
           delete: jest.fn().mockResolvedValue({}),
         },
       };

@@ -16,11 +16,7 @@ import type { JwtPayload } from '../../common/decorators/current-user.decorator'
 import { PrismaService } from '../../common/services/prisma.service';
 import { SchedulingService } from './scheduling.service';
 import { SchedulingAiService, ValidationResult } from './scheduling-ai.service';
-import {
-  SetAvailabilityDto,
-  SetOverrideDto,
-  ValidateSlotDto,
-} from './dto';
+import { SetAvailabilityDto, SetOverrideDto, ValidateSlotDto } from './dto';
 
 @ApiTags('Scheduling')
 @ApiBearerAuth()

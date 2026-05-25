@@ -9,7 +9,17 @@ export class UpdateTeacherHandler implements ICommandHandler<UpdateTeacherComman
   constructor(private readonly prisma: PrismaService) {}
 
   async execute(command: UpdateTeacherCommand) {
-    const { id, username, password, name, lastName, email, phone, vehicleIds, doubleSession } = command;
+    const {
+      id,
+      username,
+      password,
+      name,
+      lastName,
+      email,
+      phone,
+      vehicleIds,
+      doubleSession,
+    } = command;
 
     const teacher = await this.prisma.teacher.findUnique({ where: { id } });
     if (!teacher) throw new NotFoundException('Teacher not found');
@@ -31,7 +41,8 @@ export class UpdateTeacherHandler implements ICommandHandler<UpdateTeacherComman
       // Update User fields
       const userData: Record<string, unknown> = {};
       if (username !== undefined) userData.username = username;
-      if (password !== undefined) userData.password = await argon2.hash(password);
+      if (password !== undefined)
+        userData.password = await argon2.hash(password);
       if (name !== undefined) userData.name = name;
       if (lastName !== undefined) userData.lastName = lastName;
       if (email !== undefined) userData.email = email;
@@ -47,7 +58,8 @@ export class UpdateTeacherHandler implements ICommandHandler<UpdateTeacherComman
       // Update Teacher name + doubleSession
       const teacherData: Record<string, unknown> = {};
       if (name !== undefined) teacherData.name = name;
-      if (doubleSession !== undefined) teacherData.doubleSession = doubleSession;
+      if (doubleSession !== undefined)
+        teacherData.doubleSession = doubleSession;
 
       if (Object.keys(teacherData).length > 0) {
         await tx.teacher.update({
@@ -87,8 +99,12 @@ export class UpdateTeacherHandler implements ICommandHandler<UpdateTeacherComman
     const updatedUser = await this.prisma.user.findFirst({
       where: { teacherId: id },
       select: {
-        id: true, username: true, name: true, lastName: true,
-        email: true, phone: true,
+        id: true,
+        username: true,
+        name: true,
+        lastName: true,
+        email: true,
+        phone: true,
       },
     });
 

@@ -94,7 +94,9 @@ export class ReservationsController {
 
   @Get('calendar')
   @Roles('admin:manage', 'teacher:view', 'student:view')
-  @ApiOperation({ summary: 'Get reservations with student/teacher names for calendar views' })
+  @ApiOperation({
+    summary: 'Get reservations with student/teacher names for calendar views',
+  })
   async getCalendar(
     @Query('teacherId') teacherId?: string,
     @Query('studentId') studentId?: string,
@@ -130,15 +132,24 @@ export class ReservationsController {
 
     // Get user info for each student (join via student.userId -> user.id)
     const userIds = students.map((s) => s.userId).filter(Boolean);
-    const users = userIds.length > 0
-      ? await this.prisma.user.findMany({
-          where: { id: { in: userIds } },
-          select: { id: true, name: true, lastName: true, username: true },
-        })
-      : [];
+    const users =
+      userIds.length > 0
+        ? await this.prisma.user.findMany({
+            where: { id: { in: userIds } },
+            select: { id: true, name: true, lastName: true, username: true },
+          })
+        : [];
 
     const userById = new Map(users.map((u) => [u.id, u]));
-    const studentUserMap = new Map<string, { id: string; name: string | null; lastName: string | null; username: string }>();
+    const studentUserMap = new Map<
+      string,
+      {
+        id: string;
+        name: string | null;
+        lastName: string | null;
+        username: string;
+      }
+    >();
     for (const s of students) {
       const user = userById.get(s.userId);
       if (user) studentUserMap.set(s.id, user);
@@ -149,7 +160,9 @@ export class ReservationsController {
     return reservations.map((r) => ({
       ...r,
       student: r.studentId ? (studentUserMap.get(r.studentId) ?? null) : null,
-      teacherName: r.teacherId ? (teacherNameMap.get(r.teacherId) ?? null) : null,
+      teacherName: r.teacherId
+        ? (teacherNameMap.get(r.teacherId) ?? null)
+        : null,
     }));
   }
 
@@ -196,7 +209,8 @@ export class ReservationsController {
   @Post(':id/admin-cancel')
   @Roles('admin:manage')
   @ApiOperation({
-    summary: 'Admin cancel a reservation — bypasses deadline, records reason, refunds if confirmed',
+    summary:
+      'Admin cancel a reservation — bypasses deadline, records reason, refunds if confirmed',
   })
   async adminCancel(
     @Param('id') id: string,

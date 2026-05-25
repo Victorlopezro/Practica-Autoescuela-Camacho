@@ -1,14 +1,21 @@
 import { Controller, Get, Query } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
-import { startOfDay, endOfDay, parseISO, addDays, eachDayOfInterval, format } from 'date-fns';
+import {
+  startOfDay,
+  endOfDay,
+  parseISO,
+  addDays,
+  eachDayOfInterval,
+  format,
+} from 'date-fns';
 import { Roles } from '../../common/decorators/roles.decorator';
 import { PrismaService } from '../../common/services/prisma.service';
 import { SchedulingService } from '../scheduling/scheduling.service';
-import { RuleEngineService, RuleContext } from '../scheduling/rule-engine.service';
-import type {
-  TeacherAvailability,
-  AvailabilityOverride,
-} from '@prisma/client';
+import {
+  RuleEngineService,
+  RuleContext,
+} from '../scheduling/rule-engine.service';
+import type { TeacherAvailability, AvailabilityOverride } from '@prisma/client';
 import type {
   AdminPlanningDto,
   TeacherPlanningDto,
@@ -28,7 +35,9 @@ export class AdminPlanningController {
 
   @Get()
   @Roles('admin:manage')
-  @ApiOperation({ summary: 'Get planning overview for all teachers in a date range' })
+  @ApiOperation({
+    summary: 'Get planning overview for all teachers in a date range',
+  })
   async getPlanning(
     @Query('from') from?: string,
     @Query('to') to?: string,
@@ -64,8 +73,9 @@ export class AdminPlanningController {
     const toDate = parseISO(to);
 
     // Get availability data (base schedule + overrides)
-    const availabilityData =
-      await this.scheduling.getTeacherAvailability(teacher.id);
+    const availabilityData = await this.scheduling.getTeacherAvailability(
+      teacher.id,
+    );
 
     // Get all reservations in the date range for this teacher
     const reservations = await this.prisma.reservation.findMany({
@@ -226,7 +236,8 @@ export class AdminPlanningController {
 
     // Filter reservations for this specific day
     const dayReservations = reservations.filter((r) => {
-      const rDate = r.startTime instanceof Date ? r.startTime : new Date(r.startTime);
+      const rDate =
+        r.startTime instanceof Date ? r.startTime : new Date(r.startTime);
       return format(rDate, 'yyyy-MM-dd') === dateStr;
     });
 

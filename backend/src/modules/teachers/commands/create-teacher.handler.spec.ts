@@ -83,8 +83,13 @@ describe('CreateTeacherHandler', () => {
 
     const result = await handler.execute(
       new CreateTeacherCommand(
-        'jdoe', 'secure123', 'John', 'Doe',
-        'john@example.com', '612345678', undefined,
+        'jdoe',
+        'secure123',
+        'John',
+        'Doe',
+        'john@example.com',
+        '612345678',
+        undefined,
       ),
     );
 
@@ -114,21 +119,28 @@ describe('CreateTeacherHandler', () => {
 
     const result = await handler.execute(
       new CreateTeacherCommand(
-        'jdoe', 'secure123', 'John', undefined,
-        undefined, undefined, ['vehicle-1', 'vehicle-2'],
+        'jdoe',
+        'secure123',
+        'John',
+        undefined,
+        undefined,
+        undefined,
+        ['vehicle-1', 'vehicle-2'],
       ),
     );
 
-    expect(result).toEqual({ ...mockTeacher, user: mockUser, vehicles: mockVehicles });
+    expect(result).toEqual({
+      ...mockTeacher,
+      user: mockUser,
+      vehicles: mockVehicles,
+    });
   });
 
   it('should throw ConflictException when username already exists', async () => {
     prisma.user.findUnique.mockResolvedValue(mockUser);
 
     await expect(
-      handler.execute(
-        new CreateTeacherCommand('jdoe', 'secure123', 'John'),
-      ),
+      handler.execute(new CreateTeacherCommand('jdoe', 'secure123', 'John')),
     ).rejects.toThrow(ConflictException);
   });
 
@@ -139,8 +151,13 @@ describe('CreateTeacherHandler', () => {
     await expect(
       handler.execute(
         new CreateTeacherCommand(
-          'jdoe', 'secure123', 'John', undefined,
-          undefined, undefined, ['vehicle-1', 'vehicle-unknown'],
+          'jdoe',
+          'secure123',
+          'John',
+          undefined,
+          undefined,
+          undefined,
+          ['vehicle-1', 'vehicle-unknown'],
         ),
       ),
     ).rejects.toThrow(NotFoundException);

@@ -18,7 +18,13 @@ describe('SchedulingRulesService', () => {
     name: 'Horario laboral',
     naturalLanguage: 'Solo se puede en horario laboral',
     structuredRules: {
-      conditions: [{ field: 'time', operator: 'notIn', value: ['09:00-14:00', '16:00-20:00'] }],
+      conditions: [
+        {
+          field: 'time',
+          operator: 'notIn',
+          value: ['09:00-14:00', '16:00-20:00'],
+        },
+      ],
       logic: 'any',
     },
     ruleType: 'availability',
@@ -101,7 +107,10 @@ describe('SchedulingRulesService', () => {
         ruleType: 'general',
       };
 
-      prisma.schedulingRule.create.mockResolvedValue({ ...mockRule, name: dto.name });
+      prisma.schedulingRule.create.mockResolvedValue({
+        ...mockRule,
+        name: dto.name,
+      });
 
       await service.create(dto, 'user-1');
 
@@ -120,7 +129,9 @@ describe('SchedulingRulesService', () => {
         naturalLanguage: 'Solo moto por la tarde',
         ruleType: 'vehicle',
         structuredRules: {
-          conditions: [{ field: 'vehicleType', operator: 'eq', value: 'moto-manual' }],
+          conditions: [
+            { field: 'vehicleType', operator: 'eq', value: 'moto-manual' },
+          ],
           logic: 'all',
         },
         appliesTo: { licenseTypes: ['A2'] },
@@ -249,13 +260,17 @@ describe('SchedulingRulesService', () => {
     it('should throw NotFoundException when rule does not exist', async () => {
       prisma.schedulingRule.findFirst.mockResolvedValue(null);
 
-      await expect(service.findOne('nonexistent')).rejects.toThrow(NotFoundException);
+      await expect(service.findOne('nonexistent')).rejects.toThrow(
+        NotFoundException,
+      );
     });
 
     it('should throw NotFoundException when rule is soft-deleted', async () => {
       prisma.schedulingRule.findFirst.mockResolvedValue(null);
 
-      await expect(service.findOne('deleted-rule')).rejects.toThrow(NotFoundException);
+      await expect(service.findOne('deleted-rule')).rejects.toThrow(
+        NotFoundException,
+      );
     });
   });
 
@@ -356,7 +371,9 @@ describe('SchedulingRulesService', () => {
     it('should throw NotFoundException when removing non-existent rule', async () => {
       prisma.schedulingRule.findFirst.mockResolvedValue(null);
 
-      await expect(service.remove('nonexistent')).rejects.toThrow(NotFoundException);
+      await expect(service.remove('nonexistent')).rejects.toThrow(
+        NotFoundException,
+      );
       expect(prisma.schedulingRule.update).not.toHaveBeenCalled();
     });
   });

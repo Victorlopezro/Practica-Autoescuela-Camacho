@@ -72,8 +72,14 @@ describe('CreateStudentHandler', () => {
 
     const result = await handler.execute(
       new CreateStudentCommand(
-        'jperez', 'secure123', 'Juan', 'Pérez',
-        'juan@example.com', '612345678', undefined, undefined,
+        'jperez',
+        'secure123',
+        'Juan',
+        'Pérez',
+        'juan@example.com',
+        '612345678',
+        undefined,
+        undefined,
       ),
     );
 
@@ -84,9 +90,7 @@ describe('CreateStudentHandler', () => {
     prisma.user.findUnique.mockResolvedValue(mockUser);
 
     await expect(
-      handler.execute(
-        new CreateStudentCommand('jperez', 'secure123', 'Juan'),
-      ),
+      handler.execute(new CreateStudentCommand('jperez', 'secure123', 'Juan')),
     ).rejects.toThrow(ConflictException);
   });
 
@@ -97,8 +101,14 @@ describe('CreateStudentHandler', () => {
     await expect(
       handler.execute(
         new CreateStudentCommand(
-          'jperez', 'secure123', 'Juan', undefined,
-          undefined, undefined, undefined, 'teacher-unknown',
+          'jperez',
+          'secure123',
+          'Juan',
+          undefined,
+          undefined,
+          undefined,
+          undefined,
+          'teacher-unknown',
         ),
       ),
     ).rejects.toThrow(NotFoundException);

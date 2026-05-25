@@ -44,8 +44,14 @@ describe('CreateReservationHandler', () => {
         { provide: PrismaService, useValue: prisma },
         { provide: EventBus, useValue: eventBus },
         { provide: RuleEngineService, useValue: ruleEngine },
-        { provide: ConfigService, useValue: { get: jest.fn().mockReturnValue('true') } },
-        { provide: SchedulingRulesService, useValue: { findAllActive: jest.fn().mockResolvedValue([]) } },
+        {
+          provide: ConfigService,
+          useValue: { get: jest.fn().mockReturnValue('true') },
+        },
+        {
+          provide: SchedulingRulesService,
+          useValue: { findAllActive: jest.fn().mockResolvedValue([]) },
+        },
       ],
     }).compile();
 

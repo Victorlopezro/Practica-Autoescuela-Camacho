@@ -171,7 +171,12 @@ describe('TeachersController', () => {
         phone: '612345680',
         vehicleIds: ['vehicle-1'],
       };
-      const expectedResult = { id: 'teacher-1', name: 'John', user: {}, vehicles: [] };
+      const expectedResult = {
+        id: 'teacher-1',
+        name: 'John',
+        user: {},
+        vehicles: [],
+      };
       commandBus.execute.mockResolvedValue(expectedResult);
 
       const result = await controller.create(dto);
@@ -193,7 +198,12 @@ describe('TeachersController', () => {
         name: 'John Updated',
         phone: '612345681',
       };
-      const expectedResult = { id: 'teacher-1', name: 'John Updated', user: {}, vehicles: [] };
+      const expectedResult = {
+        id: 'teacher-1',
+        name: 'John Updated',
+        user: {},
+        vehicles: [],
+      };
       commandBus.execute.mockResolvedValue(expectedResult);
 
       const result = await controller.update('teacher-1', dto);

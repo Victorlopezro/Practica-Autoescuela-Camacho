@@ -204,9 +204,14 @@ export class StudentsController {
   async create(@Body() dto: CreateStudentDto) {
     return this.commandBus.execute(
       new CreateStudentCommand(
-        dto.username, dto.password, dto.name,
-        dto.lastName, dto.email, dto.phone,
-        dto.licenseType, dto.teacherId,
+        dto.username,
+        dto.password,
+        dto.name,
+        dto.lastName,
+        dto.email,
+        dto.phone,
+        dto.licenseType,
+        dto.teacherId,
       ),
     );
   }
@@ -217,9 +222,15 @@ export class StudentsController {
   async update(@Param('id') id: string, @Body() dto: UpdateStudentDto) {
     return this.commandBus.execute(
       new UpdateStudentCommand(
-        id, dto.username, dto.password, dto.name,
-        dto.lastName, dto.email, dto.phone,
-        dto.licenseType, dto.teacherId,
+        id,
+        dto.username,
+        dto.password,
+        dto.name,
+        dto.lastName,
+        dto.email,
+        dto.phone,
+        dto.licenseType,
+        dto.teacherId,
       ),
     );
   }

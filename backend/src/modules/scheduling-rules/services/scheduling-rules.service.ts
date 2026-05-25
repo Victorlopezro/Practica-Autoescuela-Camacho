@@ -1,12 +1,12 @@
-import {
-  Injectable,
-  Logger,
-  NotFoundException,
-} from '@nestjs/common';
+import { Injectable, Logger, NotFoundException } from '@nestjs/common';
 import { EventBus } from '@nestjs/cqrs';
 import { Prisma } from '@prisma/client';
 import { PrismaService } from '../../../common/services/prisma.service';
-import { CreateSchedulingRuleDto, UpdateSchedulingRuleDto, SchedulingRuleQueryDto } from '../dto';
+import {
+  CreateSchedulingRuleDto,
+  UpdateSchedulingRuleDto,
+  SchedulingRuleQueryDto,
+} from '../dto';
 import { RuleChangedEvent } from '../events/rule-changed.event';
 
 @Injectable()
@@ -23,7 +23,8 @@ export class SchedulingRulesService {
       data: {
         name: dto.name,
         naturalLanguage: dto.naturalLanguage,
-        structuredRules: (dto.structuredRules as Prisma.InputJsonValue) ?? Prisma.JsonNull,
+        structuredRules:
+          (dto.structuredRules as Prisma.InputJsonValue) ?? Prisma.JsonNull,
         ruleType: dto.ruleType,
         action: dto.action ?? 'block',
         priority: dto.priority ?? 100,
@@ -95,11 +96,13 @@ export class SchedulingRulesService {
     const data: Prisma.SchedulingRuleUpdateInput = {};
     if (dto.name !== undefined) data.name = dto.name;
     if (dto.ruleType !== undefined) data.ruleType = dto.ruleType;
-    if (dto.structuredRules !== undefined) data.structuredRules = dto.structuredRules as Prisma.InputJsonValue;
+    if (dto.structuredRules !== undefined)
+      data.structuredRules = dto.structuredRules as Prisma.InputJsonValue;
     if (dto.action !== undefined) data.action = dto.action;
     if (dto.priority !== undefined) data.priority = dto.priority;
     if (dto.enabled !== undefined) data.enabled = dto.enabled;
-    if (dto.appliesTo !== undefined) data.appliesTo = dto.appliesTo as Prisma.InputJsonValue;
+    if (dto.appliesTo !== undefined)
+      data.appliesTo = dto.appliesTo as Prisma.InputJsonValue;
 
     const rule = await this.prisma.schedulingRule.update({
       where: { id },

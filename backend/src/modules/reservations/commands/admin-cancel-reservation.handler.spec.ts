@@ -48,7 +48,9 @@ describe('AdminCancelReservationHandler', () => {
       ],
     }).compile();
 
-    handler = module.get<AdminCancelReservationHandler>(AdminCancelReservationHandler);
+    handler = module.get<AdminCancelReservationHandler>(
+      AdminCancelReservationHandler,
+    );
     jest.clearAllMocks();
   });
 
@@ -97,7 +99,11 @@ describe('AdminCancelReservationHandler', () => {
     });
 
     const result = await handler.execute(
-      new AdminCancelReservationCommand('res-1', 'admin-1', 'Profesor no disponible'),
+      new AdminCancelReservationCommand(
+        'res-1',
+        'admin-1',
+        'Profesor no disponible',
+      ),
     );
 
     expect(result.status).toBe('cancelled');
@@ -115,7 +121,9 @@ describe('AdminCancelReservationHandler', () => {
     prisma.reservation.findUnique.mockResolvedValue(null);
 
     await expect(
-      handler.execute(new AdminCancelReservationCommand('unknown', 'admin-1', 'test')),
+      handler.execute(
+        new AdminCancelReservationCommand('unknown', 'admin-1', 'test'),
+      ),
     ).rejects.toThrow(NotFoundException);
   });
 
@@ -126,7 +134,9 @@ describe('AdminCancelReservationHandler', () => {
     });
 
     await expect(
-      handler.execute(new AdminCancelReservationCommand('res-1', 'admin-1', 'test')),
+      handler.execute(
+        new AdminCancelReservationCommand('res-1', 'admin-1', 'test'),
+      ),
     ).rejects.toThrow(BadRequestException);
   });
 
@@ -137,7 +147,9 @@ describe('AdminCancelReservationHandler', () => {
     });
 
     await expect(
-      handler.execute(new AdminCancelReservationCommand('res-1', 'admin-1', 'test')),
+      handler.execute(
+        new AdminCancelReservationCommand('res-1', 'admin-1', 'test'),
+      ),
     ).rejects.toThrow(BadRequestException);
   });
 
@@ -164,7 +176,11 @@ describe('AdminCancelReservationHandler', () => {
     });
 
     const result = await handler.execute(
-      new AdminCancelReservationCommand('res-1', 'admin-1', 'Vehículo en mantenimiento'),
+      new AdminCancelReservationCommand(
+        'res-1',
+        'admin-1',
+        'Vehículo en mantenimiento',
+      ),
     );
 
     expect(result.refundAmount).toBe(2);
@@ -182,7 +198,11 @@ describe('AdminCancelReservationHandler', () => {
     });
 
     await handler.execute(
-      new AdminCancelReservationCommand('res-1', 'admin-1', 'Ajuste administrativo'),
+      new AdminCancelReservationCommand(
+        'res-1',
+        'admin-1',
+        'Ajuste administrativo',
+      ),
     );
 
     expect(eventBus.publish).toHaveBeenCalledWith(

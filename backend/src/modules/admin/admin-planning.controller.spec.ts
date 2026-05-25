@@ -19,10 +19,34 @@ describe('AdminPlanningController', () => {
     teacherId: 'teacher-1',
     doubleSession: false,
     availability: [
-      { id: 'av-1', teacherId: 'teacher-1', dayOfWeek: 1, startTime: '08:00', endTime: '14:00' },
-      { id: 'av-2', teacherId: 'teacher-1', dayOfWeek: 2, startTime: '08:00', endTime: '14:00' },
-      { id: 'av-3', teacherId: 'teacher-1', dayOfWeek: 3, startTime: '08:00', endTime: '14:00' },
-      { id: 'av-4', teacherId: 'teacher-1', dayOfWeek: 4, startTime: '08:00', endTime: '14:00' },
+      {
+        id: 'av-1',
+        teacherId: 'teacher-1',
+        dayOfWeek: 1,
+        startTime: '08:00',
+        endTime: '14:00',
+      },
+      {
+        id: 'av-2',
+        teacherId: 'teacher-1',
+        dayOfWeek: 2,
+        startTime: '08:00',
+        endTime: '14:00',
+      },
+      {
+        id: 'av-3',
+        teacherId: 'teacher-1',
+        dayOfWeek: 3,
+        startTime: '08:00',
+        endTime: '14:00',
+      },
+      {
+        id: 'av-4',
+        teacherId: 'teacher-1',
+        dayOfWeek: 4,
+        startTime: '08:00',
+        endTime: '14:00',
+      },
     ],
     overrides: [],
   };
@@ -99,7 +123,13 @@ describe('AdminPlanningController', () => {
           teacherId: 'teacher-2',
           doubleSession: true,
           availability: [
-            { id: 'av-3', teacherId: 'teacher-2', dayOfWeek: 1, startTime: '09:00', endTime: '15:00' },
+            {
+              id: 'av-3',
+              teacherId: 'teacher-2',
+              dayOfWeek: 1,
+              startTime: '09:00',
+              endTime: '15:00',
+            },
           ],
           overrides: [],
         });
@@ -159,7 +189,7 @@ describe('AdminPlanningController', () => {
 
       const result = await controller.getPlanning('2026-05-18', '2026-05-18');
 
-      const day = result.teachers[0].days.find(d => d.date === '2026-05-18');
+      const day = result.teachers[0].days.find((d) => d.date === '2026-05-18');
       expect(day).toBeDefined();
       expect(day!.isAvailable).toBe(true);
       expect(day!.totalSlots).toBeGreaterThan(0);
@@ -218,11 +248,11 @@ describe('AdminPlanningController', () => {
 
       const day = result.teachers[0].days[0];
       // 08:00 to 14:00 = 360 min, 360/45 = 8 total slots
-      expect(day!.totalSlots).toBe(8);
+      expect(day.totalSlots).toBe(8);
       // res-1: duration 45, ceil(45/45) = 1 slot
       // res-2: duration 90, ceil(90/45) = 2 slots
-      expect(day!.bookedSlots).toBe(3);
-      expect(day!.freeSlots).toBe(5);
+      expect(day.bookedSlots).toBe(3);
+      expect(day.freeSlots).toBe(5);
     });
   });
 });

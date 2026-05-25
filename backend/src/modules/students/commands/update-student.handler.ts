@@ -9,8 +9,17 @@ export class UpdateStudentHandler implements ICommandHandler<UpdateStudentComman
   constructor(private readonly prisma: PrismaService) {}
 
   async execute(command: UpdateStudentCommand) {
-    const { id, username, password, name, lastName, email, phone, licenseType, teacherId } =
-      command;
+    const {
+      id,
+      username,
+      password,
+      name,
+      lastName,
+      email,
+      phone,
+      licenseType,
+      teacherId,
+    } = command;
 
     const student = await this.prisma.student.findUnique({ where: { id } });
     if (!student) throw new NotFoundException('Student not found');
@@ -40,7 +49,8 @@ export class UpdateStudentHandler implements ICommandHandler<UpdateStudentComman
       // Update User fields
       const userData: Record<string, unknown> = {};
       if (username !== undefined) userData.username = username;
-      if (password !== undefined) userData.password = await argon2.hash(password);
+      if (password !== undefined)
+        userData.password = await argon2.hash(password);
       if (name !== undefined) userData.name = name;
       if (lastName !== undefined) userData.lastName = lastName;
       if (email !== undefined) userData.email = email;

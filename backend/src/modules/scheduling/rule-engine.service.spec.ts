@@ -32,7 +32,11 @@ describe('RuleEngineService', () => {
       ruleType: 'availability',
       structuredRules: {
         conditions: [
-          { field: 'time', operator: 'notIn', value: ['09:00-14:00', '16:00-20:00'] },
+          {
+            field: 'time',
+            operator: 'notIn',
+            value: ['09:00-14:00', '16:00-20:00'],
+          },
         ],
         logic: 'any',
       },
@@ -88,7 +92,12 @@ describe('RuleEngineService', () => {
       providers: [
         RuleEngineService,
         { provide: PrismaService, useValue: prisma },
-        { provide: EventBus, useValue: { pipe: jest.fn().mockReturnValue({ subscribe: jest.fn() }) } },
+        {
+          provide: EventBus,
+          useValue: {
+            pipe: jest.fn().mockReturnValue({ subscribe: jest.fn() }),
+          },
+        },
         { provide: ConfigService, useValue: configService },
         {
           provide: SchedulingRulesService,
@@ -107,7 +116,10 @@ describe('RuleEngineService', () => {
 
   describe('cache behavior', () => {
     it('should load rules from database on first evaluation', async () => {
-      const results = await service.evaluateTeacherRules('teacher-1', buildContext());
+      const results = await service.evaluateTeacherRules(
+        'teacher-1',
+        buildContext(),
+      );
       expect(prisma.schedulingRule.findMany).toHaveBeenCalledTimes(1);
       expect(results).toBeDefined();
     });
@@ -136,7 +148,10 @@ describe('RuleEngineService', () => {
 
       // Reset internal state
       service.invalidateCache();
-      const results = await service.evaluateTeacherRules('teacher-1', buildContext());
+      const results = await service.evaluateTeacherRules(
+        'teacher-1',
+        buildContext(),
+      );
 
       expect(prisma.schedulingRule.findMany).not.toHaveBeenCalled();
       expect(results).toHaveLength(0);
@@ -150,10 +165,13 @@ describe('RuleEngineService', () => {
   describe('condition evaluation', () => {
     it('should evaluate eq operator correctly', async () => {
       // Only rule-3 should match: vehicleType === 'moto-manual'
-      const results = await service.evaluateTeacherRules('teacher-1', buildContext({
-        vehicleType: 'moto-manual',
-        duration: 90,
-      }));
+      const results = await service.evaluateTeacherRules(
+        'teacher-1',
+        buildContext({
+          vehicleType: 'moto-manual',
+          duration: 90,
+        }),
+      );
 
       expect(results).toHaveLength(1);
       expect(results[0].ruleId).toBe('rule-3');
@@ -162,9 +180,12 @@ describe('RuleEngineService', () => {
 
     it('should evaluate notIn operator with time ranges', async () => {
       // 07:00 is outside 09:00-14:00 and 16:00-20:00 → rule-1 triggers
-      const results = await service.evaluateTeacherRules('teacher-1', buildContext({
-        startTime: '07:00',
-      }));
+      const results = await service.evaluateTeacherRules(
+        'teacher-1',
+        buildContext({
+          startTime: '07:00',
+        }),
+      );
 
       expect(results).toHaveLength(1);
       expect(results[0].ruleId).toBe('rule-1');
@@ -173,15 +194,21 @@ describe('RuleEngineService', () => {
 
     it('should NOT trigger time rule when within working hours', async () => {
       // 10:00 is inside 09:00-14:00 → rule-1 should NOT trigger
-      const results = await service.evaluateTeacherRules('teacher-1', buildContext({
-        startTime: '10:00',
-      }));
+      const results = await service.evaluateTeacherRules(
+        'teacher-1',
+        buildContext({
+          startTime: '10:00',
+        }),
+      );
 
       expect(results).toHaveLength(0);
     });
 
     it('should return empty when no rules match conditions', async () => {
-      const results = await service.evaluateTeacherRules('teacher-1', buildContext());
+      const results = await service.evaluateTeacherRules(
+        'teacher-1',
+        buildContext(),
+      );
 
       // Default context: teacher-1, 10:00, 45min, coche-manual, no double session
       // rule-1: time=10:00 is inside 09:00-14:00 → notIn returns false → skip
@@ -192,10 +219,13 @@ describe('RuleEngineService', () => {
 
     it('should evaluate lte operator for remaining classes', async () => {
       // rule-2: remainingClasses <= 3 AND duration < 90
-      const results = await service.evaluateTeacherRules('teacher-1', buildContext({
-        student: { remainingClasses: 2 },
-        duration: 45,
-      }));
+      const results = await service.evaluateTeacherRules(
+        'teacher-1',
+        buildContext({
+          student: { remainingClasses: 2 },
+          duration: 45,
+        }),
+      );
 
       expect(results).toHaveLength(1);
       expect(results[0].ruleId).toBe('rule-2');
@@ -203,10 +233,13 @@ describe('RuleEngineService', () => {
     });
 
     it('should NOT trigger warn when remainingClasses > 3', async () => {
-      const results = await service.evaluateTeacherRules('teacher-1', buildContext({
-        student: { remainingClasses: 5 },
-        duration: 45,
-      }));
+      const results = await service.evaluateTeacherRules(
+        'teacher-1',
+        buildContext({
+          student: { remainingClasses: 5 },
+          duration: 45,
+        }),
+      );
 
       // rule-2: remainingClasses=5 > 3 → condition fails → skip
       expect(results).toHaveLength(0);
@@ -221,11 +254,14 @@ describe('RuleEngineService', () => {
     it('should stop evaluation on first block rule', async () => {
       // 07:00 triggers rule-1 (block, priority 10)
       // Should NOT evaluate rule-2 (warn, priority 50) because block stops iteration
-      const results = await service.evaluateTeacherRules('teacher-1', buildContext({
-        startTime: '07:00',
-        student: { remainingClasses: 2 },
-        duration: 45,
-      }));
+      const results = await service.evaluateTeacherRules(
+        'teacher-1',
+        buildContext({
+          startTime: '07:00',
+          student: { remainingClasses: 2 },
+          duration: 45,
+        }),
+      );
 
       expect(results).toHaveLength(1);
       expect(results[0].action).toBe('block');
@@ -256,11 +292,14 @@ describe('RuleEngineService', () => {
       prisma.schedulingRule.findMany.mockResolvedValue(rules);
       service.invalidateCache();
 
-      const results = await service.evaluateTeacherRules('teacher-1', buildContext({
-        student: { remainingClasses: 2 },
-        duration: 45,
-        doubleSession: false,
-      }));
+      const results = await service.evaluateTeacherRules(
+        'teacher-1',
+        buildContext({
+          student: { remainingClasses: 2 },
+          duration: 45,
+          doubleSession: false,
+        }),
+      );
 
       expect(results).toHaveLength(2);
       expect(results[0].action).toBe('warn');
@@ -284,9 +323,12 @@ describe('RuleEngineService', () => {
       prisma.schedulingRule.findMany.mockResolvedValue(rules);
       service.invalidateCache();
 
-      const results = await service.evaluateTeacherRules('teacher-1', buildContext({
-        startTime: '07:00',
-      }));
+      const results = await service.evaluateTeacherRules(
+        'teacher-1',
+        buildContext({
+          startTime: '07:00',
+        }),
+      );
 
       expect(results).toHaveLength(0);
     });
@@ -302,9 +344,12 @@ describe('RuleEngineService', () => {
       prisma.schedulingRule.findMany.mockResolvedValue(rules);
       service.invalidateCache();
 
-      const results = await service.evaluateTeacherRules('teacher-1', buildContext({
-        startTime: '07:00',
-      }));
+      const results = await service.evaluateTeacherRules(
+        'teacher-1',
+        buildContext({
+          startTime: '07:00',
+        }),
+      );
 
       expect(results).toHaveLength(1);
       expect(results[0].ruleId).toBe('rule-1');
@@ -325,9 +370,11 @@ describe('RuleEngineService', () => {
     });
 
     it('should return blocked=true with blockingRule when block rule matches', async () => {
-      const result = await service.canCreateReservation(buildContext({
-        startTime: '07:00',
-      }));
+      const result = await service.canCreateReservation(
+        buildContext({
+          startTime: '07:00',
+        }),
+      );
 
       expect(result.blocked).toBe(true);
       expect(result.blockingRule).toBeDefined();
@@ -336,10 +383,12 @@ describe('RuleEngineService', () => {
     });
 
     it('should return warnings when only warn rules match', async () => {
-      const result = await service.canCreateReservation(buildContext({
-        student: { remainingClasses: 2 },
-        duration: 45,
-      }));
+      const result = await service.canCreateReservation(
+        buildContext({
+          student: { remainingClasses: 2 },
+          duration: 45,
+        }),
+      );
 
       expect(result.blocked).toBe(false);
       expect(result.blockingRule).toBeUndefined();
@@ -369,7 +418,10 @@ describe('RuleEngineService', () => {
       prisma.schedulingRule.findMany.mockResolvedValue(rules);
       service.invalidateCache();
 
-      const results = await service.evaluateTeacherRules('teacher-1', buildContext());
+      const results = await service.evaluateTeacherRules(
+        'teacher-1',
+        buildContext(),
+      );
       expect(results).toHaveLength(0);
     });
 
@@ -389,7 +441,10 @@ describe('RuleEngineService', () => {
       prisma.schedulingRule.findMany.mockResolvedValue(rules);
       service.invalidateCache();
 
-      const results = await service.evaluateTeacherRules('teacher-1', buildContext());
+      const results = await service.evaluateTeacherRules(
+        'teacher-1',
+        buildContext(),
+      );
       expect(results).toHaveLength(1);
       expect(results[0].ruleId).toBe('rule-no-conditions');
     });
@@ -403,7 +458,9 @@ describe('RuleEngineService', () => {
           priority: 1,
           ruleType: 'general',
           structuredRules: {
-            conditions: [{ field: 'nonexistent.field', operator: 'eq', value: 'x' }],
+            conditions: [
+              { field: 'nonexistent.field', operator: 'eq', value: 'x' },
+            ],
             logic: 'all',
           },
           appliesTo: null,
@@ -413,7 +470,10 @@ describe('RuleEngineService', () => {
       prisma.schedulingRule.findMany.mockResolvedValue(rules);
       service.invalidateCache();
 
-      const results = await service.evaluateTeacherRules('teacher-1', buildContext());
+      const results = await service.evaluateTeacherRules(
+        'teacher-1',
+        buildContext(),
+      );
       expect(results).toHaveLength(0);
     });
 
@@ -449,7 +509,10 @@ describe('RuleEngineService', () => {
       prisma.schedulingRule.findMany.mockResolvedValue(rules);
       service.invalidateCache();
 
-      const results = await service.evaluateTeacherRules('teacher-1', buildContext());
+      const results = await service.evaluateTeacherRules(
+        'teacher-1',
+        buildContext(),
+      );
       // Rule for Saturday should NOT match (it's Monday)
       // Rule for Monday SHOULD match
       expect(results).toHaveLength(1);
@@ -487,7 +550,10 @@ describe('RuleEngineService', () => {
       prisma.schedulingRule.findMany.mockResolvedValue(rules);
       service.invalidateCache();
 
-      const results = await service.evaluateTeacherRules('teacher-1', buildContext());
+      const results = await service.evaluateTeacherRules(
+        'teacher-1',
+        buildContext(),
+      );
       expect(results).toHaveLength(2);
       expect(results[0].ruleId).toBe('high-priority');
       expect(results[1].ruleId).toBe('low-priority');

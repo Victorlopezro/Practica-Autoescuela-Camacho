@@ -75,17 +75,23 @@ describe('UpdateTeacherHandler', () => {
     prisma.$transaction.mockImplementation(async (cb: Function) => {
       const tx = {
         user: {
-          update: jest.fn().mockResolvedValue({ ...mockUser, name: 'John Updated' }),
+          update: jest
+            .fn()
+            .mockResolvedValue({ ...mockUser, name: 'John Updated' }),
         },
         teacher: {
-          update: jest.fn().mockResolvedValue({ ...mockTeacher, name: 'John Updated' }),
+          update: jest
+            .fn()
+            .mockResolvedValue({ ...mockTeacher, name: 'John Updated' }),
         },
         teacherVehicle: {
           deleteMany: jest.fn().mockResolvedValue({ count: 1 }),
           createMany: jest.fn().mockResolvedValue({ count: 1 }),
         },
         vehicle: {
-          findMany: jest.fn().mockResolvedValue([{ id: 'vehicle-2', plate: 'DEF456' }]),
+          findMany: jest
+            .fn()
+            .mockResolvedValue([{ id: 'vehicle-2', plate: 'DEF456' }]),
         },
       };
       return cb(tx);
@@ -98,7 +104,12 @@ describe('UpdateTeacherHandler', () => {
     prisma.teacherVehicle.findMany.mockResolvedValue(mockTeacherVehicles);
 
     const result = await handler.execute(
-      new UpdateTeacherCommand('teacher-1', undefined, undefined, 'John Updated'),
+      new UpdateTeacherCommand(
+        'teacher-1',
+        undefined,
+        undefined,
+        'John Updated',
+      ),
     );
 
     expect(result).toBeDefined();
@@ -125,7 +136,11 @@ describe('UpdateTeacherHandler', () => {
   it('should throw ConflictException when username already taken', async () => {
     prisma.teacher.findUnique.mockResolvedValue(mockTeacher);
     prisma.user.findFirst.mockResolvedValue(mockUser);
-    prisma.user.findUnique.mockResolvedValue({ ...mockUser, id: 'user-2', username: 'taken' });
+    prisma.user.findUnique.mockResolvedValue({
+      ...mockUser,
+      id: 'user-2',
+      username: 'taken',
+    });
 
     await expect(
       handler.execute(new UpdateTeacherCommand('teacher-1', 'taken')),
