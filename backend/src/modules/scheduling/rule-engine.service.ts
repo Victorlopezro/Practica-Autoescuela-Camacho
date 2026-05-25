@@ -316,6 +316,21 @@ export class RuleEngineService implements OnModuleInit {
       case 'student.remainingClasses':
         return context.student?.remainingClasses;
 
+      case 'isDeadlinePassed': {
+        // Deadline = slot date - 1 day at BOOKING_DEADLINE_HOUR (default 18)
+        // The server runs in UTC; adjust BOOKING_DEADLINE_HOUR for your timezone.
+        // Example: Spain CEST (UTC+2) → 16 = 18:00 Spain time
+        const [h, m] = context.startTime.split(':').map(Number);
+        const slotDate = new Date(context.date + 'T00:00:00.000Z');
+        slotDate.setHours(0, h * 60 + m, 0, 0);
+        const deadline = new Date(slotDate);
+        deadline.setDate(deadline.getDate() - 1);
+        const cutoffHour =
+          Number(this.configService.get<number>('BOOKING_DEADLINE_HOUR')) || 18;
+        deadline.setHours(cutoffHour, 0, 0, 0);
+        return new Date() > deadline;
+      }
+
       default:
         this.logger.warn(`Unknown rule field: ${field}`);
         return undefined;

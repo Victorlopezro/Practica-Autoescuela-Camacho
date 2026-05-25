@@ -1,5 +1,5 @@
 {
-  "name": "autoescuela-camacho-api",
+  "name": "autoescuela-api",
   "type": "node",
   "buildCommand": "pnpm install --frozen-lockfile && pnpm prisma generate && pnpm build",
   "startCommand": "node dist/src/main.js",
