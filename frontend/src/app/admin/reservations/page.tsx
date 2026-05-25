@@ -12,7 +12,8 @@ function formatDate(iso: string): string {
 }
 
 function formatTime(iso: string): string {
-  return new Date(iso).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+  // Times come from the backend as UTC ISO strings — extract HH:mm directly to avoid timezone offset.
+  return iso.substring(11, 16);
 }
 
 const statusStyles: Record<string, string> = {

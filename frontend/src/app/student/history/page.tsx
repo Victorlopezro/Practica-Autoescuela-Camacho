@@ -14,8 +14,8 @@ function formatDate(iso: string): { day: string; month: string } {
 }
 
 function formatTime(iso: string): string {
-  const d = new Date(iso);
-  return d.toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit', hour12: false });
+  // Times come from the backend as UTC ISO strings — extract HH:mm directly to avoid timezone offset.
+  return iso.substring(11, 16);
 }
 
 function formatDuration(minutes: number): string {

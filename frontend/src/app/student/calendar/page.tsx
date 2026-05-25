@@ -9,7 +9,9 @@ import { services } from '@/services';
 import type { ReservationDto, VehicleTypeConfigDto, SlotRangeResultDto, StudentDto } from '@/services/interfaces';
 
 function formatTime(iso: string): string {
-  return new Date(iso).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+  // Slot times come from the backend as UTC ISO strings (e.g., "2026-05-25T08:00:00.000Z").
+  // We extract HH:mm directly from the ISO string to avoid timezone conversion.
+  return iso.substring(11, 16);
 }
 
 function getMonthYear(date: Date): string {

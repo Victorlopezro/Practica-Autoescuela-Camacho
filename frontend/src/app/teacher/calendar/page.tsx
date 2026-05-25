@@ -11,7 +11,8 @@ import type { CalendarReservationDto } from '@/services/interfaces';
 const DAY_NAMES = ['Lun', 'Mar', 'Mié', 'Jue', 'Vie', 'Sáb', 'Dom'];
 
 function formatTime(iso: string): string {
-  return new Date(iso).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
+  // Times come from the backend as UTC ISO strings — extract HH:mm directly to avoid timezone offset.
+  return iso.substring(11, 16);
 }
 
 function getFullStudentName(s: CalendarReservationDto['student']): string {
