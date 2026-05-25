@@ -170,28 +170,165 @@ export class SchedulingService {
     vehicleType: string,
     doubleSession?: boolean,
   ) {
+    // 1. Fetch teacher + vehicle config ONCE (not per day)
+    const [teacher, typeConfig] = await Promise.all([
+      this.prisma.teacher.findUnique({ where: { id: teacherId } }),
+      this.prisma.vehicleTypeConfig.findUnique({ where: { type: vehicleType } }),
+    ]);
+    if (!teacher) throw new NotFoundException('Teacher not found');
+
+    const baseSlotDuration = typeConfig?.duration ?? 45;
+    const effectiveDuration =
+      doubleSession && teacher.doubleSession
+        ? baseSlotDuration * 2
+        : baseSlotDuration;
+
+    const start = parseISO(startDate);
+    const end = new Date(start);
+    end.setDate(start.getDate() + days);
+
+    // 2. Batch-fetch ALL availability + overrides + reservations in ONE round-trip each
+    const [availability, overrides, reservations] = await Promise.all([
+      this.prisma.teacherAvailability.findMany({
+        where: { teacherId },
+        orderBy: { dayOfWeek: 'asc' },
+      }),
+      this.prisma.availabilityOverride.findMany({
+        where: { teacherId, date: { gte: start, lte: end } },
+        orderBy: { date: 'asc' },
+      }),
+      this.prisma.reservation.findMany({
+        where: {
+          teacherId,
+          startTime: { gte: start, lte: end },
+          status: { notIn: ['cancelled'] },
+        },
+        select: { startTime: true, duration: true },
+      }),
+    ]);
+
+    // 3. Build lookup maps for O(1) access
+    const availabilityMap = new Map(
+      availability.map((a) => [a.dayOfWeek, a]),
+    );
+    const overrideMap = new Map<string, (typeof overrides)[0]>();
+    for (const o of overrides) {
+      const oDate = o.date instanceof Date ? o.date : new Date(o.date);
+      overrideMap.set(oDate.toISOString().split('T')[0], o);
+    }
+
+    // 4. Compute slots for each day in-memory
     const results: Array<{
       date: string;
       slots: string[];
       slotDuration: number;
     }> = [];
-    const start = parseISO(startDate);
 
     for (let i = 0; i < days; i++) {
       const currentDate = new Date(start);
       currentDate.setDate(start.getDate() + i);
       const dateStr = currentDate.toISOString().split('T')[0];
+      const dayOfWeek = currentDate.getDay();
 
-      const dayResult = await this.getAvailableSlots(
-        teacherId,
-        dateStr,
-        vehicleType,
-        doubleSession,
+      // Check override
+      const override = overrideMap.get(dateStr);
+      if (override && !override.isAvailable) {
+        results.push({
+          date: dateStr,
+          slots: [],
+          slotDuration: effectiveDuration,
+        });
+        continue;
+      }
+
+      // Determine effective time range
+      let slotStartTime: string | null = null;
+      let slotEndTime: string | null = null;
+
+      if (override && override.startTime && override.endTime) {
+        slotStartTime = override.startTime;
+        slotEndTime = override.endTime;
+      } else {
+        const base = availabilityMap.get(dayOfWeek);
+        if (base) {
+          slotStartTime = base.startTime;
+          slotEndTime = base.endTime;
+        }
+      }
+
+      if (!slotStartTime || !slotEndTime) {
+        results.push({
+          date: dateStr,
+          slots: [],
+          slotDuration: effectiveDuration,
+        });
+        continue;
+      }
+
+      // Filter reservations for this specific day
+      const dayStart = new Date(currentDate);
+      dayStart.setHours(0, 0, 0, 0);
+      const dayEnd = new Date(currentDate);
+      dayEnd.setHours(23, 59, 59, 999);
+
+      const dayReservations = reservations.filter(
+        (r) => r.startTime >= dayStart && r.startTime <= dayEnd,
       );
+
+      // Generate slots
+      const slots: string[] = [];
+      const [startH, startM] = slotStartTime.split(':').map(Number);
+      const [endH, endM] = slotEndTime.split(':').map(Number);
+
+      let currentMin = startH * 60 + startM;
+      const endMin = endH * 60 + endM;
+
+      while (currentMin + effectiveDuration <= endMin) {
+        const slotStart = new Date(currentDate);
+        slotStart.setHours(0, currentMin, 0, 0);
+        const slotEndTs = new Date(
+          slotStart.getTime() + effectiveDuration * 60 * 1000,
+        );
+
+        // Check overlap with existing reservations (in-memory)
+        const overlaps = dayReservations.some((r) => {
+          const resEnd = new Date(
+            r.startTime.getTime() + r.duration * 60 * 1000,
+          );
+          return slotStart < resEnd && r.startTime < slotEndTs;
+        });
+
+        if (overlaps) {
+          currentMin += effectiveDuration;
+          continue;
+        }
+
+        // Rule engine filtering (feature-flag guarded)
+        if (process.env.RULES_ENGINE_ENABLED === 'true') {
+          const slotTimeStr = `${String(slotStart.getHours()).padStart(2, '0')}:${String(slotStart.getMinutes()).padStart(2, '0')}`;
+          const result = await this.ruleEngine.canCreateReservation({
+            teacherId,
+            date: dateStr,
+            startTime: slotTimeStr,
+            duration: effectiveDuration,
+            vehicleType,
+            doubleSession: !!(doubleSession && teacher.doubleSession),
+          });
+
+          if (result.blocked) {
+            currentMin += effectiveDuration;
+            continue;
+          }
+        }
+
+        slots.push(slotStart.toISOString());
+        currentMin += effectiveDuration;
+      }
+
       results.push({
         date: dateStr,
-        slots: dayResult.slots,
-        slotDuration: dayResult.slotDuration,
+        slots,
+        slotDuration: effectiveDuration,
       });
     }
 
@@ -274,14 +411,13 @@ export class SchedulingService {
       select: { startTime: true, duration: true },
     });
 
-    // Generate slots in 45-minute grid
+    // Generate slots — grid increment matches effectiveDuration
     const slots: string[] = [];
     const effectiveDuration =
       doubleSession && teacher.doubleSession ? slotDuration * 2 : slotDuration;
 
     const [startH, startM] = startTime.split(':').map(Number);
     const [endH, endM] = endTime.split(':').map(Number);
-    const gridIncrement = 45; // minutes
 
     let currentMin = startH * 60 + startM;
     const endMin = endH * 60 + endM;
@@ -300,7 +436,7 @@ export class SchedulingService {
       });
 
       if (overlaps) {
-        currentMin += gridIncrement;
+        currentMin += effectiveDuration;
         continue;
       }
 
@@ -317,14 +453,14 @@ export class SchedulingService {
         });
 
         if (result.blocked) {
-          currentMin += gridIncrement;
+          currentMin += effectiveDuration;
           continue;
         }
       }
 
       slots.push(slotStart.toISOString());
 
-      currentMin += gridIncrement;
+      currentMin += effectiveDuration;
     }
 
     return {

@@ -17,11 +17,16 @@ import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import type { JwtPayload } from '../../common/decorators/current-user.decorator';
 import { PrismaService } from '../../common/services/prisma.service';
 import { SchedulingRulesService } from './services/scheduling-rules.service';
-import { SchedulingAiService } from '../scheduling/scheduling-ai.service';
+import {
+  SchedulingAiService,
+  StructuredRule,
+} from '../scheduling/scheduling-ai.service';
 import {
   CreateSchedulingRuleDto,
   UpdateSchedulingRuleDto,
   SchedulingRuleQueryDto,
+  RULE_TYPES,
+  RuleType,
 } from './dto';
 
 @ApiTags('Scheduling Rules')
@@ -43,6 +48,73 @@ export class SchedulingRulesController {
     @Body() dto: CreateSchedulingRuleDto,
     @CurrentUser() user: JwtPayload,
   ) {
+    // Auto-translate from natural language if structured rules not provided
+    if (dto.naturalLanguage && !dto.structuredRules) {
+      const result = await this.aiService.translateRule(dto.naturalLanguage);
+
+      if (result.success) {
+        const aiData = result.data as StructuredRule;
+
+        // Store the full AI response as structured rules
+        dto.structuredRules = aiData as unknown as Record<string, unknown>;
+
+        // Infer ruleType from conditions if not manually specified
+        if (!dto.ruleType) {
+          dto.ruleType = this.inferRuleType(aiData.conditions);
+        }
+
+        // Set action from AI onMatch if not manually specified
+        if (!dto.action) {
+          dto.action = aiData.onMatch;
+        }
+
+        // Process appliesTo (resolve teacher names to IDs)
+        if (aiData.appliesTo) {
+          const appliesToBuild: Record<string, string[]> = {};
+
+          if (
+            aiData.appliesTo.teachers &&
+            Array.isArray(aiData.appliesTo.teachers) &&
+            aiData.appliesTo.teachers.length > 0
+          ) {
+            const teacherIds =
+              await this.resolveTeacherNames(aiData.appliesTo.teachers);
+            if (teacherIds.length > 0) {
+              appliesToBuild.teachers = teacherIds;
+            }
+          }
+
+          if (
+            aiData.appliesTo.licenseTypes &&
+            Array.isArray(aiData.appliesTo.licenseTypes) &&
+            aiData.appliesTo.licenseTypes.length > 0
+          ) {
+            appliesToBuild.licenseTypes = aiData.appliesTo.licenseTypes;
+          }
+
+          if (
+            aiData.appliesTo.vehicleTypes &&
+            Array.isArray(aiData.appliesTo.vehicleTypes) &&
+            aiData.appliesTo.vehicleTypes.length > 0
+          ) {
+            appliesToBuild.vehicleTypes = aiData.appliesTo.vehicleTypes;
+          }
+
+          if (Object.keys(appliesToBuild).length > 0) {
+            dto.appliesTo = appliesToBuild;
+          }
+        }
+
+        this.logger.log(
+          `Auto-translated rule "${dto.naturalLanguage.substring(0, 60)}" → type=${dto.ruleType}, action=${dto.action}`,
+        );
+      }
+    }
+
+    // Fallback defaults if translation failed or fields still missing
+    if (!dto.ruleType) dto.ruleType = 'general';
+    if (!dto.action) dto.action = 'block';
+
     return this.rulesService.create(dto, user.sub);
   }
 
@@ -148,6 +220,25 @@ export class SchedulingRulesController {
     const updated = await this.rulesService.update(id, updateData);
 
     return updated;
+  }
+
+  /**
+   * Infer ruleType from the conditions returned by the AI.
+   * Checks which fields are used in conditions to categorise the rule.
+   */
+  private inferRuleType(conditions: Array<{ field: string }>): RuleType {
+    const fields = conditions.map((c) => c.field);
+    if (fields.includes('overlap')) return 'overlap';
+    if (fields.includes('duration')) return 'duration';
+    if (fields.includes('vehicleType')) return 'vehicle';
+    if (
+      fields.some((f) =>
+        ['dayOfWeek', 'date', 'time'].includes(f),
+      )
+    ) {
+      return 'availability';
+    }
+    return 'general';
   }
 
   /**

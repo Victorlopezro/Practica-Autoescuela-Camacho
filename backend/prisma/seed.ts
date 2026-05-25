@@ -127,8 +127,8 @@ async function main() {
   const typeConfigs = [
     { id: 'vtc-0001', type: 'coche-manual', duration: 45 },
     { id: 'vtc-0002', type: 'coche-automatico', duration: 45 },
-    { id: 'vtc-0003', type: 'moto-pista', duration: 90 },
-    { id: 'vtc-0004', type: 'moto-circulacion', duration: 90 },
+    { id: 'vtc-0003', type: 'moto-pista', duration: 30 },
+    { id: 'vtc-0004', type: 'moto-circulacion', duration: 45 },
   ];
   for (const vtc of typeConfigs) {
     await prisma.vehicleTypeConfig.upsert({
@@ -245,7 +245,7 @@ async function main() {
     { id: 'r-0001', studentId: 's-0001', teacherId: 't-0001', vehicleType: 'coche-manual', startTime: new Date('2026-05-20T09:00:00Z'), duration: 90, status: 'completed' },
     { id: 'r-0002', studentId: 's-0001', teacherId: 't-0001', vehicleType: 'coche-manual', startTime: new Date('2026-05-22T09:00:00Z'), duration: 45, status: 'confirmed' },
     { id: 'r-0003', studentId: 's-0002', teacherId: 't-0002', vehicleType: 'coche-automatico', startTime: new Date('2026-05-21T10:00:00Z'), duration: 90, status: 'confirmed' },
-    { id: 'r-0004', studentId: 's-0003', teacherId: 't-0003', vehicleType: 'moto-pista', startTime: new Date('2026-05-23T08:00:00Z'), duration: 45, status: 'pending' },
+    { id: 'r-0004', studentId: 's-0003', teacherId: 't-0003', vehicleType: 'moto-pista', startTime: new Date('2026-05-23T08:00:00Z'), duration: 30, status: 'pending' },
     { id: 'r-0005', studentId: 's-0004', teacherId: 't-0001', vehicleType: 'coche-manual', startTime: new Date('2026-05-19T11:00:00Z'), duration: 90, status: 'cancelled' },
     { id: 'r-0006', studentId: 's-0005', teacherId: 't-0004', vehicleType: 'coche-manual', startTime: new Date('2026-05-24T16:00:00Z'), duration: 45, status: 'pending' },
     { id: 'r-0007', studentId: 's-0006', teacherId: 't-0002', vehicleType: 'coche-automatico', startTime: new Date('2026-05-25T11:00:00Z'), duration: 90, status: 'confirmed' },

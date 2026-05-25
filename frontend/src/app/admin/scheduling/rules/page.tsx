@@ -9,7 +9,6 @@ import { services } from '@/services';
 import { LICENSE_TYPES } from '@/lib/constants';
 import type {
   SchedulingRuleDto,
-  CreateSchedulingRuleDto,
   UpdateSchedulingRuleDto,
   PaginatedRulesDto,
   RuleType,
@@ -225,13 +224,10 @@ export default function AdminSchedulingRules() {
   const [translatingId, setTranslatingId] = useState<string | null>(null);
 
   /* ── Create form state ── */
-  const [createForm, setCreateForm] = useState<CreateSchedulingRuleDto>({
+  const [createForm, setCreateForm] = useState({
     name: '',
     naturalLanguage: '',
-    ruleType: 'availability',
-    action: 'block',
     priority: 100,
-    enabled: true,
   });
 
   /* ── Edit form state ── */
@@ -240,7 +236,7 @@ export default function AdminSchedulingRules() {
   /* ── Handlers ── */
 
   const resetCreateForm = useCallback(() => {
-    setCreateForm({ name: '', naturalLanguage: '', ruleType: 'availability', action: 'block', priority: 100, enabled: true });
+    setCreateForm({ name: '', naturalLanguage: '', priority: 100 });
     setCreateOpen(false);
   }, []);
 
@@ -336,7 +332,7 @@ export default function AdminSchedulingRules() {
           <div className="bg-tertiary-container/30 border border-tertiary-container rounded-xl p-4 flex items-start gap-3">
             <span className="material-symbols-outlined text-tertiary text-[20px] shrink-0 mt-0.5">info</span>
             <p className="text-sm text-on-surface-variant">
-              Las reglas se crean en lenguaje natural y la IA las traduce automáticamente a reglas estructuradas.
+              Las reglas se crean en lenguaje natural y la IA detecta automáticamente el tipo, la acción, los profesores y vehículos involucrados.
               Una vez creadas, el motor de scheduling las evalúa en tiempo real al generar horarios.
             </p>
           </div>
@@ -474,42 +470,12 @@ export default function AdminSchedulingRules() {
                   value={createForm.naturalLanguage}
                   onChange={(e) => setCreateForm((f) => ({ ...f, naturalLanguage: e.target.value }))}
                   className="w-full rounded-lg border border-outline-variant/30 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary resize-none"
-                  placeholder="Describe la regla en español, ej: No programar clases después de las 20:00"
+                  placeholder="Ej: Juan Pérez no da clases de coche automático los viernes"
                 />
                 <p className="text-xs text-on-surface-variant mt-1">
-                  La IA traducirá este texto a una regla estructurada al guardar.
+                  La IA detectará automáticamente el tipo de regla, la acción, los profesores y vehículos involucrados al guardar.
                 </p>
               </div>
-
-              <div className="grid grid-cols-2 gap-3">
-                <div>
-                  <label className="block text-sm font-medium text-on-surface mb-1">Tipo de regla</label>
-                  <select
-                    value={createForm.ruleType}
-                    onChange={(e) => setCreateForm((f) => ({ ...f, ruleType: e.target.value as RuleType }))}
-                    className="w-full rounded-lg border border-outline-variant/30 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-                  >
-                    <option value="availability">Disponibilidad</option>
-                    <option value="overlap">Solapamiento</option>
-                    <option value="duration">Duración</option>
-                    <option value="vehicle">Vehículo</option>
-                    <option value="general">General</option>
-                  </select>
-                </div>
-
-                <div>
-                  <label className="block text-sm font-medium text-on-surface mb-1">Acción</label>
-                  <select
-                    value={createForm.action}
-                      onChange={(e) => setCreateForm((f) => ({ ...f, action: e.target.value as 'block' | 'warn' | 'allow' }))}
-                      className="w-full rounded-lg border border-outline-variant/30 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-                    >
-                      <option value="block">Bloquear</option>
-                      <option value="warn">Advertir</option>
-                      <option value="allow">Permitir</option>
-                    </select>
-                  </div>
-                </div>
 
                 <div>
                   <label className="block text-sm font-medium text-on-surface mb-1">Prioridad</label>
@@ -522,12 +488,6 @@ export default function AdminSchedulingRules() {
                 />
                 <p className="text-xs text-on-surface-variant mt-1">A menor número, mayor prioridad.</p>
               </div>
-
-              <AppliesToSection
-                value={createForm.appliesTo}
-                onChange={(a) => setCreateForm((f) => ({ ...f, appliesTo: a }))}
-                teachers={teachers}
-              />
 
               <div className="flex justify-end gap-2 pt-2">
                 <button

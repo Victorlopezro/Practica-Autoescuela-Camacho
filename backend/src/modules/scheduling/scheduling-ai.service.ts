@@ -89,8 +89,8 @@ export class SchedulingAiService {
                 content: `Eres un validador de scheduling para autoescuela. 
 Debes validar si un slot horario es válido según estas reglas:
 
-1. Duración estándar: 45 min (coche) o 30 min (moto pista) o 45 min (moto circulación)
-2. Doble sesión (90 min): solo permitida si el profesor tiene doubleSession=true
+1. Duración estándar: 45 min (coche-manual, coche-automatico), 30 min (moto-pista), 45 min (moto-circulacion)
+2. Doble sesión: moto-pista → 60 min, moto-circulacion y coche → 90 min. Solo permitida si el profesor tiene doubleSession=true
 3. Un profesor no puede tener dos alumnos al mismo tiempo
 4. No debe haber solapamiento entre reservas existentes
 5. Excepciones puntuales (días festivos, disponibilidad especial) deben respetarse
@@ -197,7 +197,17 @@ IMPORTANTE — Diferencia entre dayOfWeek y date:
 
 Operadores permitidos: eq, neq, lt, gt, in, notIn
 
-Donde "in" recibe un array de valores, los demás reciben un string o número.
+Donde "in" y "notIn" reciben un array de valores, los demás reciben un string o número.
+
+IMPORTANTE — Rangos horarios con time + in/notIn:
+- Para expresar franjas horarias USA el operador "in" o "notIn" con valores en formato "HH:MM-HH:MM":
+  ✅ "Solo se puede dar clase en horario de mañana 9-14 y tarde 16-20"
+     → { "field": "time", "operator": "notIn", "value": ["09:00-14:00", "16:00-20:00"] }, logic: "any", onMatch: "block"
+     (Explicación: si la hora NO está en 9-14 NI en 16-20 → bloquea)
+  ✅ "Permitir clases solo por la mañana hasta las 14:00"
+     → { "field": "time", "operator": "notIn", "value": ["00:00-14:00"] }, logic: "any", onMatch: "block"
+     (Explicación: si la hora NO está entre 00:00 y 14:00 → bloquea)
+  ❌ NO uses múltiples condiciones con gte/lt para franjas horarias, usa in/notIn con rangos.
 
 ÁMBITO DE APLICACIÓN (appliesTo — opcional):
 El campo "appliesTo" define a quién aplica la regla. Puede contener:

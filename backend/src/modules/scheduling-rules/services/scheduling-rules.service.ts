@@ -25,7 +25,7 @@ export class SchedulingRulesService {
         naturalLanguage: dto.naturalLanguage,
         structuredRules:
           (dto.structuredRules as Prisma.InputJsonValue) ?? Prisma.JsonNull,
-        ruleType: dto.ruleType,
+        ruleType: dto.ruleType ?? 'general',
         action: dto.action ?? 'block',
         priority: dto.priority ?? 100,
         enabled: dto.enabled ?? true,

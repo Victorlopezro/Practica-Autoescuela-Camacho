@@ -54,13 +54,14 @@ export class CreateSchedulingRuleDto {
   @IsObject()
   structuredRules?: Record<string, unknown>;
 
-  @ApiProperty({
-    description: 'Rule type category',
+  @ApiPropertyOptional({
+    description: 'Rule type category (auto-detected from natural language if omitted)',
     enum: RULE_TYPES,
     example: 'availability',
   })
+  @IsOptional()
   @IsEnum(RULE_TYPES)
-  ruleType!: RuleType;
+  ruleType?: RuleType;
 
   @ApiPropertyOptional({
     description: 'Action to take when rule matches',

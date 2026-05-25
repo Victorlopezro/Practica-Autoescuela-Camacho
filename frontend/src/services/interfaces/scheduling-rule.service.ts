@@ -31,7 +31,7 @@ export interface AppliesTo {
 export interface CreateSchedulingRuleDto {
   name: string;
   naturalLanguage: string;
-  ruleType: RuleType;
+  ruleType?: RuleType;
   action?: RuleAction;
   priority?: number;
   enabled?: boolean;

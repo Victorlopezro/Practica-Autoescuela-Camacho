@@ -1,12 +1,12 @@
 'use client';
 
-import { useState, useEffect, useMemo } from 'react';
+import { useState, useMemo } from 'react';
 import { Card, CardHeader } from '@/components/layouts/Card';
 import { DataView } from '@/components/DataView';
 import { useAuth } from '@/hooks/useAuth';
 import { useData } from '@/hooks/useData';
 import { services } from '@/services';
-import type { ReservationDto, VehicleTypeConfigDto, SlotRangeResultDto } from '@/services/interfaces';
+import type { ReservationDto, VehicleTypeConfigDto, SlotRangeResultDto, StudentDto } from '@/services/interfaces';
 
 function formatTime(iso: string): string {
   return new Date(iso).toLocaleTimeString('es-ES', { hour: '2-digit', minute: '2-digit' });
@@ -22,7 +22,6 @@ const TODAY = new Date().toISOString().split('T')[0];
 export default function StudentCalendar() {
   const { user } = useAuth();
   const studentId = user?.studentId;
-  const [teacherId, setTeacherId] = useState<string | null>(null);
   const [selectedDate, setSelectedDate] = useState<string>(TODAY);
   const [selectedVehicleType, setSelectedVehicleType] = useState<string>('coche-manual');
   const [selectedSlot, setSelectedSlot] = useState<string | null>(null);
@@ -32,11 +31,14 @@ export default function StudentCalendar() {
   const [cancelError, setCancelError] = useState<string | null>(null);
   const [rangeStart, setRangeStart] = useState<string>(TODAY);
 
-  // Load student profile to get teacherId
-  const { data: studentProfile } = useData(
+  // Load student profile — derive teacherId and balance from it (1 call, 2 uses)
+  const { data: studentProfile, refresh: refreshProfile } = useData<StudentDto | null>(
     async () => studentId ? services.student.getProfile(studentId) : null,
     [studentId],
   );
+  const teacherId = studentProfile?.teacherId ?? null;
+  const remainingClasses = studentProfile?.remainingClasses ?? 0;
+  const balanceHistory = studentProfile?.balanceHistory;
 
   // Load vehicle types
   const { data: vehicleTypes } = useData<VehicleTypeConfigDto[]>(
@@ -61,13 +63,6 @@ export default function StudentCalendar() {
     },
     [studentId],
   );
-
-  useEffect(() => {
-    if (studentProfile && 'teacherId' in studentProfile) {
-      const tid = (studentProfile as unknown as { teacherId: string | null }).teacherId;
-      if (tid) setTeacherId(tid);
-    }
-  }, [studentProfile]);
 
   // Build set of dates that have slots
   const datesWithSlots = useMemo(() => {
@@ -98,16 +93,7 @@ export default function StudentCalendar() {
     return days;
   }, [rangeStart]);
 
-  // Load remaining classes
-  const { data: balance, refresh: refreshBalance } = useData<Pick<import('@/services/interfaces').StudentDto, 'remainingClasses' | 'balanceHistory'>>(
-    async () => {
-      if (!studentId) return { remainingClasses: 0, balanceHistory: [] } as Pick<import('@/services/interfaces').StudentDto, 'remainingClasses' | 'balanceHistory'>;
-      return services.student.getBalance(studentId);
-    },
-    [studentId],
-  );
-
-  const noRemainingClasses = balance && balance.remainingClasses <= 0;
+  const noRemainingClasses = remainingClasses <= 0;
 
   // Get slots for the selected date from the range data
   const selectedDaySlots = useMemo(() => {
@@ -143,7 +129,7 @@ export default function StudentCalendar() {
       setSelectedSlot(null);
       refreshRange();
       refreshReservations();
-      refreshBalance();
+      refreshProfile();
     } catch (err) {
       setBookingStatus('error');
       setBookingMessage(err instanceof Error ? err.message : 'Error al reservar');
@@ -157,7 +143,7 @@ export default function StudentCalendar() {
     try {
       await services.reservation.cancel(reservationId);
       refreshReservations();
-      refreshBalance();
+      refreshProfile();
     } catch (err) {
       setCancelError(err instanceof Error ? err.message : 'Error al cancelar');
     } finally {
@@ -215,10 +201,10 @@ export default function StudentCalendar() {
           <h2 className="text-title-md font-bold text-on-surface">
             {getMonthYear(new Date(rangeStart))}
           </h2>
-          {balance != null && (
+          {studentProfile != null && (
             <p className="text-body-sm text-on-surface-variant mt-0.5">
               <span className={`font-semibold ${noRemainingClasses ? 'text-error' : 'text-primary'}`}>
-                {balance.remainingClasses}
+                {remainingClasses}
               </span> clases restantes
             </p>
           )}
@@ -330,7 +316,7 @@ export default function StudentCalendar() {
               </button>
             }
           />
-          {balance === null ? (
+          {studentProfile === null ? (
             <div className="text-center py-8">
               <div className="w-8 h-8 mx-auto bg-surface-container-low rounded-full animate-pulse" />
             </div>
