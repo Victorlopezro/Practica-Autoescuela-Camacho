@@ -43,7 +43,8 @@ const VEHICLE_TYPES = [
 const ruleTypeBadge = (type: string) => RULE_TYPE_COLORS[type] ?? 'bg-surface-container-high text-on-surface-variant';
 const ruleTypeLabel = (type: string) => RULE_TYPE_LABELS[type] ?? type;
 
-const actionLabel = (action: string) => (action === 'block' ? 'Bloquear' : action === 'warn' ? 'Advertir' : 'Permitir');
+const actionLabel = (action: string) =>
+  action === 'block' ? 'Bloquear' : action === 'warn' ? 'Advertir' : 'Permitir';
 
 const SELECTOR_LABELS: Record<string, string> = {
   teachers: 'Profesores',
@@ -224,10 +225,16 @@ export default function AdminSchedulingRules() {
   const [translatingId, setTranslatingId] = useState<string | null>(null);
 
   /* ── Create form state ── */
-  const [createForm, setCreateForm] = useState({
+  const [createForm, setCreateForm] = useState<{
+    name: string;
+    naturalLanguage: string;
+    priority: number;
+    appliesTo: AppliesTo | undefined;
+  }>({
     name: '',
     naturalLanguage: '',
     priority: 100,
+    appliesTo: undefined,
   });
 
   /* ── Edit form state ── */
@@ -236,7 +243,7 @@ export default function AdminSchedulingRules() {
   /* ── Handlers ── */
 
   const resetCreateForm = useCallback(() => {
-    setCreateForm({ name: '', naturalLanguage: '', priority: 100 });
+    setCreateForm({ name: '', naturalLanguage: '', priority: 100, appliesTo: undefined });
     setCreateOpen(false);
   }, []);
 
@@ -358,7 +365,7 @@ export default function AdminSchedulingRules() {
                         <span className={`text-label-caps px-2 py-0.5 rounded-full text-[11px] ${ruleTypeBadge(rule.ruleType)}`}>
                           {ruleTypeLabel(rule.ruleType)}
                         </span>
-                        <span className={`text-label-caps px-2 py-0.5 rounded-full text-[11px] ${rule.action === 'block' ? 'bg-error-container/50 text-error' : 'bg-warning-container/50 text-warning'}`}>
+                        <span className={`text-label-caps px-2 py-0.5 rounded-full text-[11px] ${rule.action === 'block' ? 'bg-error-container/50 text-error' : rule.action === 'allow' ? 'bg-success-container/50 text-success' : 'bg-warning-container/50 text-warning'}`}>
                           {actionLabel(rule.action)}
                         </span>
                       </div>

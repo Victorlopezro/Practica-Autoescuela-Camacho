@@ -73,6 +73,68 @@ export class CreateReservationHandler implements ICommandHandler<CreateReservati
     }
 
     const endTime = new Date(startTime.getTime() + duration * 60 * 1000);
+    const dateStr2 = startTime.toISOString().split('T')[0];
+    const timeStr2 = `${String(startTime.getHours()).padStart(2, '0')}:${String(startTime.getMinutes()).padStart(2, '0')}`;
+
+    // Find overlaps outside transaction to build rule engine context
+    const potentialOverlaps = await this.prisma.reservation.findMany({
+      where: {
+        teacherId,
+        status: { notIn: ['cancelled'] },
+        startTime: { lt: endTime },
+      },
+      select: { startTime: true, duration: true, studentId: true },
+      orderBy: { startTime: 'asc' },
+    });
+
+    const overlapping = potentialOverlaps.filter((existing) => {
+      const existingEnd = new Date(
+        existing.startTime.getTime() + existing.duration * 60 * 1000,
+      );
+      return existingEnd > startTime;
+    });
+
+    // If overlap detected, build context and let rule engine decide
+    if (overlapping.length > 0) {
+      const overlapStudentIds = [...new Set(overlapping.map((r) => r.studentId))];
+      const overlapStudents = await this.prisma.student.findMany({
+        where: { id: { in: overlapStudentIds } },
+        select: { licenseType: true },
+      });
+      const overlappingLicenses = [
+        ...new Set(
+          overlapStudents
+            .map((s) => s.licenseType)
+            .filter(Boolean),
+        ),
+      ] as string[];
+
+      const overlapContext: import('../../scheduling/rule-engine.service').RuleContext = {
+        teacherId,
+        date: dateStr2,
+        startTime: timeStr2,
+        duration,
+        vehicleType,
+        student: {
+          id: studentId,
+          licenseType: student.licenseType ?? undefined,
+          remainingClasses: student.remainingClasses,
+        },
+        doubleSession: duration >= 90,
+        overlappingLicenseTypes: overlappingLicenses,
+        overlappingCount: overlapping.length,
+      };
+
+      const result = await this.ruleEngine.canCreateReservation(overlapContext);
+
+      if (result.blocked) {
+        throw new ConflictException(
+          result.blockingRule?.reason ??
+            'Schedule conflict — teacher already has a reservation in this time slot',
+        );
+      }
+      // If not blocked (allow rule matched), fall through to create the reservation
+    }
 
     const reservation = await this.prisma.$transaction(async (tx) => {
       // Re-fetch student inside transaction to prevent race conditions
@@ -84,29 +146,6 @@ export class CreateReservationHandler implements ICommandHandler<CreateReservati
         throw new BadRequestException(
           'No tienes clases disponibles. Compra un pack para poder reservar.',
         );
-      }
-
-      // Find all non-cancelled reservations for this teacher that could potentially overlap
-      // A reservation overlaps if: existingStart < newEnd AND existingStart + existingDuration > newStart
-      // Prisma can't do computed fields in WHERE, so we fetch candidates where startTime < endTime and filter in-memory
-      const potentialOverlaps = await tx.reservation.findMany({
-        where: {
-          teacherId,
-          status: { notIn: ['cancelled'] },
-          startTime: { lt: endTime },
-        },
-        orderBy: { startTime: 'asc' },
-      });
-
-      for (const existing of potentialOverlaps) {
-        const existingEnd = new Date(
-          existing.startTime.getTime() + existing.duration * 60 * 1000,
-        );
-        if (existingEnd > startTime) {
-          throw new ConflictException(
-            'Schedule conflict — teacher already has a reservation in this time slot',
-          );
-        }
       }
 
       // Decrement remaining classes

@@ -203,9 +203,22 @@ export class SchedulingService {
           startTime: { gte: start, lte: end },
           status: { notIn: ['cancelled'] },
         },
-        select: { startTime: true, duration: true },
+        select: { startTime: true, duration: true, studentId: true },
       }),
     ]);
+
+    // 2.5 Build student license type map for overlap checking
+    const allStudentIds = [...new Set(reservations.map((r) => r.studentId))];
+    const studentLicenses =
+      allStudentIds.length > 0
+        ? await this.prisma.student.findMany({
+            where: { id: { in: allStudentIds } },
+            select: { id: true, licenseType: true },
+          })
+        : [];
+    const licenseTypeMap = new Map(
+      studentLicenses.map((s) => [s.id, s.licenseType]),
+    );
 
     // 3. Build lookup maps for O(1) access
     const availabilityMap = new Map(
@@ -291,29 +304,40 @@ export class SchedulingService {
         );
 
         // Check overlap with existing reservations (in-memory)
-        const overlaps = dayReservations.some((r) => {
+        const overlappingRes = dayReservations.filter((r) => {
           const resEnd = new Date(
             r.startTime.getTime() + r.duration * 60 * 1000,
           );
           return slotStart < resEnd && r.startTime < slotEndTs;
         });
 
-        if (overlaps) {
-          currentMin += effectiveDuration;
-          continue;
+        // Build context — include overlap info if detected
+        const slotTimeStr = `${String(slotStart.getHours()).padStart(2, '0')}:${String(slotStart.getMinutes()).padStart(2, '0')}`;
+        const ruleContext: import('./rule-engine.service').RuleContext = {
+          teacherId,
+          date: dateStr,
+          startTime: slotTimeStr,
+          duration: effectiveDuration,
+          vehicleType,
+          doubleSession: !!(doubleSession && teacher.doubleSession),
+        };
+
+        if (overlappingRes.length > 0) {
+          const overlappingLicenses = [
+            ...new Set(
+              overlappingRes
+                .map((r) => licenseTypeMap.get(r.studentId))
+                .filter(Boolean),
+            ),
+          ] as string[];
+          ruleContext.overlappingLicenseTypes = overlappingLicenses;
+          ruleContext.overlappingCount = overlappingRes.length;
         }
 
         // Rule engine filtering (feature-flag guarded)
         if (process.env.RULES_ENGINE_ENABLED === 'true') {
-          const slotTimeStr = `${String(slotStart.getHours()).padStart(2, '0')}:${String(slotStart.getMinutes()).padStart(2, '0')}`;
-          const result = await this.ruleEngine.canCreateReservation({
-            teacherId,
-            date: dateStr,
-            startTime: slotTimeStr,
-            duration: effectiveDuration,
-            vehicleType,
-            doubleSession: !!(doubleSession && teacher.doubleSession),
-          });
+          const result =
+            await this.ruleEngine.canCreateReservation(ruleContext);
 
           if (result.blocked) {
             currentMin += effectiveDuration;
@@ -408,8 +432,23 @@ export class SchedulingService {
         startTime: { gte: dayStart, lte: dayEnd },
         status: { notIn: ['cancelled'] },
       },
-      select: { startTime: true, duration: true },
+      select: { startTime: true, duration: true, studentId: true },
     });
+
+    // Build student license type map for overlap checking
+    const singleStudentIds = [
+      ...new Set(existingReservations.map((r) => r.studentId)),
+    ];
+    const singleStudentLicenses =
+      singleStudentIds.length > 0
+        ? await this.prisma.student.findMany({
+            where: { id: { in: singleStudentIds } },
+            select: { id: true, licenseType: true },
+          })
+        : [];
+    const singleLicenseMap = new Map(
+      singleStudentLicenses.map((s) => [s.id, s.licenseType]),
+    );
 
     // Generate slots — grid increment matches effectiveDuration
     const slots: string[] = [];
@@ -430,27 +469,37 @@ export class SchedulingService {
       );
 
       // Check overlap with existing reservations
-      const overlaps = existingReservations.some((r) => {
+      const overlappingRes = existingReservations.filter((r) => {
         const resEnd = new Date(r.startTime.getTime() + r.duration * 60 * 1000);
         return slotStart < resEnd && r.startTime < slotEnd;
       });
 
-      if (overlaps) {
-        currentMin += effectiveDuration;
-        continue;
+      // Build context — include overlap info if detected
+      const slotTimeStr = `${String(slotStart.getHours()).padStart(2, '0')}:${String(slotStart.getMinutes()).padStart(2, '0')}`;
+      const ruleContext: import('./rule-engine.service').RuleContext = {
+        teacherId,
+        date,
+        startTime: slotTimeStr,
+        duration: effectiveDuration,
+        vehicleType,
+        doubleSession: !!(doubleSession && teacher.doubleSession),
+      };
+
+      if (overlappingRes.length > 0) {
+        const overlappingLicenses = [
+          ...new Set(
+            overlappingRes
+              .map((r) => singleLicenseMap.get(r.studentId))
+              .filter(Boolean),
+          ),
+        ] as string[];
+        ruleContext.overlappingLicenseTypes = overlappingLicenses;
+        ruleContext.overlappingCount = overlappingRes.length;
       }
 
       // Rule engine filtering (feature-flag guarded)
       if (process.env.RULES_ENGINE_ENABLED === 'true') {
-        const slotTimeStr = `${String(slotStart.getHours()).padStart(2, '0')}:${String(slotStart.getMinutes()).padStart(2, '0')}`;
-        const result = await this.ruleEngine.canCreateReservation({
-          teacherId,
-          date,
-          startTime: slotTimeStr,
-          duration: effectiveDuration,
-          vehicleType,
-          doubleSession: !!(doubleSession && teacher.doubleSession),
-        });
+        const result = await this.ruleEngine.canCreateReservation(ruleContext);
 
         if (result.blocked) {
           currentMin += effectiveDuration;

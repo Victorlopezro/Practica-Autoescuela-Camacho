@@ -14,7 +14,7 @@ import { RuleChangedEvent } from '../scheduling-rules/events/rule-changed.event'
 
 export interface RuleCondition {
   field: string;
-  operator: 'eq' | 'neq' | 'lt' | 'gt' | 'lte' | 'gte' | 'in' | 'notIn';
+  operator: 'eq' | 'neq' | 'lt' | 'gt' | 'lte' | 'gte' | 'in' | 'notIn' | 'contains';
   value: unknown;
 }
 
@@ -35,12 +35,16 @@ export interface RuleContext {
     remainingClasses?: number;
   };
   doubleSession: boolean;
+  /** License types of students with overlapping reservations (populated when overlap detected) */
+  overlappingLicenseTypes?: string[];
+  /** Number of existing overlapping reservations */
+  overlappingCount?: number;
 }
 
 export interface RuleEvaluation {
   ruleId: string;
   ruleName: string;
-  action: 'block' | 'warn';
+  action: 'block' | 'warn' | 'allow';
   reason: string;
 }
 
@@ -168,6 +172,11 @@ export class RuleEngineService implements OnModuleInit {
         reason: `Bloqueado por regla: ${rule.name}`,
       };
 
+      if (rule.action === 'allow') {
+        // Allow rule matched — slot is explicitly allowed, skip all further rules
+        return [];
+      }
+
       if (rule.action === 'block') {
         // First blocking rule wins — stop evaluation
         results.push(evaluation);
@@ -285,6 +294,12 @@ export class RuleEngineService implements OnModuleInit {
       return !this.evaluateIn(resolvedValue, rawValue);
     }
 
+    // Array contains operator: resolvedValue is array, check if value is in it
+    if (operator === 'contains') {
+      if (!Array.isArray(resolvedValue)) return false;
+      return resolvedValue.includes(rawValue);
+    }
+
     this.logger.warn(`Unknown operator: ${String(operator)}`);
     return false;
   }
@@ -315,6 +330,12 @@ export class RuleEngineService implements OnModuleInit {
 
       case 'student.remainingClasses':
         return context.student?.remainingClasses;
+
+      case 'overlappingLicenseTypes':
+        return context.overlappingLicenseTypes;
+
+      case 'overlappingCount':
+        return context.overlappingCount;
 
       case 'isDeadlinePassed': {
         // Deadline = slot date - 1 day at BOOKING_DEADLINE_HOUR (default 18)
