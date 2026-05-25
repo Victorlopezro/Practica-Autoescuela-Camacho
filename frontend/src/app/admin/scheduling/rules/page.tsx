@@ -37,9 +37,8 @@ const RULE_TYPE_COLORS: Record<string, string> = {
 const VEHICLE_TYPES = [
   { value: 'coche-manual', label: 'Coche Manual' },
   { value: 'coche-automatico', label: 'Coche Automático' },
-  { value: 'moto-manual', label: 'Moto Manual' },
-  { value: 'camion', label: 'Camión' },
-  { value: 'autobus', label: 'Autobús' },
+  { value: 'moto-pista', label: 'Moto (Pista)' },
+  { value: 'moto-circulacion', label: 'Moto (Circulación)' },
 ] as const;
 
 const ruleTypeBadge = (type: string) => RULE_TYPE_COLORS[type] ?? 'bg-surface-container-high text-on-surface-variant';
