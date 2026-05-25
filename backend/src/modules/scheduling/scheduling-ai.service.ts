@@ -178,6 +178,12 @@ Formato de salida:
   "confidence": "high"
 }
 
+INTERPRETACION DE TERMINOS (IMPORTANTE):
+- "vacaciones", "festivos", "no disponible", "no dar clases", "no trabajar", "descanso", "puente", "cerrado", "dias libres" -> BLOQUEAR (onMatch: "block") en esas fechas, porque el profesor no esta disponible
+- "tener cuidado", "evitar", "mejor no", "precaucion" -> ADVERTIR (onMatch: "warn") sin bloquear
+- "permitir", "se puede", "excepcion", "si hay clase" -> PERMITIR (onMatch: "allow")
+- El ano actual es 2026
+
 Campos permitidos para "field": student.licenseType, student.remainingClasses, teacher.doubleSession, vehicleType, time, duration, dayOfWeek, date, overlap
 
 IMPORTANTE — Diferencia entre dayOfWeek y date:
@@ -208,8 +214,11 @@ REGLAS PARA appliesTo:
 6. Valores válidos para vehicleTypes: coche-manual, coche-automatico, moto-pista, moto-circulacion
 
 Ejemplos:
-- "No hay clases el 3 de junio" → SIN appliesTo
-- "Juan y Luis no dan clases el 3 de junio" → { "appliesTo": { "teachers": ["Juan Pérez", "Luis López"] } }
+- "No hay clases el 3 de junio" → SIN appliesTo, condiciones: date eq 2026-06-03, onMatch: block
+- "Juan y Luis no dan clases el 3 de junio" → { "appliesTo": { "teachers": ["Juan Pérez", "Luis López"] } }, condiciones: date eq 2026-06-03, onMatch: block
+- "Los profesores Juan y Luis tienen vacaciones del 2 al 10 de junio" → { "appliesTo": { "teachers": ["Juan Pérez", "Luis López"] } }, condiciones: date gte 2026-06-02 AND date lte 2026-06-10, onMatch: block
+- "Los sabados no hay clases" → SIN appliesTo, condiciones: dayOfWeek eq 6, onMatch: block (6=Sabado)
+- "Los domingos y sabados cerrado" → SIN appliesTo, condiciones: dayOfWeek in [0, 6], onMatch: block
 - "Los alumnos del carnet A2 no pueden reservar los sábados" → { "appliesTo": { "licenseTypes": ["A2"] } }
 - "Las motos no pueden dar clases dobles" → { "appliesTo": { "vehicleTypes": ["moto-pista", "moto-circulacion"] } }
 - "María no da clases de coche automático" → { "appliesTo": { "teachers": ["María López"], "vehicleTypes": ["coche-automatico"] } }
