@@ -106,6 +106,7 @@ export class SchedulingController {
     @Query('vehicleType') vehicleType: string,
     @Query('days') days = '30',
     @Query('doubleSession') doubleSession?: string,
+    @Query('studentId') studentId?: string,
   ) {
     return this.scheduling.getAvailableSlotsInRange(
       teacherId,
@@ -113,6 +114,7 @@ export class SchedulingController {
       Number(days),
       vehicleType,
       doubleSession === 'true',
+      studentId,
     );
   }
 
@@ -124,12 +126,14 @@ export class SchedulingController {
     @Query('date') date: string,
     @Query('vehicleType') vehicleType: string,
     @Query('doubleSession') doubleSession?: string,
+    @Query('studentId') studentId?: string,
   ) {
     return this.scheduling.getAvailableSlots(
       teacherId,
       date,
       vehicleType,
       doubleSession === 'true',
+      studentId,
     );
   }
 

@@ -52,9 +52,9 @@ export default function StudentCalendar() {
   const { data: rangeData, isLoading: rangeLoading, refresh: refreshRange } = useData<SlotRangeResultDto | null>(
     async () => {
       if (!teacherId) return null;
-      return services.scheduling.getSlotsRange(teacherId, rangeStart, selectedVehicleType, 30);
+      return services.scheduling.getSlotsRange(teacherId, rangeStart, selectedVehicleType, 30, undefined, studentId ?? undefined);
     },
-    [teacherId, rangeStart, selectedVehicleType],
+    [teacherId, rangeStart, selectedVehicleType, studentId],
   );
 
   // Load existing reservations

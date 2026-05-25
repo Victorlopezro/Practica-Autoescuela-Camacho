@@ -60,8 +60,8 @@ export interface ISchedulingService {
   removeAvailability(teacherId: string, dayOfWeek: number): Promise<void>;
   setOverride(teacherId: string, date: string, isAvailable: boolean, startTime?: string, endTime?: string, reason?: string): Promise<void>;
   removeOverride(teacherId: string, date: string): Promise<void>;
-  getSlots(teacherId: string, date: string, vehicleType: string, doubleSession?: boolean): Promise<SlotResultDto>;
-  getSlotsRange(teacherId: string, startDate: string, vehicleType: string, days?: number, doubleSession?: boolean): Promise<SlotRangeResultDto>;
+  getSlots(teacherId: string, date: string, vehicleType: string, doubleSession?: boolean, studentId?: string): Promise<SlotResultDto>;
+  getSlotsRange(teacherId: string, startDate: string, vehicleType: string, days?: number, doubleSession?: boolean, studentId?: string): Promise<SlotRangeResultDto>;
   validateSlot(teacherId: string, studentId: string, vehicleType: string, startTime: string, duration: number, doubleSession?: boolean): Promise<ValidationResultDto>;
   getVehicleTypeConfig(): Promise<VehicleTypeConfigDto[]>;
 }

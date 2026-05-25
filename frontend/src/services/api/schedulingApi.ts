@@ -30,16 +30,16 @@ export const schedulingApi: ISchedulingService = {
     await apiClient.delete(`/scheduling/teachers/${teacherId}/overrides/${date}`);
   },
 
-  async getSlotsRange(teacherId: string, startDate: string, vehicleType: string, days = 30, doubleSession?: boolean): Promise<SlotRangeResultDto> {
+  async getSlotsRange(teacherId: string, startDate: string, vehicleType: string, days = 30, doubleSession?: boolean, studentId?: string): Promise<SlotRangeResultDto> {
     const { data } = await apiClient.get<SlotRangeResultDto>('/scheduling/slots/range', {
-      params: { teacherId, startDate, vehicleType, days, doubleSession: doubleSession ? 'true' : undefined },
+      params: { teacherId, startDate, vehicleType, days, doubleSession: doubleSession ? 'true' : undefined, studentId: studentId || undefined },
     });
     return data;
   },
 
-  async getSlots(teacherId: string, date: string, vehicleType: string, doubleSession?: boolean): Promise<SlotResultDto> {
+  async getSlots(teacherId: string, date: string, vehicleType: string, doubleSession?: boolean, studentId?: string): Promise<SlotResultDto> {
     const { data } = await apiClient.get<SlotResultDto>('/scheduling/slots', {
-      params: { teacherId, date, vehicleType, doubleSession: doubleSession ? 'true' : undefined },
+      params: { teacherId, date, vehicleType, doubleSession: doubleSession ? 'true' : undefined, studentId: studentId || undefined },
     });
     return data;
   },

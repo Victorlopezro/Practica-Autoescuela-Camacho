@@ -169,6 +169,7 @@ export class SchedulingService {
     days: number,
     vehicleType: string,
     doubleSession?: boolean,
+    studentId?: string,
   ) {
     // 1. Fetch teacher + vehicle config ONCE (not per day)
     const [teacher, typeConfig] = await Promise.all([
@@ -219,6 +220,18 @@ export class SchedulingService {
     const licenseTypeMap = new Map(
       studentLicenses.map((s) => [s.id, s.licenseType]),
     );
+
+    // 2.6 Lookup student context for personalized slot listing
+    let slotStudentContext: { licenseType: string } | undefined;
+    if (studentId) {
+      const slotStudent = await this.prisma.student.findUnique({
+        where: { id: studentId },
+        select: { licenseType: true },
+      });
+      if (slotStudent?.licenseType) {
+        slotStudentContext = { licenseType: slotStudent.licenseType };
+      }
+    }
 
     // 3. Build lookup maps for O(1) access
     const availabilityMap = new Map(
@@ -320,6 +333,7 @@ export class SchedulingService {
           duration: effectiveDuration,
           vehicleType,
           doubleSession: !!(doubleSession && teacher.doubleSession),
+          ...(slotStudentContext ? { student: slotStudentContext } : {}),
         };
 
         if (overlappingRes.length > 0) {
@@ -364,6 +378,7 @@ export class SchedulingService {
     date: string,
     vehicleType: string,
     doubleSession?: boolean,
+    studentId?: string,
   ) {
     const teacher = await this.prisma.teacher.findUnique({
       where: { id: teacherId },
@@ -450,6 +465,18 @@ export class SchedulingService {
       singleStudentLicenses.map((s) => [s.id, s.licenseType]),
     );
 
+    // Lookup student context for personalized slot listing
+    let singleSlotStudentContext: { licenseType: string } | undefined;
+    if (studentId) {
+      const singleStudent = await this.prisma.student.findUnique({
+        where: { id: studentId },
+        select: { licenseType: true },
+      });
+      if (singleStudent?.licenseType) {
+        singleSlotStudentContext = { licenseType: singleStudent.licenseType };
+      }
+    }
+
     // Generate slots — grid increment matches effectiveDuration
     const slots: string[] = [];
     const effectiveDuration =
@@ -483,6 +510,9 @@ export class SchedulingService {
         duration: effectiveDuration,
         vehicleType,
         doubleSession: !!(doubleSession && teacher.doubleSession),
+        ...(singleSlotStudentContext
+          ? { student: singleSlotStudentContext }
+          : {}),
       };
 
       if (overlappingRes.length > 0) {

@@ -225,16 +225,10 @@ export default function AdminSchedulingRules() {
   const [translatingId, setTranslatingId] = useState<string | null>(null);
 
   /* ── Create form state ── */
-  const [createForm, setCreateForm] = useState<{
-    name: string;
-    naturalLanguage: string;
-    priority: number;
-    appliesTo: AppliesTo | undefined;
-  }>({
+  const [createForm, setCreateForm] = useState({
     name: '',
     naturalLanguage: '',
     priority: 100,
-    appliesTo: undefined,
   });
 
   /* ── Edit form state ── */
@@ -243,7 +237,7 @@ export default function AdminSchedulingRules() {
   /* ── Handlers ── */
 
   const resetCreateForm = useCallback(() => {
-    setCreateForm({ name: '', naturalLanguage: '', priority: 100, appliesTo: undefined });
+    setCreateForm({ name: '', naturalLanguage: '', priority: 100 });
     setCreateOpen(false);
   }, []);
 
@@ -586,11 +580,13 @@ export default function AdminSchedulingRules() {
                   />
                 </div>
 
-                <AppliesToSection
-                  value={editForm.appliesTo}
-                  onChange={(a) => setEditForm((f) => ({ ...f, appliesTo: a }))}
-                  teachers={teachers}
-                />
+                {editForm.appliesTo && (
+                  <AppliesToSection
+                    value={editForm.appliesTo}
+                    onChange={(a) => setEditForm((f) => ({ ...f, appliesTo: a }))}
+                    teachers={teachers}
+                  />
+                )}
 
                 <div className="flex justify-end gap-2 pt-2">
                   <button
