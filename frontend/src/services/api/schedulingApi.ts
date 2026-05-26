@@ -18,12 +18,13 @@ export const schedulingApi: ISchedulingService = {
     return data;
   },
 
-  async setAvailability(teacherId: string, dayOfWeek: number, startTime: string, endTime: string): Promise<void> {
-    await apiClient.post(`/scheduling/teachers/${teacherId}/availability`, { dayOfWeek, startTime, endTime });
+  async setAvailability(teacherId: string, dayOfWeek: number, startTime: string, endTime: string, track?: string): Promise<void> {
+    await apiClient.post(`/scheduling/teachers/${teacherId}/availability`, { dayOfWeek, startTime, endTime, track });
   },
 
-  async removeAvailability(teacherId: string, dayOfWeek: number): Promise<void> {
-    await apiClient.delete(`/scheduling/teachers/${teacherId}/availability/${dayOfWeek}`);
+  async removeAvailability(teacherId: string, dayOfWeek: number, track?: string): Promise<void> {
+    const params = track ? { track } : undefined;
+    await apiClient.delete(`/scheduling/teachers/${teacherId}/availability/${dayOfWeek}`, { params });
   },
 
   async setOverride(teacherId: string, date: string, isAvailable: boolean, startTime?: string, endTime?: string, reason?: string): Promise<void> {

@@ -18,6 +18,7 @@ export class CreateStudentHandler implements ICommandHandler<CreateStudentComman
       phone,
       licenseType,
       teacherId,
+      licenseSubType,
     } = command;
 
     // Check for duplicate username
@@ -62,6 +63,7 @@ export class CreateStudentHandler implements ICommandHandler<CreateStudentComman
           userId: user.id,
           teacherId: teacherId ?? null,
           licenseType: licenseType ?? null,
+          licenseSubType: licenseSubType ?? null,
         },
       });
 

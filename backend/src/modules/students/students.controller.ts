@@ -264,6 +264,7 @@ export class StudentsController {
         dto.phone,
         dto.licenseType,
         dto.teacherId,
+        dto.licenseSubType,
       ),
     );
   }
@@ -283,6 +284,7 @@ export class StudentsController {
         dto.phone,
         dto.licenseType,
         dto.teacherId,
+        dto.licenseSubType,
       ),
     );
   }

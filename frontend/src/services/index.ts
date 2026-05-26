@@ -405,8 +405,8 @@ const mockSchedulingService: ISchedulingService = {
       overrides: [],
     };
   },
-  async setAvailability() { await delay(200); },
-  async removeAvailability() { await delay(200); },
+    async setAvailability(_teacherId: string, _dayOfWeek: number, _startTime: string, _endTime: string, _track?: string) { await delay(200); },
+  async removeAvailability(_teacherId: string, _dayOfWeek: number, _track?: string) { await delay(200); },
   async setOverride() { await delay(200); },
   async removeOverride() { await delay(200); },
   async getSlots() {

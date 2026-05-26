@@ -10,5 +10,6 @@ export class CreateStudentCommand implements ICommand {
     public readonly phone?: string,
     public readonly licenseType?: string,
     public readonly teacherId?: string,
+    public readonly licenseSubType?: 'pista' | 'circulacion',
   ) {}
 }

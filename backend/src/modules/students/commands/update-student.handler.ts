@@ -19,6 +19,7 @@ export class UpdateStudentHandler implements ICommandHandler<UpdateStudentComman
       phone,
       licenseType,
       teacherId,
+      licenseSubType,
     } = command;
 
     const student = await this.prisma.student.findUnique({ where: { id } });
@@ -67,6 +68,7 @@ export class UpdateStudentHandler implements ICommandHandler<UpdateStudentComman
       const studentData: Record<string, unknown> = {};
       if (licenseType !== undefined) studentData.licenseType = licenseType;
       if (teacherId !== undefined) studentData.teacherId = teacherId;
+      if (licenseSubType !== undefined) studentData.licenseSubType = licenseSubType;
 
       if (Object.keys(studentData).length > 0) {
         await tx.student.update({

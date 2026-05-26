@@ -39,6 +39,7 @@ export interface CreateStudentDTO {
   email?: string;
   phone?: string;
   licenseType?: string;
+  licenseSubType?: string;
   teacherId?: string;
 }
 
@@ -50,6 +51,7 @@ export interface UpdateStudentDTO {
   email?: string;
   phone?: string;
   licenseType?: string;
+  licenseSubType?: string;
   teacherId?: string;
 }
 

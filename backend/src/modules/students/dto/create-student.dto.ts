@@ -50,4 +50,9 @@ export class CreateStudentDto {
   @IsOptional()
   @IsString()
   teacherId?: string;
+
+  @ApiProperty({ required: false, enum: ['pista', 'circulacion'] })
+  @IsOptional()
+  @IsString()
+  licenseSubType?: 'pista' | 'circulacion';
 }

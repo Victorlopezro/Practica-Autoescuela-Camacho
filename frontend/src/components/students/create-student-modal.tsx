@@ -8,6 +8,10 @@ import { services } from '@/services';
 import type { TeacherDto } from '@/services/interfaces';
 
 const LICENSE_TYPES = ['AM', 'A1', 'A2', 'B', 'B-automatico'] as const;
+const SUBTYPE_OPTIONS = [
+  { value: 'pista', label: 'Pista (30 min)' },
+  { value: 'circulacion', label: 'Circulación (45 min)' },
+] as const;
 
 interface FormData {
   name: string;
@@ -17,6 +21,7 @@ interface FormData {
   email: string;
   phone: string;
   licenseType: string;
+  licenseSubType: string;
   teacherId: string;
 }
 
@@ -45,6 +50,7 @@ export function CreateStudentModal({ open, onClose, onSuccess }: Props) {
     email: '',
     phone: '',
     licenseType: '',
+    licenseSubType: '',
     teacherId: '',
   });
   const [fieldErrors, setFieldErrors] = useState<FormErrors>({});
@@ -85,6 +91,7 @@ export function CreateStudentModal({ open, onClose, onSuccess }: Props) {
         email: form.email.trim() || undefined,
         phone: form.phone.trim() || undefined,
         licenseType: form.licenseType || undefined,
+        licenseSubType: form.licenseSubType || undefined,
         teacherId: form.teacherId || undefined,
       });
       onSuccess();
@@ -97,7 +104,7 @@ export function CreateStudentModal({ open, onClose, onSuccess }: Props) {
   }
 
   function handleClose() {
-    setForm({ name: '', lastName: '', username: '', password: '', email: '', phone: '', licenseType: '', teacherId: '' });
+    setForm({ name: '', lastName: '', username: '', password: '', email: '', phone: '', licenseType: '', licenseSubType: '', teacherId: '' });
     setFieldErrors({});
     setError('');
     onClose();
@@ -185,6 +192,21 @@ export function CreateStudentModal({ open, onClose, onSuccess }: Props) {
             ))}
           </select>
         </FormField>
+
+        {['A1', 'A2'].includes(form.licenseType) && (
+          <FormField label="Sub-tipo (A1/A2)">
+            <select
+              value={form.licenseSubType}
+              onChange={(e) => updateField('licenseSubType', e.target.value)}
+              className={selectClass}
+            >
+              <option value="">Seleccionar</option>
+              {SUBTYPE_OPTIONS.map((opt) => (
+                <option key={opt.value} value={opt.value}>{opt.label}</option>
+              ))}
+            </select>
+          </FormField>
+        )}
 
         <FormField label="Profesor Asignado">
           <select

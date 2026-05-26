@@ -8,6 +8,10 @@ import { services } from '@/services';
 import type { TeacherDto, StudentWithUserDto } from '@/services/interfaces';
 
 const LICENSE_TYPES = ['AM', 'A1', 'A2', 'B', 'B-automatico'] as const;
+const SUBTYPE_OPTIONS = [
+  { value: 'pista', label: 'Pista (30 min)' },
+  { value: 'circulacion', label: 'Circulación (45 min)' },
+] as const;
 
 interface FormData {
   name: string;
@@ -17,6 +21,7 @@ interface FormData {
   email: string;
   phone: string;
   licenseType: string;
+  licenseSubType: string;
   teacherId: string;
 }
 
@@ -44,7 +49,8 @@ export function EditStudentModal({ open, onClose, onSuccess, student }: Props) {
     password: '',
     email: student.user?.email ?? '',
     phone: student.user?.phone ?? '',
-    licenseType: '',
+    licenseType: student.licenseType ?? '',
+    licenseSubType: student.licenseSubType ?? '',
     teacherId: student.teacherId ?? '',
   });
   const [fieldErrors, setFieldErrors] = useState<FormErrors>({});
@@ -59,7 +65,8 @@ export function EditStudentModal({ open, onClose, onSuccess, student }: Props) {
         password: '',
         email: student.user?.email ?? '',
         phone: student.user?.phone ?? '',
-        licenseType: '',
+        licenseType: student.licenseType ?? '',
+        licenseSubType: student.licenseSubType ?? '',
         teacherId: student.teacherId ?? '',
       });
     }
@@ -93,6 +100,7 @@ export function EditStudentModal({ open, onClose, onSuccess, student }: Props) {
         email: form.email.trim() || undefined,
         phone: form.phone.trim() || undefined,
         licenseType: form.licenseType || undefined,
+        licenseSubType: form.licenseSubType || undefined,
         teacherId: form.teacherId || undefined,
       };
       if (form.password) payload.password = form.password;
@@ -194,6 +202,21 @@ export function EditStudentModal({ open, onClose, onSuccess, student }: Props) {
             ))}
           </select>
         </FormField>
+
+        {['A1', 'A2'].includes(form.licenseType) && (
+          <FormField label="Sub-tipo (A1/A2)">
+            <select
+              value={form.licenseSubType}
+              onChange={(e) => updateField('licenseSubType', e.target.value)}
+              className={selectClass}
+            >
+              <option value="">Seleccionar</option>
+              {SUBTYPE_OPTIONS.map((opt) => (
+                <option key={opt.value} value={opt.value}>{opt.label}</option>
+              ))}
+            </select>
+          </FormField>
+        )}
 
         <FormField label="Profesor Asignado">
           <select

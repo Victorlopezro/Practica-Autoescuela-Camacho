@@ -139,6 +139,7 @@ export class TeachersController {
         dto.email,
         dto.phone,
         dto.vehicleIds,
+        dto.doubleSession,
       ),
     );
   }

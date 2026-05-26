@@ -4,7 +4,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { Card, CardHeader } from '@/components/layouts/Card';
 import { useAuth } from '@/hooks/useAuth';
 import { services } from '@/services';
-import type { WeeklyAvailabilityDto, OverrideDto } from '@/services/interfaces';
+import type { OverrideDto } from '@/services/interfaces';
 
 const DAYS = [
   { index: 0, label: 'Domingo' },
@@ -16,15 +16,30 @@ const DAYS = [
   { index: 6, label: 'Sábado' },
 ];
 
-function formatDate(d: Date): string {
-  return d.toISOString().split('T')[0];
+const TRACK_OPTIONS = [
+  { value: '', label: 'General' },
+  { value: 'pista', label: 'Pista (30 min)' },
+  { value: 'circulacion', label: 'Circulación (45 min)' },
+] as const;
+
+let _blockSeq = 0;
+function uid(): string {
+  return `b${++_blockSeq}`;
+}
+
+interface BlockEntry {
+  id: string;
+  start: string;
+  end: string;
+  track: string;
+  saved: boolean;
 }
 
 export default function TeacherSchedule() {
   const { user } = useAuth();
   const teacherId = user?.teacherId ?? user?.id;
 
-  const [availability, setAvailability] = useState<Record<number, { start: string; end: string }>>({});
+  const [blocksByDay, setBlocksByDay] = useState<Record<number, BlockEntry[]>>({});
   const [doubleSession, setDoubleSession] = useState(false);
   const [overrides, setOverrides] = useState<OverrideDto[]>([]);
   const [newOverrideDate, setNewOverrideDate] = useState('');
@@ -37,11 +52,18 @@ export default function TeacherSchedule() {
     setLoading(true);
     try {
       const data = await services.scheduling.getTeacherAvailability(teacherId);
-      const av: Record<number, { start: string; end: string }> = {};
+      const grouped: Record<number, BlockEntry[]> = {};
       for (const a of data.availability) {
-        av[a.dayOfWeek] = { start: a.startTime, end: a.endTime };
+        if (!grouped[a.dayOfWeek]) grouped[a.dayOfWeek] = [];
+        grouped[a.dayOfWeek].push({
+          id: uid(),
+          start: a.startTime,
+          end: a.endTime,
+          track: a.track ?? '',
+          saved: true,
+        });
       }
-      setAvailability(av);
+      setBlocksByDay(grouped);
       setDoubleSession(data.doubleSession);
       setOverrides(data.overrides);
     } catch {
@@ -53,50 +75,62 @@ export default function TeacherSchedule() {
 
   useEffect(() => { load(); }, [load]);
 
-  const toggleDay = async (dayIndex: number) => {
-    if (availability[dayIndex]) {
-      // Removing → save immediately (no extra config needed)
-      setAvailability((prev) => {
-        const next = { ...prev };
-        delete next[dayIndex];
-        return next;
-      });
-      setMessage(null);
-      try {
-        if (teacherId) await services.scheduling.removeAvailability(teacherId, dayIndex);
-      } catch {
-        setMessage({ type: 'error', text: 'Error al eliminar disponibilidad' });
-        load();
+  /* ─── Block helpers ─── */
+
+  function getBlocks(day: number): BlockEntry[] {
+    return blocksByDay[day] ?? [];
+  }
+
+  function setBlocks(day: number, blocks: BlockEntry[]) {
+    setBlocksByDay((prev) => {
+      const next = { ...prev };
+      if (blocks.length > 0) next[day] = blocks;
+      else delete next[day];
+      return next;
+    });
+  }
+
+  function updateBlock(day: number, blockId: string, field: 'start' | 'end' | 'track', value: string) {
+    setBlocks(day, getBlocks(day).map((b) => (b.id === blockId ? { ...b, [field]: value } : b)));
+  }
+
+  /* ─── Day toggle ─── */
+
+  const toggleDay = (dayIndex: number) => {
+    const blocks = getBlocks(dayIndex);
+    if (blocks.length > 0) {
+      // Remove all blocks — fire API calls for saved ones
+      for (const b of blocks) {
+        if (b.saved && teacherId) {
+          services.scheduling.removeAvailability(teacherId, dayIndex, b.track || undefined).catch(() => {
+            setMessage({ type: 'error', text: `Error al eliminar bloque en ${DAYS[dayIndex].label}` });
+          });
+        }
       }
+      setBlocks(dayIndex, []);
+      setMessage(null);
     } else {
-      // Adding → local only, user sets times and clicks Guardar
-      setAvailability((prev) => ({ ...prev, [dayIndex]: { start: '08:00', end: '14:00' } }));
+      setBlocks(dayIndex, [{ id: uid(), start: '08:00', end: '14:00', track: '', saved: false }]);
       setMessage(null);
     }
   };
 
-  const updateTime = async (dayIndex: number, field: 'start' | 'end', value: string) => {
+  /* ─── Block save ─── */
+
+  const saveBlock = async (dayIndex: number, block: BlockEntry) => {
     if (!teacherId) return;
-    setAvailability((prev) => ({
-      ...prev,
-      [dayIndex]: { ...prev[dayIndex], [field]: value },
-    }));
-  };
 
-  const saveDay = async (dayIndex: number) => {
-    if (!teacherId || !availability[dayIndex]) return;
-
-    // Client-side validation: start must be before end
-    const { start, end } = availability[dayIndex];
-    if (start >= end) {
-      setMessage({ type: 'error', text: `La hora de inicio debe ser anterior a la hora de fin en ${DAYS[dayIndex].label}` });
+    if (block.start >= block.end) {
+      setMessage({ type: 'error', text: `La hora de inicio debe ser anterior a la de fin en ${DAYS[dayIndex].label}` });
       return;
     }
 
     setSaving(true);
     try {
-      await services.scheduling.setAvailability(teacherId, dayIndex, start, end);
-      setMessage({ type: 'success', text: `Guardado ${DAYS[dayIndex].label}` });
+      await services.scheduling.setAvailability(teacherId, dayIndex, block.start, block.end, block.track || undefined);
+      setBlocks(dayIndex, getBlocks(dayIndex).map((b) => (b.id === block.id ? { ...b, saved: true } : b)));
+      const label = block.track ? `${DAYS[dayIndex].label} (${block.track})` : DAYS[dayIndex].label;
+      setMessage({ type: 'success', text: `Guardado ${label}` });
     } catch (error: unknown) {
       const err = error as { response?: { data?: { message?: string | string[] } } };
       const apiMessage = err.response?.data?.message;
@@ -106,6 +140,40 @@ export default function TeacherSchedule() {
       setSaving(false);
     }
   };
+
+  /* ─── Block remove (individual) ─── */
+
+  const removeBlock = async (dayIndex: number, block: BlockEntry) => {
+    if (!teacherId) return;
+
+    if (block.saved) {
+      try {
+        await services.scheduling.removeAvailability(teacherId, dayIndex, block.track || undefined);
+      } catch {
+        setMessage({ type: 'error', text: `Error al eliminar bloque en ${DAYS[dayIndex].label}` });
+        return;
+      }
+    }
+
+    const remaining = getBlocks(dayIndex).filter((b) => b.id !== block.id);
+    setBlocks(dayIndex, remaining);
+    setMessage(remaining.length === 0 ? null : { type: 'success', text: 'Bloque eliminado' });
+  };
+
+  /* ─── Add block ─── */
+
+  const addBlock = (dayIndex: number) => {
+    const blocks = getBlocks(dayIndex);
+    if (blocks.length >= 2) return;
+
+    // Auto-select the opposite track if one is already set
+    const existingTracks = new Set(blocks.map((b) => b.track));
+    const defaultTrack = existingTracks.has('pista') ? 'circulacion' : existingTracks.has('circulacion') ? 'pista' : '';
+
+    setBlocks(dayIndex, [...blocks, { id: uid(), start: '08:00', end: '14:00', track: defaultTrack, saved: false }]);
+  };
+
+  /* ─── Overrides ─── */
 
   const removeOverride = async (date: string) => {
     if (!teacherId) return;
@@ -156,16 +224,16 @@ export default function TeacherSchedule() {
         <CardHeader title="Horario semanal" subtitle="Configura los días y horarios en que das clase" />
         <div className="space-y-2">
           {DAYS.map((day) => {
-            const isActive = !!availability[day.index];
-            const times = availability[day.index];
+            const blocks = getBlocks(day.index);
+            const isActive = blocks.length > 0;
             return (
               <div
                 key={day.index}
-                className={`flex flex-wrap items-center gap-2 p-3 rounded-lg transition-colors ${
+                className={`p-3 rounded-lg transition-colors ${
                   isActive ? 'bg-primary-container/20' : 'bg-surface-container-low/50'
                 }`}
               >
-                {/* Toggle + Day label */}
+                {/* Day header row */}
                 <div className="flex items-center gap-2 min-w-0">
                   <button
                     onClick={() => toggleDay(day.index)}
@@ -184,29 +252,57 @@ export default function TeacherSchedule() {
                   </span>
                 </div>
 
-                {/* Time pickers */}
-                {isActive && times && (
-                  <div className="flex items-center gap-2 flex-1 min-w-[200px]">
-                    <input
-                      type="time"
-                      value={times.start}
-                      onChange={(e) => updateTime(day.index, 'start', e.target.value)}
-                      className="flex-1 min-w-0 px-2 py-1 text-sm border border-outline-variant/50 rounded-lg bg-white text-on-surface"
-                    />
-                    <span className="text-outline flex-shrink-0">a</span>
-                    <input
-                      type="time"
-                      value={times.end}
-                      onChange={(e) => updateTime(day.index, 'end', e.target.value)}
-                      className="flex-1 min-w-0 px-2 py-1 text-sm border border-outline-variant/50 rounded-lg bg-white text-on-surface"
-                    />
-                    <button
-                      onClick={() => saveDay(day.index)}
-                      disabled={saving}
-                      className="flex-shrink-0 px-3 py-1 text-xs font-medium bg-primary text-white rounded-lg hover:bg-primary/90 disabled:opacity-50 transition-colors"
-                    >
-                      {saving ? '...' : 'Guardar'}
-                    </button>
+                {/* Blocks */}
+                {isActive && (
+                  <div className="mt-2 space-y-2 pl-12">
+                    {blocks.map((block) => (
+                      <div key={block.id} className="flex items-center gap-2 flex-wrap">
+                        <select
+                          value={block.track}
+                          onChange={(e) => updateBlock(day.index, block.id, 'track', e.target.value)}
+                          className="px-2 py-1 text-xs border border-outline-variant/50 rounded-lg bg-white text-on-surface w-auto"
+                        >
+                          {TRACK_OPTIONS.map((opt) => (
+                            <option key={opt.value} value={opt.value}>{opt.label}</option>
+                          ))}
+                        </select>
+                        <input
+                          type="time"
+                          value={block.start}
+                          onChange={(e) => updateBlock(day.index, block.id, 'start', e.target.value)}
+                          className="flex-1 min-w-[100px] px-2 py-1 text-sm border border-outline-variant/50 rounded-lg bg-white text-on-surface"
+                        />
+                        <span className="text-outline text-sm flex-shrink-0">a</span>
+                        <input
+                          type="time"
+                          value={block.end}
+                          onChange={(e) => updateBlock(day.index, block.id, 'end', e.target.value)}
+                          className="flex-1 min-w-[100px] px-2 py-1 text-sm border border-outline-variant/50 rounded-lg bg-white text-on-surface"
+                        />
+                        <button
+                          onClick={() => saveBlock(day.index, block)}
+                          disabled={saving}
+                          className="flex-shrink-0 px-3 py-1 text-xs font-medium bg-primary text-white rounded-lg hover:bg-primary/90 disabled:opacity-50 transition-colors"
+                        >
+                          {saving ? '...' : 'Guardar'}
+                        </button>
+                        <button
+                          onClick={() => removeBlock(day.index, block)}
+                          className="flex-shrink-0 p-1 text-error hover:text-error/80 transition-colors text-sm"
+                          title="Eliminar bloque"
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    ))}
+                    {blocks.length < 2 && (
+                      <button
+                        onClick={() => addBlock(day.index)}
+                        className="text-xs text-primary hover:text-primary/80 font-medium transition-colors"
+                      >
+                        + Añadir bloque
+                      </button>
+                    )}
                   </div>
                 )}
               </div>

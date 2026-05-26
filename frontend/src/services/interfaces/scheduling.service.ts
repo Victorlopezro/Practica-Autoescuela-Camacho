@@ -82,8 +82,8 @@ export interface CopyWeekResult {
 
 export interface ISchedulingService {
   getTeacherAvailability(teacherId: string): Promise<TeacherAvailabilityDto>;
-  setAvailability(teacherId: string, dayOfWeek: number, startTime: string, endTime: string): Promise<void>;
-  removeAvailability(teacherId: string, dayOfWeek: number): Promise<void>;
+  setAvailability(teacherId: string, dayOfWeek: number, startTime: string, endTime: string, track?: string): Promise<void>;
+  removeAvailability(teacherId: string, dayOfWeek: number, track?: string): Promise<void>;
   setOverride(teacherId: string, date: string, isAvailable: boolean, startTime?: string, endTime?: string, reason?: string): Promise<void>;
   removeOverride(teacherId: string, date: string): Promise<void>;
   getSlots(teacherId: string, date: string, vehicleType: string, doubleSession?: boolean, studentId?: string): Promise<SlotResultDto>;
