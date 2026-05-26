@@ -17,7 +17,12 @@ import { Roles } from '../../common/decorators/roles.decorator';
 import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import type { JwtPayload } from '../../common/decorators/current-user.decorator';
 import { PrismaService } from '../../common/services/prisma.service';
-import { AdjustBalanceDto, CreateStudentDto, UpdateStudentDto } from './dto';
+import {
+  AdjustBalanceDto,
+  CreateStudentDto,
+  UpdateStudentDto,
+  ChangeSubTypeDto,
+} from './dto';
 import { DeductClassDto } from './dto/deduct-class.dto';
 import { RefillClassDto } from './dto/refill-class.dto';
 import { AdjustBalanceCommand } from './commands/adjust-balance.command';
@@ -26,6 +31,7 @@ import { UpdateStudentCommand } from './commands/update-student.command';
 import { DeleteStudentCommand } from './commands/delete-student.command';
 import { DeductClassCommand } from './commands/deduct-class.command';
 import { RefillClassCommand } from './commands/refill-class.command';
+import { ChangeSubTypeCommand } from './commands/change-sub-type.command';
 
 @ApiTags('Students')
 @ApiBearerAuth()
@@ -196,6 +202,21 @@ export class StudentsController {
   ) {
     return this.commandBus.execute(
       new AdjustBalanceCommand(id, dto.amount, dto.reason, user.sub),
+    );
+  }
+
+  @Patch(':id/sub-type')
+  @Roles('admin:manage')
+  @ApiOperation({
+    summary: 'Change student license sub-type (pista→circulacion)',
+  })
+  async changeSubType(
+    @Param('id') id: string,
+    @Body() dto: ChangeSubTypeDto,
+    @CurrentUser() user: JwtPayload,
+  ) {
+    return this.commandBus.execute(
+      new ChangeSubTypeCommand(id, dto.targetSubType, user.sub),
     );
   }
 

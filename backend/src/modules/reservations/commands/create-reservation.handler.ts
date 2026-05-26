@@ -83,7 +83,7 @@ export class CreateReservationHandler implements ICommandHandler<CreateReservati
         status: { notIn: ['cancelled'] },
         startTime: { lt: endTime },
       },
-      select: { startTime: true, duration: true, studentId: true },
+      select: { startTime: true, duration: true, studentId: true, vehicleType: true },
       orderBy: { startTime: 'asc' },
     });
 
@@ -109,6 +109,14 @@ export class CreateReservationHandler implements ICommandHandler<CreateReservati
         ),
       ] as string[];
 
+      const overlappingVehicleTypes = [
+        ...new Set(
+          overlapping
+            .map((r) => r.vehicleType)
+            .filter(Boolean),
+        ),
+      ] as string[];
+
       const overlapContext: import('../../scheduling/rule-engine.service').RuleContext = {
         teacherId,
         date: dateStr2,
@@ -122,6 +130,7 @@ export class CreateReservationHandler implements ICommandHandler<CreateReservati
         },
         doubleSession: duration >= 90,
         overlappingLicenseTypes: overlappingLicenses,
+        overlappingVehicleTypes,
         overlappingCount: overlapping.length,
       };
 

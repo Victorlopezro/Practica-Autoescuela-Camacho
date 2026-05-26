@@ -6,6 +6,10 @@ import type {
   SlotRangeResultDto,
   VehicleTypeConfigDto,
   ValidationResultDto,
+  BatchOverrideEntry,
+  BatchOverrideResult,
+  CopyWeekOverridesDto,
+  CopyWeekResult,
 } from '../interfaces/scheduling.service';
 
 export const schedulingApi: ISchedulingService = {
@@ -53,6 +57,16 @@ export const schedulingApi: ISchedulingService = {
 
   async getVehicleTypeConfig(): Promise<VehicleTypeConfigDto[]> {
     const { data } = await apiClient.get<VehicleTypeConfigDto[]>('/scheduling/config/vehicle-types');
+    return data;
+  },
+
+  async batchSetOverrides(teacherId: string, overrides: BatchOverrideEntry[]): Promise<BatchOverrideResult> {
+    const { data } = await apiClient.post<BatchOverrideResult>(`/scheduling/teachers/${teacherId}/overrides/batch`, { overrides });
+    return data;
+  },
+
+  async copyWeekOverrides(teacherId: string, dto: CopyWeekOverridesDto): Promise<CopyWeekResult> {
+    const { data } = await apiClient.post<CopyWeekResult>(`/scheduling/teachers/${teacherId}/overrides/copy-week`, dto);
     return data;
   },
 };

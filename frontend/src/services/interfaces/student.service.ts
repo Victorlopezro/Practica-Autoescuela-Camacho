@@ -13,8 +13,18 @@ export interface StudentDto {
   teacherId: string | null;
   remainingClasses: number;
   balanceHistory: unknown[];
+  licenseType?: string;
+  licenseSubType?: string;
   createdAt: string;
   updatedAt: string;
+}
+
+export interface ChangeSubTypeResponse {
+  id: string;
+  previousSubType: string;
+  newSubType: string;
+  futureReservationsCancelled: number;
+  classesRefunded: number;
 }
 
 export interface StudentWithUserDto extends StudentDto {
@@ -61,4 +71,5 @@ export interface IStudentService {
   createStudent(data: CreateStudentDTO): Promise<StudentDto>;
   updateStudent(id: string, data: UpdateStudentDTO): Promise<StudentDto>;
   deleteStudent(id: string): Promise<void>;
+  changeSubType(studentId: string): Promise<ChangeSubTypeResponse>;
 }

@@ -42,11 +42,21 @@ export class SchedulingService {
     };
   }
 
+  private timeRangesOverlap(
+    start1: string,
+    end1: string,
+    start2: string,
+    end2: string,
+  ): boolean {
+    return start1 < end2 && start2 < end1;
+  }
+
   async setAvailability(
     teacherId: string,
     dayOfWeek: number,
     startTime: string,
     endTime: string,
+    track?: string,
   ) {
     try {
       const teacher = await this.prisma.teacher.findUnique({
@@ -65,12 +75,45 @@ export class SchedulingService {
         throw new BadRequestException('Start time must be before end time');
       }
 
-      return this.prisma.teacherAvailability.upsert({
-        where: {
-          teacherId_dayOfWeek: { teacherId, dayOfWeek },
-        },
-        create: { teacherId, dayOfWeek, startTime, endTime },
-        update: { startTime, endTime },
+      // Cross-track overlap validation: fetch ALL entries for this teacher+day
+      const existingEntries = await this.prisma.teacherAvailability.findMany({
+        where: { teacherId, dayOfWeek },
+      });
+
+      for (const entry of existingEntries) {
+        // Skip the entry we're updating (same track)
+        if (entry.track === (track ?? null)) continue;
+
+        // Check time overlap with entries on other tracks
+        if (
+          this.timeRangesOverlap(
+            startTime,
+            endTime,
+            entry.startTime,
+            entry.endTime,
+          )
+        ) {
+          throw new BadRequestException(
+            `Time range overlaps with existing availability on ${entry.track ?? 'default'} track (${entry.startTime}-${entry.endTime})`,
+          );
+        }
+      }
+
+      // Use findFirst to check for existing entry, then create or update
+      // (avoiding Prisma upsert issues with nullable compound keys)
+      const existing = await this.prisma.teacherAvailability.findFirst({
+        where: { teacherId, dayOfWeek, track: track ?? null },
+      });
+
+      if (existing) {
+        return this.prisma.teacherAvailability.update({
+          where: { id: existing.id },
+          data: { startTime, endTime },
+        });
+      }
+
+      return this.prisma.teacherAvailability.create({
+        data: { teacherId, dayOfWeek, startTime, endTime, track },
       });
     } catch (error) {
       this.logger.error(
@@ -80,14 +123,22 @@ export class SchedulingService {
     }
   }
 
-  async removeAvailability(teacherId: string, dayOfWeek: number) {
+  async removeAvailability(
+    teacherId: string,
+    dayOfWeek: number,
+    track?: string,
+  ) {
     try {
-      await this.prisma.teacherAvailability.delete({
-        where: {
-          teacherId_dayOfWeek: { teacherId, dayOfWeek },
-        },
+      // Use findFirst then delete to handle nullable compound key
+      const entry = await this.prisma.teacherAvailability.findFirst({
+        where: { teacherId, dayOfWeek, track: track ?? null },
       });
-    } catch {
+      if (!entry) throw new NotFoundException('Availability entry not found');
+      await this.prisma.teacherAvailability.delete({
+        where: { id: entry.id },
+      });
+    } catch (error) {
+      if (error instanceof NotFoundException) throw error;
       throw new NotFoundException('Availability entry not found');
     }
   }
@@ -163,6 +214,171 @@ export class SchedulingService {
     }
   }
 
+  async batchSetOverrides(
+    teacherId: string,
+    overrides: Array<{
+      date: string;
+      isAvailable: boolean;
+      startTime?: string;
+      endTime?: string;
+      reason?: string;
+    }>,
+  ) {
+    if (overrides.length === 0) {
+      throw new BadRequestException('At least one override is required');
+    }
+
+    const teacher = await this.prisma.teacher.findUnique({
+      where: { id: teacherId },
+    });
+    if (!teacher) throw new NotFoundException('Teacher not found');
+
+    // Validate time formats for all entries
+    for (const override of overrides) {
+      if (override.startTime || override.endTime) {
+        const timeRegex = /^([01]\d|2[0-3]):[0-5]\d$/;
+        if (override.startTime && !timeRegex.test(override.startTime)) {
+          throw new BadRequestException(
+            `Invalid startTime format: ${override.startTime}`,
+          );
+        }
+        if (override.endTime && !timeRegex.test(override.endTime)) {
+          throw new BadRequestException(
+            `Invalid endTime format: ${override.endTime}`,
+          );
+        }
+        if (
+          override.startTime &&
+          override.endTime &&
+          override.startTime >= override.endTime
+        ) {
+          throw new BadRequestException('Start time must be before end time');
+        }
+      }
+    }
+
+    return this.prisma.$transaction(
+      overrides.map((override) => {
+        const dateObj = parseISO(override.date);
+        return this.prisma.availabilityOverride.upsert({
+          where: {
+            teacherId_date: { teacherId, date: dateObj },
+          },
+          create: {
+            teacherId,
+            date: dateObj,
+            isAvailable: override.isAvailable,
+            startTime: override.isAvailable ? override.startTime : null,
+            endTime: override.isAvailable ? override.endTime : null,
+            reason: override.reason,
+          },
+          update: {
+            isAvailable: override.isAvailable,
+            startTime: override.isAvailable ? override.startTime : null,
+            endTime: override.isAvailable ? override.endTime : null,
+            reason: override.reason,
+          },
+        });
+      }),
+    );
+  }
+
+  async copyWeekOverrides(
+    teacherId: string,
+    sourceDate: string,
+    targetDate: string,
+    overrideExisting = false,
+  ) {
+    const teacher = await this.prisma.teacher.findUnique({
+      where: { id: teacherId },
+    });
+    if (!teacher) throw new NotFoundException('Teacher not found');
+
+    const sourceStart = parseISO(sourceDate);
+    const sourceEnd = new Date(sourceStart);
+    sourceEnd.setDate(sourceEnd.getDate() + 7);
+
+    const targetStart = parseISO(targetDate);
+    const targetEnd = new Date(targetStart);
+    targetEnd.setDate(targetEnd.getDate() + 7);
+
+    // Fetch source week overrides
+    const sourceOverrides = await this.prisma.availabilityOverride.findMany({
+      where: {
+        teacherId,
+        date: { gte: sourceStart, lt: sourceEnd },
+      },
+    });
+
+    if (sourceOverrides.length === 0) {
+      return { copied: 0 };
+    }
+
+    // Fetch existing target week overrides for conflict detection
+    const existingTarget = await this.prisma.availabilityOverride.findMany({
+      where: {
+        teacherId,
+        date: { gte: targetStart, lt: targetEnd },
+      },
+    });
+    const existingTargetDates = new Set(
+      existingTarget.map((o) => {
+        const d = o.date instanceof Date ? o.date : new Date(o.date);
+        return d.toISOString().split('T')[0];
+      }),
+    );
+
+    // Calculate day offset between source and target weeks
+    const dayOffsetMs = targetStart.getTime() - sourceStart.getTime();
+
+    // Build upsert operations for the transaction
+    const prismaOps: Array<any> = [];
+    let copied = 0;
+
+    for (const override of sourceOverrides) {
+      const srcDate =
+        override.date instanceof Date
+          ? override.date
+          : new Date(override.date);
+      const tgtDate = new Date(srcDate.getTime() + dayOffsetMs);
+      const tgtDateStr = tgtDate.toISOString().split('T')[0];
+
+      // Skip if target already has an override and we're not overriding
+      if (!overrideExisting && existingTargetDates.has(tgtDateStr)) {
+        continue;
+      }
+
+      copied++;
+      prismaOps.push(
+        this.prisma.availabilityOverride.upsert({
+          where: {
+            teacherId_date: { teacherId, date: tgtDate },
+          },
+          create: {
+            teacherId,
+            date: tgtDate,
+            isAvailable: override.isAvailable,
+            startTime: override.startTime,
+            endTime: override.endTime,
+            reason: override.reason,
+          },
+          update: {
+            isAvailable: override.isAvailable,
+            startTime: override.startTime,
+            endTime: override.endTime,
+            reason: override.reason,
+          },
+        }),
+      );
+    }
+
+    if (prismaOps.length > 0) {
+      await this.prisma.$transaction(prismaOps as any);
+    }
+
+    return { copied };
+  }
+
   async getAvailableSlotsInRange(
     teacherId: string,
     startDate: string,
@@ -214,7 +430,19 @@ export class SchedulingService {
       }),
     ]);
 
-    // 2.5 Build student license type map for overlap checking
+    // 2.5 Derive track from student's licenseSubType when vehicleType is moto-
+    let track: string | undefined;
+    if (vehicleType.startsWith('moto-') && studentId) {
+      const slotStudent = await this.prisma.student.findUnique({
+        where: { id: studentId },
+        select: { licenseSubType: true },
+      });
+      if (slotStudent?.licenseSubType) {
+        track = slotStudent.licenseSubType;
+      }
+    }
+
+    // 2.6 Build student license type map for overlap checking
     const allStudentIds = [...new Set(reservations.map((r) => r.studentId))];
     const studentLicenses =
       allStudentIds.length > 0
@@ -227,21 +455,41 @@ export class SchedulingService {
       studentLicenses.map((s) => [s.id, s.licenseType]),
     );
 
-    // 2.6 Lookup student context for personalized slot listing
+    // 2.7 Lookup student context for personalized slot listing
     let slotStudentContext: { licenseType: string } | undefined;
     if (studentId) {
       const slotStudent = await this.prisma.student.findUnique({
         where: { id: studentId },
-        select: { licenseType: true },
+        select: { licenseType: true, licenseSubType: true },
       });
       if (slotStudent?.licenseType) {
         slotStudentContext = { licenseType: slotStudent.licenseType };
       }
+      // Derive track as fallback if not already set from vehicleType check
+      if (!track && slotStudent?.licenseSubType) {
+        track = slotStudent.licenseSubType;
+      }
     }
 
-    // 3. Build lookup maps for O(1) access
+    // 3. Filter availability by track and build lookup maps for O(1) access
+    let filteredAvailability = availability;
+    if (track) {
+      filteredAvailability = availability.filter(
+        (a) => a.track === track || a.track === null,
+      );
+      // Sort: null entries first, track-specific entries last
+      // so track entries overwrite null ones in the map
+      filteredAvailability.sort((a, b) => {
+        if (a.track === null && b.track !== null) return -1;
+        if (a.track !== null && b.track === null) return 1;
+        return 0;
+      });
+    } else {
+      filteredAvailability = availability.filter((a) => a.track === null);
+    }
+
     const availabilityMap = new Map(
-      availability.map((a) => [a.dayOfWeek, a]),
+      filteredAvailability.map((a) => [a.dayOfWeek, a]),
     );
     const overrideMap = new Map<string, (typeof overrides)[0]>();
     for (const o of overrides) {
@@ -400,12 +648,33 @@ export class SchedulingService {
     const dateObj = parseISO(date);
     const dayOfWeek = dateObj.getDay();
 
-    // Get base availability for the day
-    const baseAvailability = await this.prisma.teacherAvailability.findUnique({
-      where: {
-        teacherId_dayOfWeek: { teacherId, dayOfWeek },
-      },
+    // Derive track from student's licenseSubType (passed via caller or internal)
+    let track: string | undefined;
+    if (vehicleType.startsWith('moto-') && studentId) {
+      const slotStudent = await this.prisma.student.findUnique({
+        where: { id: studentId },
+        select: { licenseSubType: true },
+      });
+      if (slotStudent?.licenseSubType) {
+        track = slotStudent.licenseSubType;
+      }
+    }
+
+    // Get base availability for the day — now supports multiple entries per day
+    const baseAvailabilities = await this.prisma.teacherAvailability.findMany({
+      where: { teacherId, dayOfWeek },
     });
+
+    // Filter by track
+    let baseAvailability: (typeof baseAvailabilities)[0] | undefined;
+    if (track) {
+      // Prefer track-specific entry, fall back to null-track entry
+      baseAvailability =
+        baseAvailabilities.find((a) => a.track === track) ??
+        baseAvailabilities.find((a) => a.track === null);
+    } else {
+      baseAvailability = baseAvailabilities.find((a) => a.track === null);
+    }
 
     // Check for override
     const override = await this.prisma.availabilityOverride.findUnique({

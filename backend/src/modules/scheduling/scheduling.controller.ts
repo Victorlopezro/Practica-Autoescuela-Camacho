@@ -16,7 +16,13 @@ import type { JwtPayload } from '../../common/decorators/current-user.decorator'
 import { PrismaService } from '../../common/services/prisma.service';
 import { SchedulingService } from './scheduling.service';
 import { SchedulingAiService, ValidationResult } from './scheduling-ai.service';
-import { SetAvailabilityDto, SetOverrideDto, ValidateSlotDto } from './dto';
+import {
+  SetAvailabilityDto,
+  SetOverrideDto,
+  ValidateSlotDto,
+  BatchOverrideDto,
+  CopyWeekDto,
+} from './dto';
 
 @ApiTags('Scheduling')
 @ApiBearerAuth()
@@ -49,6 +55,7 @@ export class SchedulingController {
       dto.dayOfWeek,
       dto.startTime,
       dto.endTime,
+      dto.track,
     );
     return { success: true };
   }
@@ -60,8 +67,13 @@ export class SchedulingController {
   async removeAvailability(
     @Param('teacherId') teacherId: string,
     @Param('dayOfWeek') dayOfWeek: string,
+    @Query('track') track?: string,
   ) {
-    await this.scheduling.removeAvailability(teacherId, Number(dayOfWeek));
+    await this.scheduling.removeAvailability(
+      teacherId,
+      Number(dayOfWeek),
+      track,
+    );
   }
 
   /* ───── Availability Overrides ───── */
@@ -93,6 +105,37 @@ export class SchedulingController {
     @Param('date') date: string,
   ) {
     await this.scheduling.removeOverride(teacherId, date);
+  }
+
+  /* ───── Batch Overrides ───── */
+
+  @Post('teachers/:teacherId/overrides/batch')
+  @Roles('admin:manage', 'teacher:view')
+  @ApiOperation({ summary: 'Batch set availability overrides for a teacher' })
+  async batchSetOverrides(
+    @Param('teacherId') teacherId: string,
+    @Body() dto: BatchOverrideDto,
+  ) {
+    await this.scheduling.batchSetOverrides(teacherId, dto.overrides);
+    return { success: true, count: dto.overrides.length };
+  }
+
+  @Post('teachers/:teacherId/overrides/copy-week')
+  @Roles('admin:manage')
+  @ApiOperation({
+    summary: 'Copy availability overrides from source week to target week',
+  })
+  async copyWeekOverrides(
+    @Param('teacherId') teacherId: string,
+    @Body() dto: CopyWeekDto,
+  ) {
+    const result = await this.scheduling.copyWeekOverrides(
+      teacherId,
+      dto.sourceDate,
+      dto.targetDate,
+      dto.overrideExisting,
+    );
+    return { success: true, ...result };
   }
 
   /* ───── Slot Listing ───── */

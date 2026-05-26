@@ -11,6 +11,7 @@ export interface WeeklyAvailabilityDto {
   dayOfWeek: number;
   startTime: string;
   endTime: string;
+  track?: string;
 }
 
 export interface OverrideDto {
@@ -54,6 +55,31 @@ export interface ValidationResultDto {
   riskLevel: 'none' | 'low' | 'medium' | 'high';
 }
 
+// ─── Batch Override DTOs ───────────────────────────────────────────
+
+export interface BatchOverrideEntry {
+  date: string;        // YYYY-MM-DD
+  isAvailable: boolean;
+  startTime?: string;  // HH:mm
+  endTime?: string;    // HH:mm
+  reason?: string;
+}
+
+export interface BatchOverrideResult {
+  success: boolean;
+  count: number;
+}
+
+export interface CopyWeekOverridesDto {
+  sourceDate: string;  // YYYY-MM-DD — start of source week
+  targetDate: string;  // YYYY-MM-DD — start of target week
+  overrideExisting?: boolean;
+}
+
+export interface CopyWeekResult {
+  copied: number;
+}
+
 export interface ISchedulingService {
   getTeacherAvailability(teacherId: string): Promise<TeacherAvailabilityDto>;
   setAvailability(teacherId: string, dayOfWeek: number, startTime: string, endTime: string): Promise<void>;
@@ -64,4 +90,9 @@ export interface ISchedulingService {
   getSlotsRange(teacherId: string, startDate: string, vehicleType: string, days?: number, doubleSession?: boolean, studentId?: string): Promise<SlotRangeResultDto>;
   validateSlot(teacherId: string, studentId: string, vehicleType: string, startTime: string, duration: number, doubleSession?: boolean): Promise<ValidationResultDto>;
   getVehicleTypeConfig(): Promise<VehicleTypeConfigDto[]>;
+
+  // ─── Batch Override Operations ────────────────────────────────
+
+  batchSetOverrides(teacherId: string, overrides: BatchOverrideEntry[]): Promise<BatchOverrideResult>;
+  copyWeekOverrides(teacherId: string, dto: CopyWeekOverridesDto): Promise<CopyWeekResult>;
 }

@@ -188,11 +188,20 @@ async function main() {
 
   for (const s of schedules) {
     for (const slot of s.slots) {
-      await prisma.teacherAvailability.upsert({
-        where: { teacherId_dayOfWeek: { teacherId: s.teacherId, dayOfWeek: slot.dayOfWeek } },
-        update: { startTime: slot.startTime, endTime: slot.endTime },
-        create: { teacherId: s.teacherId, ...slot },
+      // Find existing availability entry (track=null for default schedules)
+      const existing = await prisma.teacherAvailability.findFirst({
+        where: { teacherId: s.teacherId, dayOfWeek: slot.dayOfWeek, track: null },
       });
+      if (existing) {
+        await prisma.teacherAvailability.update({
+          where: { id: existing.id },
+          data: { startTime: slot.startTime, endTime: slot.endTime },
+        });
+      } else {
+        await prisma.teacherAvailability.create({
+          data: { teacherId: s.teacherId, ...slot },
+        });
+      }
     }
   }
   console.log(`  Schedules created for ${schedules.length} teachers`);

@@ -10,6 +10,7 @@ import type {
   AuthUserDto,
   IStudentService,
   StudentDto,
+  ChangeSubTypeResponse,
   CreateStudentDTO,
   UpdateStudentDTO,
   ITeacherService,
@@ -30,6 +31,10 @@ import type {
   SlotResultDto,
   VehicleTypeConfigDto,
   ValidationResultDto,
+  BatchOverrideEntry,
+  BatchOverrideResult,
+  CopyWeekOverridesDto,
+  CopyWeekResult,
   IAdminService,
   ISchedulingRuleService,
   SchedulingRuleDto,
@@ -105,6 +110,8 @@ const mockStudentService: IStudentService = {
         teacherId: 'teacher-1',
         remainingClasses: 15,
         balanceHistory: [],
+        licenseType: 'A2',
+        licenseSubType: 'pista',
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
         user: { id: 'user-1', username: 'student', name: 'Juan', lastName: 'Pérez', email: 'juan@example.com', phone: '612345678' },
@@ -115,6 +122,7 @@ const mockStudentService: IStudentService = {
         teacherId: null,
         remainingClasses: 0,
         balanceHistory: [],
+        licenseType: 'B',
         createdAt: new Date().toISOString(),
         updatedAt: new Date().toISOString(),
         user: { id: 'user-2', username: 'maria', name: 'María', lastName: 'García', email: 'maria@example.com', phone: '698765432' },
@@ -146,6 +154,8 @@ const mockStudentService: IStudentService = {
       teacherId: 'teacher-1',
       remainingClasses: 15,
       balanceHistory: [],
+      licenseType: 'A2',
+      licenseSubType: 'pista',
       createdAt: new Date().toISOString(),
       updatedAt: new Date().toISOString(),
     };
@@ -209,6 +219,17 @@ const mockStudentService: IStudentService = {
     };
   },
   async deleteStudent() { await delay(300); },
+
+  async changeSubType(studentId: string): Promise<ChangeSubTypeResponse> {
+    await delay(400);
+    return {
+      id: studentId,
+      previousSubType: 'pista',
+      newSubType: 'circulacion',
+      futureReservationsCancelled: 2,
+      classesRefunded: 2,
+    };
+  },
 };
 
 const mockTeacherService: ITeacherService = {
@@ -351,17 +372,35 @@ const mockReservationService: IReservationService = {
 };
 
 const mockSchedulingService: ISchedulingService = {
-  async getTeacherAvailability() {
+  async getTeacherAvailability(teacherId: string) {
     await delay(300);
+    if (teacherId === 'teacher-1') {
+      // Teacher 1 = motorcycle teacher with pista + circulacion tracks
+      return {
+        teacherId: 'teacher-1',
+        doubleSession: true,
+        availability: [
+          { id: 'avail-1', teacherId: 'teacher-1', dayOfWeek: 1, startTime: '08:00', endTime: '11:00', track: 'pista' },
+          { id: 'avail-2', teacherId: 'teacher-1', dayOfWeek: 1, startTime: '11:00', endTime: '14:00', track: 'circulacion' },
+          { id: 'avail-3', teacherId: 'teacher-1', dayOfWeek: 2, startTime: '08:00', endTime: '11:00', track: 'pista' },
+          { id: 'avail-4', teacherId: 'teacher-1', dayOfWeek: 2, startTime: '11:00', endTime: '14:00', track: 'circulacion' },
+          { id: 'avail-5', teacherId: 'teacher-1', dayOfWeek: 3, startTime: '08:00', endTime: '14:00', track: 'pista' },
+          { id: 'avail-6', teacherId: 'teacher-1', dayOfWeek: 4, startTime: '08:00', endTime: '11:00', track: 'pista' },
+          { id: 'avail-7', teacherId: 'teacher-1', dayOfWeek: 4, startTime: '11:00', endTime: '14:00', track: 'circulacion' },
+          { id: 'avail-8', teacherId: 'teacher-1', dayOfWeek: 5, startTime: '08:00', endTime: '14:00', track: 'pista' },
+        ],
+        overrides: [],
+      };
+    }
     return {
-      teacherId: 'teacher-1',
-      doubleSession: true,
+      teacherId: 'teacher-2',
+      doubleSession: false,
       availability: [
-        { id: 'avail-1', teacherId: 'teacher-1', dayOfWeek: 1, startTime: '08:00', endTime: '14:00' },
-        { id: 'avail-2', teacherId: 'teacher-1', dayOfWeek: 2, startTime: '08:00', endTime: '14:00' },
-        { id: 'avail-3', teacherId: 'teacher-1', dayOfWeek: 3, startTime: '08:00', endTime: '14:00' },
-        { id: 'avail-4', teacherId: 'teacher-1', dayOfWeek: 4, startTime: '08:00', endTime: '14:00' },
-        { id: 'avail-5', teacherId: 'teacher-1', dayOfWeek: 5, startTime: '08:00', endTime: '14:00' },
+        { id: 'avail-10', teacherId: 'teacher-2', dayOfWeek: 1, startTime: '15:00', endTime: '20:00' },
+        { id: 'avail-11', teacherId: 'teacher-2', dayOfWeek: 2, startTime: '15:00', endTime: '20:00' },
+        { id: 'avail-12', teacherId: 'teacher-2', dayOfWeek: 3, startTime: '15:00', endTime: '20:00' },
+        { id: 'avail-13', teacherId: 'teacher-2', dayOfWeek: 4, startTime: '15:00', endTime: '20:00' },
+        { id: 'avail-14', teacherId: 'teacher-2', dayOfWeek: 5, startTime: '15:00', endTime: '20:00' },
       ],
       overrides: [],
     };
@@ -405,6 +444,16 @@ const mockSchedulingService: ISchedulingService = {
       { id: 'vtc-moto-pista', type: 'moto-pista', duration: 30 },
       { id: 'vtc-moto-circulacion', type: 'moto-circulacion', duration: 45 },
     ];
+  },
+
+  async batchSetOverrides(_teacherId: string, overrides: BatchOverrideEntry[]): Promise<BatchOverrideResult> {
+    await delay(300);
+    return { success: true, count: overrides.length };
+  },
+
+  async copyWeekOverrides(_teacherId: string, _dto: CopyWeekOverridesDto): Promise<CopyWeekResult> {
+    await delay(300);
+    return { copied: 5 };
   },
 };
 

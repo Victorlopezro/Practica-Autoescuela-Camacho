@@ -53,6 +53,7 @@ model Student {
   userId           String   @unique @map("user_id")
   teacherId        String?  @map("teacher_id")
   licenseType      String?  @map("license_type")
+  licenseSubType   String?  @map("license_sub_type") // 'pista' | 'circulacion' | null
   remainingClasses Int      @default(0) @map("remaining_classes")
   balanceHistory   Json?    @map("balance_history") // Array of { amount, reason, timestamp, adjustedBy }
 
@@ -84,11 +85,12 @@ model TeacherAvailability {
   dayOfWeek Int      @map("day_of_week") // 0=Sunday, 1=Monday ... 6=Saturday
   startTime String   @map("start_time") // "HH:mm" in local time
   endTime   String   @map("end_time")
+  track     String?  @map("track") // 'pista' | 'circulacion' | null
 
   createdAt DateTime @default(now()) @map("created_at")
   updatedAt DateTime @updatedAt @map("updated_at")
 
-  @@unique([teacherId, dayOfWeek])
+  @@unique([teacherId, dayOfWeek, track])
   @@map("teacher_availability")
 }
 

@@ -1,4 +1,4 @@
-import { IsInt, IsString, Min, Max, Matches } from 'class-validator';
+import { IsInt, IsString, IsOptional, IsIn, Min, Max, Matches } from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class SetAvailabilityDto {
@@ -24,6 +24,16 @@ export class SetAvailabilityDto {
     message: 'endTime must be in HH:mm or H:mm format',
   })
   endTime!: string;
+
+  @ApiProperty({
+    description: 'Track (pista|circulacion) — null for non-moto classes',
+    required: false,
+    example: 'pista',
+  })
+  @IsOptional()
+  @IsString()
+  @IsIn(['pista', 'circulacion'])
+  track?: string;
 }
 
 export class RemoveAvailabilityDto {

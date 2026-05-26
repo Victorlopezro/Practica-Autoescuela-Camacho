@@ -1,11 +1,11 @@
 'use client';
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useMemo } from 'react';
 import { Modal } from '@/components/shared/Modal';
 import { services } from '@/services';
 import type { TeacherDto } from '@/services/interfaces';
 import type { VehicleTypeConfigDto } from '@/services/interfaces';
-import type { StudentWithUserDto, StudentDto } from '@/services/interfaces';
+import type { StudentWithUserDto, StudentDto, ChangeSubTypeResponse } from '@/services/interfaces';
 
 interface CreateReservationModalProps {
   open: boolean;
@@ -41,6 +41,7 @@ export function CreateReservationModal({ open, onClose, onSuccess }: CreateReser
 
   // Create
   const [creating, setCreating] = useState(false);
+  const [changingSubType, setChangingSubType] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   // Load teachers and vehicle types on mount
@@ -165,6 +166,22 @@ export function CreateReservationModal({ open, onClose, onSuccess }: CreateReser
     return null;
   };
 
+  const handleChangeSubType = async () => {
+    if (!selectedStudent) return;
+    setChangingSubType(true);
+    setErrorMessage(null);
+    try {
+      const result = await services.student.changeSubType(selectedStudent.id);
+      // Refresh student profile to reflect new sub-type
+      const profile = await services.student.getProfile(selectedStudent.id);
+      setStudentProfile(profile);
+    } catch (err) {
+      setErrorMessage(err instanceof Error ? err.message : 'Error al cambiar a circulación');
+    } finally {
+      setChangingSubType(false);
+    }
+  };
+
   const handleCreate = async () => {
     if (!selectedStudent || !selectedSlot || !teacherId || !vehicleType) return;
 
@@ -206,6 +223,14 @@ export function CreateReservationModal({ open, onClose, onSuccess }: CreateReser
     !vehicleType ||
     !selectedStudent ||
     creating;
+
+  // Filter vehicle types by student license sub-type
+  const filteredVehicleTypes = useMemo(() => {
+    if (!studentProfile?.licenseSubType) return vehicleTypes;
+    // pista → only 'moto-pista', circulacion → only 'moto-circulacion'
+    const matchingType = `moto-${studentProfile.licenseSubType}`;
+    return vehicleTypes.filter((vt) => vt.type === matchingType);
+  }, [vehicleTypes, studentProfile?.licenseSubType]);
 
   const reserveLabel = creating
     ? 'Reservando...'
@@ -267,7 +292,7 @@ export function CreateReservationModal({ open, onClose, onSuccess }: CreateReser
             disabled={creating}
           >
             <option value="">Seleccionar tipo</option>
-            {vehicleTypes.map((vt) => (
+            {filteredVehicleTypes.map((vt) => (
               <option key={vt.id} value={vt.type}>
                 {vt.type} ({vt.duration}min)
               </option>
@@ -375,19 +400,45 @@ export function CreateReservationModal({ open, onClose, onSuccess }: CreateReser
             {loadingProfile ? (
               <p className="text-xs text-on-surface-variant mt-1">Cargando perfil...</p>
             ) : studentProfile ? (
-              <div className="mt-2">
-                <p className="text-sm">
-                  <span className="text-on-surface-variant">Clases restantes: </span>
-                  <span
-                    className={`font-semibold ${
-                      studentProfile.remainingClasses > 0 ? 'text-primary' : 'text-error'
-                    }`}
+              <div className="mt-2 space-y-2">
+                <div className="flex items-center gap-2 flex-wrap">
+                  <p className="text-sm">
+                    <span className="text-on-surface-variant">Clases restantes: </span>
+                    <span
+                      className={`font-semibold ${
+                        studentProfile.remainingClasses > 0 ? 'text-primary' : 'text-error'
+                      }`}
+                    >
+                      {studentProfile.remainingClasses}
+                    </span>
+                  </p>
+
+                  {/* License sub-type badge */}
+                  {studentProfile.licenseSubType && (
+                    <span className={`text-label-caps px-2 py-0.5 rounded-full ${
+                      studentProfile.licenseSubType === 'pista'
+                        ? 'bg-amber-100 text-amber-700'
+                        : 'bg-sky-100 text-sky-700'
+                    }`}>
+                      {studentProfile.licenseSubType === 'pista' ? 'Pista' : 'Circulación'}
+                    </span>
+                  )}
+                </div>
+
+                {/* "Pasar a Circulación" button — only for pista students */}
+                {studentProfile.licenseSubType === 'pista' && (
+                  <button
+                    onClick={handleChangeSubType}
+                    disabled={changingSubType}
+                    className="px-3 py-1.5 text-xs font-medium bg-amber-500 text-white rounded-lg hover:bg-amber-600 disabled:opacity-50 transition-colors cursor-pointer"
+                    type="button"
                   >
-                    {studentProfile.remainingClasses}
-                  </span>
-                </p>
+                    {changingSubType ? 'Cambiando...' : 'Pasar a Circulación'}
+                  </button>
+                )}
+
                 {doubleSession && (
-                  <p className="text-xs text-on-surface-variant mt-1">
+                  <p className="text-xs text-on-surface-variant">
                     Sesión doble: requiere al menos 2 clases
                   </p>
                 )}

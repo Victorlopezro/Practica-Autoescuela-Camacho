@@ -37,6 +37,8 @@ export interface RuleContext {
   doubleSession: boolean;
   /** License types of students with overlapping reservations (populated when overlap detected) */
   overlappingLicenseTypes?: string[];
+  /** Vehicle types of overlapping reservations */
+  overlappingVehicleTypes?: string[];
   /** Number of existing overlapping reservations */
   overlappingCount?: number;
 }
@@ -352,6 +354,9 @@ export class RuleEngineService implements OnModuleInit {
 
       case 'overlappingLicenseTypes':
         return context.overlappingLicenseTypes;
+
+      case 'overlappingVehicleTypes':
+        return context.overlappingVehicleTypes;
 
       case 'overlappingCount':
         return context.overlappingCount;

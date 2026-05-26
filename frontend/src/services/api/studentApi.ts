@@ -1,5 +1,5 @@
 import apiClient from './client';
-import type { IStudentService, StudentDto, PaginatedStudents, CreateStudentDTO, UpdateStudentDTO } from '../interfaces/student.service';
+import type { IStudentService, StudentDto, PaginatedStudents, CreateStudentDTO, UpdateStudentDTO, ChangeSubTypeResponse } from '../interfaces/student.service';
 
 interface AdjustBalancePayload {
   amount: number;
@@ -51,5 +51,10 @@ export const studentApi: IStudentService = {
 
   async deleteStudent(id: string): Promise<void> {
     await apiClient.delete(`/students/${id}`);
+  },
+
+  async changeSubType(studentId: string): Promise<ChangeSubTypeResponse> {
+    const { data } = await apiClient.patch<ChangeSubTypeResponse>(`/students/${studentId}/sub-type`);
+    return data;
   },
 };

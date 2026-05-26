@@ -7,6 +7,7 @@ import { Modal } from '@/components/shared/Modal';
 import { useData } from '@/hooks/useData';
 import { services } from '@/services';
 import type { AdminPlanningDto, DayPlanningDto, PlanningReservationDto } from '@/lib/dto/admin-planning.dto';
+import { WeeklyPlanningEditor } from './WeeklyPlanningEditor';
 
 /* ─── Helpers ─────────────────────────────────────────────────── */
 
@@ -91,6 +92,7 @@ export default function AdminSchedulesPage() {
   const today = new Date().toISOString().split('T')[0];
   const [rangeStart, setRangeStart] = useState(today);
   const [selectedTeacherId, setSelectedTeacherId] = useState<string | null>(null);
+  const [planningMode, setPlanningMode] = useState(false);
   const [selectedDate, setSelectedDate] = useState<string | null>(null);
   const [mobileDay, setMobileDay] = useState(today);
 
@@ -242,6 +244,17 @@ export default function AdminSchedulesPage() {
           >
             HOY
           </button>
+          <button
+            onClick={() => setPlanningMode((prev) => !prev)}
+            className={`px-2.5 py-1 text-xs font-medium rounded-lg transition-colors cursor-pointer ${
+              planningMode
+                ? 'bg-primary text-white'
+                : 'text-primary hover:bg-primary-container/20'
+            }`}
+            aria-label="Planificación Semanal"
+          >
+            Planificación Semanal
+          </button>
           <span className="text-sm font-medium text-on-surface">{rangeLabel}</span>
         </div>
         <button
@@ -253,326 +266,336 @@ export default function AdminSchedulesPage() {
         </button>
       </div>
 
-      {/* ── Legend ─────────────────────────────────────────────── */}
-      <div className="flex items-center gap-3 text-xs text-on-surface-variant flex-wrap">
-        <span className="flex items-center gap-1">
-          <span className="w-2.5 h-2.5 rounded-sm bg-green-50 border border-green-200" />
-          Libre
-        </span>
-        <span className="flex items-center gap-1">
-          <span className="w-2.5 h-2.5 rounded-sm bg-yellow-50 border border-yellow-200" />
-          Parcial
-        </span>
-        <span className="flex items-center gap-1">
-          <span className="w-2.5 h-2.5 rounded-sm bg-red-50 border border-red-200" />
-          Completo
-        </span>
-        <span className="flex items-center gap-1">
-          <span className="w-2.5 h-2.5 rounded-sm bg-gray-50 border border-gray-200" />
-          No disponible
-        </span>
-      </div>
-
-      {/* ── Data view ─────────────────────────────────────────── */}
-      <DataView
-        data={data}
-        isLoading={isLoading}
-        error={error}
-        onRetry={refresh}
-        loadingComponent={
-          <>
-            <div className="hidden md:block">{desktopSkeleton()}</div>
-            <div className="md:hidden">{mobileSkeleton()}</div>
-          </>
-        }
-        emptyComponent={
-          <div className="flex flex-col items-center justify-center py-16 gap-3">
-            <span className="material-symbols-outlined text-[48px] text-on-surface-variant">calendar_month</span>
-            <p className="text-body-sm text-on-surface-variant">No hay datos disponibles</p>
+      {planningMode && data ? (
+        <WeeklyPlanningEditor
+          teachers={data.teachers.map((t) => ({ id: t.id, name: t.name }))}
+          initialTeacherId={data.teachers[0]?.id}
+          onRefreshPlanning={refresh}
+        />
+      ) : (
+        <>
+          {/* ── Legend ─────────────────────────────────────────────── */}
+          <div className="flex items-center gap-3 text-xs text-on-surface-variant flex-wrap">
+            <span className="flex items-center gap-1">
+              <span className="w-2.5 h-2.5 rounded-sm bg-green-50 border border-green-200" />
+              Libre
+            </span>
+            <span className="flex items-center gap-1">
+              <span className="w-2.5 h-2.5 rounded-sm bg-yellow-50 border border-yellow-200" />
+              Parcial
+            </span>
+            <span className="flex items-center gap-1">
+              <span className="w-2.5 h-2.5 rounded-sm bg-red-50 border border-red-200" />
+              Completo
+            </span>
+            <span className="flex items-center gap-1">
+              <span className="w-2.5 h-2.5 rounded-sm bg-gray-50 border border-gray-200" />
+              No disponible
+            </span>
           </div>
-        }
-      >
-        {(planning) =>
-          !hasAnyAvailability ? (
-            <div className="flex flex-col items-center justify-center py-16 gap-3">
-              <span className="material-symbols-outlined text-[48px] text-on-surface-variant">event_busy</span>
-              <p className="text-body-sm text-on-surface-variant">
-                Ningún profesor tiene disponibilidad en este rango
-              </p>
-            </div>
-          ) : (
-            <>
-              {/* ══════════════════════════════════════════════════
-                  DESKTOP VIEW
-                  ══════════════════════════════════════════════════ */}
-              <div className="hidden md:block overflow-x-auto rounded-xl border border-outline-variant/20">
-                <div className="min-w-[900px]">
-                  {/* Day headers row */}
-                  <div className="grid grid-cols-[140px_repeat(30,minmax(44px,1fr))]">
-                    <div className="sticky left-0 z-10 bg-white py-2.5" />
-                    {dayHeaders.map((h) => (
-                      <div
-                        key={h.date}
-                        className="text-[11px] leading-tight font-medium text-on-surface-variant text-center py-2.5 px-0.5 truncate bg-white border-b border-outline-variant/20"
-                      >
-                        {h.label}
-                      </div>
-                    ))}
-                  </div>
 
-                  {/* Teacher rows */}
-                  {planning.teachers.map((teacher) => (
-                    <div
-                      key={teacher.id}
-                      className="grid grid-cols-[140px_repeat(30,minmax(44px,1fr))] border-t border-outline-variant/10"
-                    >
-                      {/* Teacher name — sticky left */}
-                      <div className="sticky left-0 z-10 bg-white flex items-center pr-2 py-3 border-r border-outline-variant/10">
-                        <span className="text-sm font-medium text-on-surface truncate">
-                          {teacher.name}
-                        </span>
-                      </div>
-
-                      {/* Day cells */}
-                      {teacher.days.slice(0, 30).map((day) => {
-                        const c = getCellColors(day);
-                        return (
-                          <div
-                            key={day.date}
-                            onClick={() => {
-                              setSelectedTeacherId(teacher.id);
-                              setSelectedDate(day.date);
-                            }}
-                            className={`${c.bg} ${c.text} ${c.border} border-b border-r text-xs text-center py-3 px-0.5 cursor-pointer hover:opacity-80 transition-opacity`}
-                            title={`${teacher.name} — ${formatDateHeader(day.date)}: ${day.bookedSlots}/${day.totalSlots}`}
-                          >
-                            {c.display}
-                          </div>
-                        );
-                      })}
-                    </div>
-                  ))}
-                </div>
-              </div>
-
-              {/* ══════════════════════════════════════════════════
-                  MOBILE VIEW
-                  ══════════════════════════════════════════════════ */}
-              <div className="md:hidden space-y-4">
-                {/* Date selector — horizontal scroll */}
-                <div className="flex gap-1 overflow-x-auto pb-1">
-                  {calendarDays.map((d) => (
-                    <button
-                      key={d.date}
-                      onClick={() => setMobileDay(d.date)}
-                      className={`shrink-0 w-11 h-14 rounded-lg flex flex-col items-center justify-center text-xs font-medium transition-colors cursor-pointer ${
-                        d.date === mobileDay
-                          ? 'bg-primary text-white'
-                          : 'bg-surface-container-low text-on-surface-variant hover:bg-surface-container'
-                      } ${d.isToday && d.date !== mobileDay ? 'ring-2 ring-primary/30' : ''}`}
-                    >
-                      {d.day}
-                    </button>
-                  ))}
-                </div>
-
-                {mobileDayData.length === 0 ? (
-                  <p className="text-sm text-on-surface-variant text-center py-4">
-                    No hay datos para este día
-                  </p>
-                ) : (
-                  mobileDayData.map(({ teacher, day }) => {
-                    const cc = getMobileCardColors(day);
-                    return (
-                      <Card key={teacher.id}>
-                        <div className="flex items-center justify-between mb-2">
-                          <div className="flex items-center gap-2">
-                            <span className={`w-2 h-2 rounded-full shrink-0 ${cc.dot}`} />
-                            <h4 className="font-medium text-on-surface text-sm">{teacher.name}</h4>
-                          </div>
-                          <button
-                            onClick={() => {
-                              setSelectedTeacherId(teacher.id);
-                              setSelectedDate(day?.date ?? mobileDay);
-                            }}
-                            className="text-xs text-primary hover:text-primary/80 font-medium cursor-pointer"
-                          >
-                            Ver detalle
-                          </button>
-                        </div>
-
-                        {!day || !day.isAvailable ? (
-                          <p className="text-xs text-on-surface-variant">
-                            {day?.reason ?? 'No disponible'}
-                          </p>
-                        ) : (
-                          <>
-                            <p className={`text-xs font-medium ${cc.text} mb-2`}>
-                              {day.bookedSlots} slots ocupados de {day.totalSlots}
-                            </p>
-
-                            {day.reservations.length > 0 ? (
-                              <div className="space-y-1.5">
-                                {day.reservations.map((res) => (
-                                  <div
-                                    key={res.id}
-                                    className="flex items-center justify-between bg-white rounded-lg p-2.5 text-xs border border-outline-variant/20"
-                                  >
-                                    <div className="flex items-center gap-2 min-w-0">
-                                      <span className="font-mono text-on-surface-variant shrink-0 whitespace-nowrap">
-                                        {formatTime(res.startTime)}
-                                      </span>
-                                      <span className="font-medium text-on-surface truncate">
-                                        {res.student
-                                          ? `${res.student.name} ${res.student.lastName}`
-                                          : '—'}
-                                      </span>
-                                    </div>
-                                    <div className="flex items-center gap-1.5 shrink-0 ml-2">
-                                      <span className="text-[10px] text-on-surface-variant whitespace-nowrap">
-                                        {getVehicleLabel(res.vehicleType)}
-                                      </span>
-                                      <span className="text-[10px] text-on-surface-variant">
-                                        {res.duration}
-                                        &apos;
-                                      </span>
-                                    </div>
-                                  </div>
-                                ))}
-                              </div>
-                            ) : (
-                              <p className="text-xs text-primary">Todos los slots disponibles</p>
-                            )}
-                          </>
-                        )}
-                      </Card>
-                    );
-                  })
-                )}
-              </div>
-            </>
-          )
-        }
-      </DataView>
-
-      {/* ══════════════════════════════════════════════════════════
-          DETAIL MODAL
-          ══════════════════════════════════════════════════════════ */}
-      <Modal
-        open={selectedTeacherId !== null && selectedDate !== null}
-        onClose={() => {
-          setSelectedTeacherId(null);
-          setSelectedDate(null);
-        }}
-        title={
-          selectedTeacherName && selectedDate
-            ? `${selectedTeacherName} — ${formatDateHeader(selectedDate)}`
-            : 'Detalle'
-        }
-      >
-        {selectedDayPlanning ? (
-          <div className="space-y-5">
-            {/* Summary badge */}
-            <div className="flex items-center gap-2">
-              <span
-                className={`px-2.5 py-1 rounded-full text-xs font-medium ${
-                  !selectedDayPlanning.isAvailable
-                    ? 'bg-gray-100 text-gray-500'
-                    : selectedDayPlanning.freeSlots === selectedDayPlanning.totalSlots &&
-                        selectedDayPlanning.totalSlots > 0
-                      ? 'bg-green-50 text-green-700'
-                      : selectedDayPlanning.freeSlots > 0
-                        ? 'bg-yellow-50 text-yellow-700'
-                        : 'bg-red-50 text-red-700'
-                }`}
-              >
-                {!selectedDayPlanning.isAvailable
-                  ? 'No disponible'
-                  : `${selectedDayPlanning.bookedSlots}/${selectedDayPlanning.totalSlots} slots`}
-              </span>
-              {selectedDayPlanning.reason && (
-                <span className="text-xs text-on-surface-variant">
-                  {selectedDayPlanning.reason}
-                </span>
-              )}
-            </div>
-
-            {selectedDayPlanning.isAvailable && (
+          {/* ── Data view ─────────────────────────────────────────── */}
+          <DataView
+            data={data}
+            isLoading={isLoading}
+            error={error}
+            onRetry={refresh}
+            loadingComponent={
               <>
-                {/* Reservation list */}
-                {selectedDayPlanning.reservations.length > 0 ? (
-                  <div className="space-y-2">
-                    <h4 className="text-sm font-semibold text-on-surface">Reservas</h4>
-                    <div className="space-y-2 max-h-64 overflow-y-auto">
-                      {selectedDayPlanning.reservations.map((res: PlanningReservationDto) => (
+                <div className="hidden md:block">{desktopSkeleton()}</div>
+                <div className="md:hidden">{mobileSkeleton()}</div>
+              </>
+            }
+            emptyComponent={
+              <div className="flex flex-col items-center justify-center py-16 gap-3">
+                <span className="material-symbols-outlined text-[48px] text-on-surface-variant">calendar_month</span>
+                <p className="text-body-sm text-on-surface-variant">No hay datos disponibles</p>
+              </div>
+            }
+          >
+            {(planning) =>
+              !hasAnyAvailability ? (
+                <div className="flex flex-col items-center justify-center py-16 gap-3">
+                  <span className="material-symbols-outlined text-[48px] text-on-surface-variant">event_busy</span>
+                  <p className="text-body-sm text-on-surface-variant">
+                    Ningún profesor tiene disponibilidad en este rango
+                  </p>
+                </div>
+              ) : (
+                <>
+                  {/* ══════════════════════════════════════════════════
+                      DESKTOP VIEW
+                      ══════════════════════════════════════════════════ */}
+                  <div className="hidden md:block overflow-x-auto rounded-xl border border-outline-variant/20">
+                    <div className="min-w-[900px]">
+                      {/* Day headers row */}
+                      <div className="grid grid-cols-[140px_repeat(30,minmax(44px,1fr))]">
+                        <div className="sticky left-0 z-10 bg-white py-2.5" />
+                        {dayHeaders.map((h) => (
+                          <div
+                            key={h.date}
+                            className="text-[11px] leading-tight font-medium text-on-surface-variant text-center py-2.5 px-0.5 truncate bg-white border-b border-outline-variant/20"
+                          >
+                            {h.label}
+                          </div>
+                        ))}
+                      </div>
+
+                      {/* Teacher rows */}
+                      {planning.teachers.map((teacher) => (
                         <div
-                          key={res.id}
-                          className="flex items-center justify-between p-3 bg-surface-container-low rounded-lg text-sm"
+                          key={teacher.id}
+                          className="grid grid-cols-[140px_repeat(30,minmax(44px,1fr))] border-t border-outline-variant/10"
                         >
-                          <div className="flex items-center gap-3 min-w-0">
-                            <span className="font-mono text-on-surface-variant shrink-0">
-                              {formatTime(res.startTime)}
-                            </span>
-                            <span className="font-medium text-on-surface truncate">
-                              {res.student
-                                ? `${res.student.name} ${res.student.lastName}`
-                                : 'Sin alumno'}
+                          {/* Teacher name — sticky left */}
+                          <div className="sticky left-0 z-10 bg-white flex items-center pr-2 py-3 border-r border-outline-variant/10">
+                            <span className="text-sm font-medium text-on-surface truncate">
+                              {teacher.name}
                             </span>
                           </div>
-                          <div className="flex items-center gap-2 shrink-0 ml-2">
-                            <span className="text-xs text-on-surface-variant">
-                              {getVehicleLabel(res.vehicleType)}
-                            </span>
-                            <span className="text-xs text-on-surface-variant">
-                              {res.duration}
-                              min
-                            </span>
-                            <span
-                              className={`text-label-caps px-1.5 py-0.5 rounded-full font-medium ${
-                                STATUS_STYLES[res.status] ?? 'bg-gray-100 text-gray-500'
-                              }`}
-                            >
-                              {STATUS_LABELS[res.status] ?? res.status}
-                            </span>
-                          </div>
+
+                          {/* Day cells */}
+                          {teacher.days.slice(0, 30).map((day) => {
+                            const c = getCellColors(day);
+                            return (
+                              <div
+                                key={day.date}
+                                onClick={() => {
+                                  setSelectedTeacherId(teacher.id);
+                                  setSelectedDate(day.date);
+                                }}
+                                className={`${c.bg} ${c.text} ${c.border} border-b border-r text-xs text-center py-3 px-0.5 cursor-pointer hover:opacity-80 transition-opacity`}
+                                title={`${teacher.name} — ${formatDateHeader(day.date)}: ${day.bookedSlots}/${day.totalSlots}`}
+                              >
+                                {c.display}
+                              </div>
+                            );
+                          })}
                         </div>
                       ))}
                     </div>
                   </div>
-                ) : (
-                  <div className="flex flex-col items-center gap-2 py-4">
-                    <span className="material-symbols-outlined text-[32px] text-primary">check_circle</span>
-                    <p className="text-sm text-primary font-medium">
-                      No hay reservas para este día
-                    </p>
+
+                  {/* ══════════════════════════════════════════════════
+                      MOBILE VIEW
+                      ══════════════════════════════════════════════════ */}
+                  <div className="md:hidden space-y-4">
+                    {/* Date selector — horizontal scroll */}
+                    <div className="flex gap-1 overflow-x-auto pb-1">
+                      {calendarDays.map((d) => (
+                        <button
+                          key={d.date}
+                          onClick={() => setMobileDay(d.date)}
+                          className={`shrink-0 w-11 h-14 rounded-lg flex flex-col items-center justify-center text-xs font-medium transition-colors cursor-pointer ${
+                            d.date === mobileDay
+                              ? 'bg-primary text-white'
+                              : 'bg-surface-container-low text-on-surface-variant hover:bg-surface-container'
+                          } ${d.isToday && d.date !== mobileDay ? 'ring-2 ring-primary/30' : ''}`}
+                        >
+                          {d.day}
+                        </button>
+                      ))}
+                    </div>
+
+                    {mobileDayData.length === 0 ? (
+                      <p className="text-sm text-on-surface-variant text-center py-4">
+                        No hay datos para este día
+                      </p>
+                    ) : (
+                      mobileDayData.map(({ teacher, day }) => {
+                        const cc = getMobileCardColors(day);
+                        return (
+                          <Card key={teacher.id}>
+                            <div className="flex items-center justify-between mb-2">
+                              <div className="flex items-center gap-2">
+                                <span className={`w-2 h-2 rounded-full shrink-0 ${cc.dot}`} />
+                                <h4 className="font-medium text-on-surface text-sm">{teacher.name}</h4>
+                              </div>
+                              <button
+                                onClick={() => {
+                                  setSelectedTeacherId(teacher.id);
+                                  setSelectedDate(day?.date ?? mobileDay);
+                                }}
+                                className="text-xs text-primary hover:text-primary/80 font-medium cursor-pointer"
+                              >
+                                Ver detalle
+                              </button>
+                            </div>
+
+                            {!day || !day.isAvailable ? (
+                              <p className="text-xs text-on-surface-variant">
+                                {day?.reason ?? 'No disponible'}
+                              </p>
+                            ) : (
+                              <>
+                                <p className={`text-xs font-medium ${cc.text} mb-2`}>
+                                  {day.bookedSlots} slots ocupados de {day.totalSlots}
+                                </p>
+
+                                {day.reservations.length > 0 ? (
+                                  <div className="space-y-1.5">
+                                    {day.reservations.map((res) => (
+                                      <div
+                                        key={res.id}
+                                        className="flex items-center justify-between bg-white rounded-lg p-2.5 text-xs border border-outline-variant/20"
+                                      >
+                                        <div className="flex items-center gap-2 min-w-0">
+                                          <span className="font-mono text-on-surface-variant shrink-0 whitespace-nowrap">
+                                            {formatTime(res.startTime)}
+                                          </span>
+                                          <span className="font-medium text-on-surface truncate">
+                                            {res.student
+                                              ? `${res.student.name} ${res.student.lastName}`
+                                              : '—'}
+                                          </span>
+                                        </div>
+                                        <div className="flex items-center gap-1.5 shrink-0 ml-2">
+                                          <span className="text-[10px] text-on-surface-variant whitespace-nowrap">
+                                            {getVehicleLabel(res.vehicleType)}
+                                          </span>
+                                          <span className="text-[10px] text-on-surface-variant">
+                                            {res.duration}
+                                            &apos;
+                                          </span>
+                                        </div>
+                                      </div>
+                                    ))}
+                                  </div>
+                                ) : (
+                                  <p className="text-xs text-primary">Todos los slots disponibles</p>
+                                )}
+                              </>
+                            )}
+                          </Card>
+                        );
+                      })
+                    )}
                   </div>
+                </>
+              )
+            }
+          </DataView>
+
+          {/* ══════════════════════════════════════════════════════════
+              DETAIL MODAL
+              ══════════════════════════════════════════════════════════ */}
+          <Modal
+            open={selectedTeacherId !== null && selectedDate !== null}
+            onClose={() => {
+              setSelectedTeacherId(null);
+              setSelectedDate(null);
+            }}
+            title={
+              selectedTeacherName && selectedDate
+                ? `${selectedTeacherName} — ${formatDateHeader(selectedDate)}`
+                : 'Detalle'
+            }
+          >
+            {selectedDayPlanning ? (
+              <div className="space-y-5">
+                {/* Summary badge */}
+                <div className="flex items-center gap-2">
+                  <span
+                    className={`px-2.5 py-1 rounded-full text-xs font-medium ${
+                      !selectedDayPlanning.isAvailable
+                        ? 'bg-gray-100 text-gray-500'
+                        : selectedDayPlanning.freeSlots === selectedDayPlanning.totalSlots &&
+                            selectedDayPlanning.totalSlots > 0
+                          ? 'bg-green-50 text-green-700'
+                          : selectedDayPlanning.freeSlots > 0
+                            ? 'bg-yellow-50 text-yellow-700'
+                            : 'bg-red-50 text-red-700'
+                    }`}
+                  >
+                    {!selectedDayPlanning.isAvailable
+                      ? 'No disponible'
+                      : `${selectedDayPlanning.bookedSlots}/${selectedDayPlanning.totalSlots} slots`}
+                  </span>
+                  {selectedDayPlanning.reason && (
+                    <span className="text-xs text-on-surface-variant">
+                      {selectedDayPlanning.reason}
+                    </span>
+                  )}
+                </div>
+
+                {selectedDayPlanning.isAvailable && (
+                  <>
+                    {/* Reservation list */}
+                    {selectedDayPlanning.reservations.length > 0 ? (
+                      <div className="space-y-2">
+                        <h4 className="text-sm font-semibold text-on-surface">Reservas</h4>
+                        <div className="space-y-2 max-h-64 overflow-y-auto">
+                          {selectedDayPlanning.reservations.map((res: PlanningReservationDto) => (
+                            <div
+                              key={res.id}
+                              className="flex items-center justify-between p-3 bg-surface-container-low rounded-lg text-sm"
+                            >
+                              <div className="flex items-center gap-3 min-w-0">
+                                <span className="font-mono text-on-surface-variant shrink-0">
+                                  {formatTime(res.startTime)}
+                                </span>
+                                <span className="font-medium text-on-surface truncate">
+                                  {res.student
+                                    ? `${res.student.name} ${res.student.lastName}`
+                                    : 'Sin alumno'}
+                                </span>
+                              </div>
+                              <div className="flex items-center gap-2 shrink-0 ml-2">
+                                <span className="text-xs text-on-surface-variant">
+                                  {getVehicleLabel(res.vehicleType)}
+                                </span>
+                                <span className="text-xs text-on-surface-variant">
+                                  {res.duration}
+                                  min
+                                </span>
+                                <span
+                                  className={`text-label-caps px-1.5 py-0.5 rounded-full font-medium ${
+                                    STATUS_STYLES[res.status] ?? 'bg-gray-100 text-gray-500'
+                                  }`}
+                                >
+                                  {STATUS_LABELS[res.status] ?? res.status}
+                                </span>
+                              </div>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    ) : (
+                      <div className="flex flex-col items-center gap-2 py-4">
+                        <span className="material-symbols-outlined text-[32px] text-primary">check_circle</span>
+                        <p className="text-sm text-primary font-medium">
+                          No hay reservas para este día
+                        </p>
+                      </div>
+                    )}
+
+                    {/* Available slots */}
+                    {selectedDayPlanning.freeSlots > 0 && (
+                      <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
+                        <p className="text-sm font-medium text-green-700">
+                          {selectedDayPlanning.freeSlots} slot
+                          {selectedDayPlanning.freeSlots !== 1 ? 's' : ''} disponible
+                          {selectedDayPlanning.freeSlots !== 1 ? 's' : ''}
+                        </p>
+                      </div>
+                    )}
+                  </>
                 )}
 
-                {/* Available slots */}
-                {selectedDayPlanning.freeSlots > 0 && (
-                  <div className="p-3 bg-green-50 border border-green-200 rounded-lg">
-                    <p className="text-sm font-medium text-green-700">
-                      {selectedDayPlanning.freeSlots} slot
-                      {selectedDayPlanning.freeSlots !== 1 ? 's' : ''} disponible
-                      {selectedDayPlanning.freeSlots !== 1 ? 's' : ''}
-                    </p>
+                {!selectedDayPlanning.isAvailable && selectedDayPlanning.reason && (
+                  <div className="p-3 bg-gray-50 border border-gray-200 rounded-lg">
+                    <p className="text-sm text-gray-600">{selectedDayPlanning.reason}</p>
                   </div>
                 )}
-              </>
-            )}
-
-            {!selectedDayPlanning.isAvailable && selectedDayPlanning.reason && (
-              <div className="p-3 bg-gray-50 border border-gray-200 rounded-lg">
-                <p className="text-sm text-gray-600">{selectedDayPlanning.reason}</p>
               </div>
+            ) : (
+              <p className="text-sm text-on-surface-variant text-center py-4">
+                No hay información disponible para esta selección
+              </p>
             )}
-          </div>
-        ) : (
-          <p className="text-sm text-on-surface-variant text-center py-4">
-            No hay información disponible para esta selección
-          </p>
-        )}
-      </Modal>
+          </Modal>
+        </>
+      )}
     </div>
   );
 }

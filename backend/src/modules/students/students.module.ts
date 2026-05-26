@@ -7,6 +7,7 @@ import { DeductClassHandler } from './commands/deduct-class.handler';
 import { DeleteStudentHandler } from './commands/delete-student.handler';
 import { RefillClassHandler } from './commands/refill-class.handler';
 import { UpdateStudentHandler } from './commands/update-student.handler';
+import { ChangeSubTypeHandler } from './commands/change-sub-type.handler';
 
 const handlers = [
   AdjustBalanceHandler,
@@ -15,6 +16,7 @@ const handlers = [
   DeleteStudentHandler,
   RefillClassHandler,
   UpdateStudentHandler,
+  ChangeSubTypeHandler,
 ];
 
 @Module({
