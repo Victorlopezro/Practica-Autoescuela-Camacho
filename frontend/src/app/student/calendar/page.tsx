@@ -1,6 +1,6 @@
 'use client';
 
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { Card, CardHeader } from '@/components/layouts/Card';
 import { DataView } from '@/components/DataView';
 import { useAuth } from '@/hooks/useAuth';
@@ -96,6 +96,22 @@ export default function StudentCalendar() {
   }, [rangeStart]);
 
   const noRemainingClasses = remainingClasses <= 0;
+
+  // ── Auto-detect vehicle type for A1/A2 students with licenseSubType ──
+
+  const hasFixedVehicleType = useMemo(() => !!(studentProfile?.licenseSubType), [studentProfile?.licenseSubType]);
+  const fixedVehicleType = useMemo(() => {
+    if (!studentProfile?.licenseSubType) return null;
+    return `moto-${studentProfile.licenseSubType}`;
+  }, [studentProfile?.licenseSubType]);
+
+  useEffect(() => {
+    if (fixedVehicleType && selectedVehicleType !== fixedVehicleType) {
+      setSelectedVehicleType(fixedVehicleType);
+    }
+    // Only run when student profile loads with a fixed type
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [fixedVehicleType]);
 
   // Get slots for the selected date from the range data
   const selectedDaySlots = useMemo(() => {
@@ -227,27 +243,44 @@ export default function StudentCalendar() {
         </div>
       </div>
 
-      {/* Vehicle type selector */}
-      <Card>
-        <CardHeader title="Tipo de clase" />
-        <DataView data={vehicleTypes} isLoading={false} error={null}>
-          {(types) => (
-            <div className="grid grid-cols-2 gap-2">
-              {types.map((vt) => (
-                <button key={vt.id} onClick={() => setSelectedVehicleType(vt.type)}
-                  className={`p-3 rounded-lg text-sm font-medium transition-colors border cursor-pointer ${
-                    selectedVehicleType === vt.type
-                      ? 'bg-primary text-white border-primary'
-                      : 'bg-white text-on-surface border-outline-variant/30 hover:border-primary/50'
-                  }`}>
-                  <p className="capitalize">{vt.type.replace('-', ' ')}</p>
-                  <p className="text-xs opacity-70">{vt.duration} min</p>
-                </button>
-              ))}
+      {/* Vehicle type selector — hidden for A1/A2 with fixed licenseSubType */}
+      {hasFixedVehicleType ? (
+        <Card>
+          <CardHeader title="Tipo de clase" />
+          <div className="flex items-center gap-3 p-3 bg-primary-container/30 rounded-lg">
+            <span className="material-symbols-outlined text-[24px] text-primary">motorcycle</span>
+            <div>
+              <p className="text-sm font-medium text-on-surface capitalize">
+                {fixedVehicleType?.replace('-', ' ') ?? 'Moto'}
+              </p>
+              <p className="text-xs text-on-surface-variant">
+                {vehicleTypes?.find(v => v.type === fixedVehicleType)?.duration ?? 30} min · Auto-asignado
+              </p>
             </div>
-          )}
-        </DataView>
-      </Card>
+          </div>
+        </Card>
+      ) : (
+        <Card>
+          <CardHeader title="Tipo de clase" />
+          <DataView data={vehicleTypes} isLoading={false} error={null}>
+            {(types) => (
+              <div className="grid grid-cols-2 gap-2">
+                {types.map((vt) => (
+                  <button key={vt.id} onClick={() => setSelectedVehicleType(vt.type)}
+                    className={`p-3 rounded-lg text-sm font-medium transition-colors border cursor-pointer ${
+                      selectedVehicleType === vt.type
+                        ? 'bg-primary text-white border-primary'
+                        : 'bg-white text-on-surface border-outline-variant/30 hover:border-primary/50'
+                    }`}>
+                    <p className="capitalize">{vt.type.replace('-', ' ')}</p>
+                    <p className="text-xs opacity-70">{vt.duration} min</p>
+                  </button>
+                ))}
+              </div>
+            )}
+          </DataView>
+        </Card>
+      )}
 
       {/* 30-day Calendar Grid */}
       <Card accent>
