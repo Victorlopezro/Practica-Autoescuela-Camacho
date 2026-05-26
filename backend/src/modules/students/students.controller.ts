@@ -75,13 +75,33 @@ export class StudentsController {
       : {};
 
     if (search) {
-      (where as any).user = {
-        OR: [
-          { name: { contains: search, mode: 'insensitive' } },
-          { lastName: { contains: search, mode: 'insensitive' } },
-          { username: { contains: search, mode: 'insensitive' } },
-        ],
-      };
+      // Buscar users que coincidan (Student no tiene relación user en Prisma)
+      const matchingUsers = await this.prisma.user.findMany({
+        where: {
+          OR: [
+            { name: { contains: search, mode: 'insensitive' } },
+            { lastName: { contains: search, mode: 'insensitive' } },
+            { username: { contains: search, mode: 'insensitive' } },
+          ],
+        },
+        select: { id: true },
+      });
+
+      const matchingUserIds = matchingUsers.map((u) => u.id);
+
+      // Intersectar con filtro existente de teacher si hay
+      const existingUserIdFilter = (where as any).userId as
+        | { in: string[] }
+        | undefined;
+      if (existingUserIdFilter) {
+        (where as any).userId = {
+          in: existingUserIdFilter.in.filter((id) =>
+            matchingUserIds.includes(id),
+          ),
+        };
+      } else {
+        (where as any).userId = { in: matchingUserIds };
+      }
     }
 
     const [data, total] = await Promise.all([
