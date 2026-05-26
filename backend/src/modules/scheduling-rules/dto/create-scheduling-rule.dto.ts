@@ -4,6 +4,7 @@ import {
   IsEnum,
   IsInt,
   IsBoolean,
+  IsIn,
   Min,
   MinLength,
   MaxLength,
@@ -20,8 +21,11 @@ export const RULE_TYPES = [
 ] as const;
 export type RuleType = (typeof RULE_TYPES)[number];
 
-export const RULE_ACTIONS = ['allow', 'block', 'warn'] as const;
+export const RULE_ACTIONS = ['allow', 'block', 'warn', 'doubleBooking'] as const;
 export type RuleAction = (typeof RULE_ACTIONS)[number];
+
+export const RULE_CATEGORIES = ['evaluation', 'generation'] as const;
+export type RuleCategory = (typeof RULE_CATEGORIES)[number];
 
 export class CreateSchedulingRuleDto {
   @ApiProperty({
@@ -97,4 +101,13 @@ export class CreateSchedulingRuleDto {
   @IsOptional()
   @IsObject()
   appliesTo?: Record<string, unknown>;
+
+  @ApiPropertyOptional({
+    description: 'Rule category — evaluation (default) or generation',
+    enum: RULE_CATEGORIES,
+    default: 'evaluation',
+  })
+  @IsOptional()
+  @IsIn(['evaluation', 'generation'])
+  category?: string;
 }

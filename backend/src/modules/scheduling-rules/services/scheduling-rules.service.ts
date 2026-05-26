@@ -30,6 +30,7 @@ export class SchedulingRulesService {
         priority: dto.priority ?? 100,
         enabled: dto.enabled ?? true,
         appliesTo: (dto.appliesTo as Prisma.InputJsonValue) ?? Prisma.JsonNull,
+        category: dto.category ?? 'evaluation',
         createdById: userId,
       },
     });
@@ -103,6 +104,7 @@ export class SchedulingRulesService {
     if (dto.enabled !== undefined) data.enabled = dto.enabled;
     if (dto.appliesTo !== undefined)
       data.appliesTo = dto.appliesTo as Prisma.InputJsonValue;
+    if (dto.category !== undefined) data.category = dto.category;
 
     const rule = await this.prisma.schedulingRule.update({
       where: { id },

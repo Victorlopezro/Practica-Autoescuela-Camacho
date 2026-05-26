@@ -96,35 +96,46 @@ function getMockUser(username?: string): AuthUserDto {
 }
 
 const mockStudentService: IStudentService = {
-  async list() {
+  async list(_page?: number, _limit?: number, search?: string) {
     await delay(300);
+    const allStudents = [
+      {
+        id: 'student-1',
+        userId: 'user-1',
+        teacherId: 'teacher-1',
+        remainingClasses: 15,
+        balanceHistory: [],
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        user: { id: 'user-1', username: 'student', name: 'Juan', lastName: 'Pérez', email: 'juan@example.com', phone: '612345678' },
+      },
+      {
+        id: 'student-2',
+        userId: 'user-2',
+        teacherId: null,
+        remainingClasses: 0,
+        balanceHistory: [],
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+        user: { id: 'user-2', username: 'maria', name: 'María', lastName: 'García', email: 'maria@example.com', phone: '698765432' },
+      },
+    ];
+    let filtered = allStudents;
+    if (search) {
+      const term = search.toLowerCase();
+      filtered = allStudents.filter((s) => {
+        const name = (s.user?.name ?? '').toLowerCase();
+        const lastName = (s.user?.lastName ?? '').toLowerCase();
+        const username = (s.user?.username ?? '').toLowerCase();
+        return name.includes(term) || lastName.includes(term) || username.includes(term);
+      });
+    }
     return {
-      data: [
-        {
-          id: 'student-1',
-          userId: 'user-1',
-          teacherId: 'teacher-1',
-          remainingClasses: 15,
-          balanceHistory: [],
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-          user: { id: 'user-1', username: 'student', name: 'Juan', lastName: 'Pérez', email: 'juan@example.com', phone: '612345678' },
-        },
-        {
-          id: 'student-2',
-          userId: 'user-2',
-          teacherId: null,
-          remainingClasses: 0,
-          balanceHistory: [],
-          createdAt: new Date().toISOString(),
-          updatedAt: new Date().toISOString(),
-          user: { id: 'user-2', username: 'maria', name: 'María', lastName: 'García', email: 'maria@example.com', phone: '698765432' },
-        },
-      ],
-      total: 2,
-      page: 1,
-      limit: 10,
-      totalPages: 1,
+      data: filtered,
+      total: filtered.length,
+      page: _page ?? 1,
+      limit: _limit ?? 10,
+      totalPages: Math.ceil(filtered.length / (_limit ?? 10)),
     };
   },
   async getProfile() {
@@ -508,6 +519,7 @@ const mockSchedulingRuleService: ISchedulingRuleService = {
         priority: 1,
         enabled: true,
         appliesTo: null,
+        category: 'evaluation',
         createdById: 'admin-1',
         createdAt: '2026-05-01T00:00:00Z',
         updatedAt: '2026-05-01T00:00:00Z',
@@ -522,6 +534,7 @@ const mockSchedulingRuleService: ISchedulingRuleService = {
         priority: 1,
         enabled: true,
         appliesTo: null,
+        category: 'evaluation',
         createdById: 'admin-1',
         createdAt: '2026-05-01T00:00:00Z',
         updatedAt: '2026-05-01T00:00:00Z',
@@ -536,6 +549,7 @@ const mockSchedulingRuleService: ISchedulingRuleService = {
         priority: 10,
         enabled: false,
         appliesTo: null,
+        category: 'evaluation',
         createdById: 'admin-1',
         createdAt: '2026-05-10T00:00:00Z',
         updatedAt: '2026-05-10T00:00:00Z',
@@ -567,6 +581,7 @@ const mockSchedulingRuleService: ISchedulingRuleService = {
       priority: 1,
       enabled: true,
       appliesTo: null,
+      category: 'evaluation',
       createdById: 'admin-1',
       createdAt: '2026-05-01T00:00:00Z',
       updatedAt: '2026-05-01T00:00:00Z',
@@ -600,6 +615,7 @@ const mockSchedulingRuleService: ISchedulingRuleService = {
       priority: dto.priority ?? 1,
       enabled: dto.enabled ?? true,
       appliesTo: dto.appliesTo ?? null,
+      category: dto.category ?? 'evaluation',
       createdById: 'admin-1',
       createdAt: '2026-05-01T00:00:00Z',
       updatedAt: new Date().toISOString(),
@@ -625,6 +641,7 @@ const mockSchedulingRuleService: ISchedulingRuleService = {
       priority: 1,
       enabled: true,
       appliesTo: null,
+      category: 'evaluation',
       createdById: 'admin-1',
       createdAt: '2026-05-01T00:00:00Z',
       updatedAt: new Date().toISOString(),
@@ -642,6 +659,7 @@ const mockSchedulingRuleService: ISchedulingRuleService = {
       priority: 1,
       enabled,
       appliesTo: null,
+      category: 'evaluation',
       createdById: 'admin-1',
       createdAt: '2026-05-01T00:00:00Z',
       updatedAt: new Date().toISOString(),

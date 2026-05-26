@@ -52,7 +52,7 @@ export interface PaginatedStudents {
 }
 
 export interface IStudentService {
-  list(page?: number, limit?: number): Promise<PaginatedStudents>;
+  list(page?: number, limit?: number, search?: string): Promise<PaginatedStudents>;
   getProfile(studentId: string): Promise<StudentDto>;
   getBalance(studentId: string): Promise<Pick<StudentDto, 'remainingClasses' | 'balanceHistory'>>;
   deductClass(studentId: string, duration: number): Promise<StudentDto>;

@@ -7,9 +7,9 @@ interface AdjustBalancePayload {
 }
 
 export const studentApi: IStudentService = {
-  async list(page = 1, limit = 20): Promise<PaginatedStudents> {
+  async list(page = 1, limit = 20, search?: string): Promise<PaginatedStudents> {
     const { data } = await apiClient.get<PaginatedStudents>('/students', {
-      params: { page, limit },
+      params: { page, limit, search: search || undefined },
     });
     return data;
   },

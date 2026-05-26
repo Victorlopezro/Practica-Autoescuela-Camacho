@@ -1,5 +1,5 @@
 export type { IAuthService, LoginRequest, AuthResponse, AuthUserDto } from './auth.service';
-export type { IStudentService, StudentDto, StudentWithUserDto, CreateStudentDTO, UpdateStudentDTO } from './student.service';
+export type { IStudentService, StudentDto, StudentWithUserDto, CreateStudentDTO, UpdateStudentDTO, PaginatedStudents } from './student.service';
 export type { ITeacherService, TeacherDto, TeacherWithUserDto, TeacherStatsDto, CreateTeacherDTO, UpdateTeacherDTO } from './teacher.service';
 export type { IVehicleService, VehicleDto, VehicleIncidentDto } from './vehicle.service';
 export type { IReservationService, ReservationDto, AvailabilitySlot, CalendarReservationDto } from './reservation.service';
@@ -14,6 +14,14 @@ export type {
   SchedulingRuleQueryDto,
   PaginatedRulesDto,
   RuleType,
-  RULE_TYPES,
+  RuleAction,
+  RuleCategory,
   AppliesTo,
+  GenerationAction,
+} from './scheduling-rule.service';
+export {
+  RULE_TYPES,
+  RULE_ACTIONS,
+  RULE_CATEGORIES,
+  GENERATION_ACTIONS,
 } from './scheduling-rule.service';

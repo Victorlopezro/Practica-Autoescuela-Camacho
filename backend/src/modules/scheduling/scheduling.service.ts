@@ -179,8 +179,14 @@ export class SchedulingService {
     if (!teacher) throw new NotFoundException('Teacher not found');
 
     const baseSlotDuration = typeConfig?.duration ?? 45;
-    const effectiveDuration =
-      doubleSession && teacher.doubleSession
+
+    // Check generation rules for double booking
+    const genRules = await this.ruleEngine.getGenerationRules(teacherId);
+    const hasDoubleBookingGenRule = genRules.length > 0;
+
+    const effectiveDuration = hasDoubleBookingGenRule
+      ? baseSlotDuration * 2
+      : doubleSession && teacher.doubleSession
         ? baseSlotDuration * 2
         : baseSlotDuration;
 
@@ -332,7 +338,7 @@ export class SchedulingService {
           startTime: slotTimeStr,
           duration: effectiveDuration,
           vehicleType,
-          doubleSession: !!(doubleSession && teacher.doubleSession),
+          doubleSession: hasDoubleBookingGenRule || !!(doubleSession && teacher.doubleSession),
           ...(slotStudentContext ? { student: slotStudentContext } : {}),
         };
 
@@ -477,10 +483,17 @@ export class SchedulingService {
       }
     }
 
+    // Check generation rules for double booking
+    const genRules = await this.ruleEngine.getGenerationRules(teacherId);
+    const hasDoubleBookingGenRule = genRules.length > 0;
+
     // Generate slots — grid increment matches effectiveDuration
     const slots: string[] = [];
-    const effectiveDuration =
-      doubleSession && teacher.doubleSession ? slotDuration * 2 : slotDuration;
+    const effectiveDuration = hasDoubleBookingGenRule
+      ? slotDuration * 2
+      : doubleSession && teacher.doubleSession
+        ? slotDuration * 2
+        : slotDuration;
 
     const [startH, startM] = startTime.split(':').map(Number);
     const [endH, endM] = endTime.split(':').map(Number);
@@ -509,7 +522,7 @@ export class SchedulingService {
         startTime: slotTimeStr,
         duration: effectiveDuration,
         vehicleType,
-        doubleSession: !!(doubleSession && teacher.doubleSession),
+        doubleSession: hasDoubleBookingGenRule || !!(doubleSession && teacher.doubleSession),
         ...(singleSlotStudentContext
           ? { student: singleSlotStudentContext }
           : {}),
@@ -546,7 +559,7 @@ export class SchedulingService {
       date,
       slots,
       slotDuration: effectiveDuration,
-      doubleSession: teacher.doubleSession,
+      doubleSession: hasDoubleBookingGenRule || teacher.doubleSession,
     };
   }
 }

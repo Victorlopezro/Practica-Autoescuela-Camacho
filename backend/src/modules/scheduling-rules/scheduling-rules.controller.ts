@@ -48,6 +48,13 @@ export class SchedulingRulesController {
     @Body() dto: CreateSchedulingRuleDto,
     @CurrentUser() user: JwtPayload,
   ) {
+    // Generation rules: skip AI translation, set defaults directly
+    if (dto.category === 'generation') {
+      if (!dto.action) dto.action = 'doubleBooking';
+      if (!dto.ruleType) dto.ruleType = 'general';
+      return this.rulesService.create(dto, user.sub);
+    }
+
     // Auto-translate from natural language if structured rules not provided
     if (dto.naturalLanguage && !dto.structuredRules) {
       const result = await this.aiService.translateRule(dto.naturalLanguage);
@@ -156,6 +163,11 @@ export class SchedulingRulesController {
   })
   async translate(@Param('id') id: string) {
     const rule = await this.rulesService.findOne(id);
+
+    // Generation rules cannot be translated — they are created manually
+    if (rule.category === 'generation') {
+      return rule;
+    }
 
     const result = await this.aiService.translateRule(rule.naturalLanguage);
 

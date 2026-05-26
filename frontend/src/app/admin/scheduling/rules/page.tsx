@@ -12,7 +12,12 @@ import type {
   UpdateSchedulingRuleDto,
   PaginatedRulesDto,
   RuleType,
+  RuleAction,
+  RuleCategory,
   AppliesTo,
+} from '@/services/interfaces';
+import {
+  RULE_CATEGORIES,
 } from '@/services/interfaces';
 
 /* ─── Helpers ─────────────────────────────────────────────────── */
@@ -225,10 +230,18 @@ export default function AdminSchedulingRules() {
   const [translatingId, setTranslatingId] = useState<string | null>(null);
 
   /* ── Create form state ── */
-  const [createForm, setCreateForm] = useState({
+  const [createForm, setCreateForm] = useState<{
+    name: string;
+    naturalLanguage: string;
+    priority: number;
+    category: RuleCategory;
+    action?: RuleAction;
+    ruleType?: RuleType;
+  }>({
     name: '',
     naturalLanguage: '',
     priority: 100,
+    category: 'evaluation',
   });
 
   /* ── Edit form state ── */
@@ -237,7 +250,7 @@ export default function AdminSchedulingRules() {
   /* ── Handlers ── */
 
   const resetCreateForm = useCallback(() => {
-    setCreateForm({ name: '', naturalLanguage: '', priority: 100 });
+    setCreateForm({ name: '', naturalLanguage: '', priority: 100, category: 'evaluation' });
     setCreateOpen(false);
   }, []);
 
@@ -250,6 +263,7 @@ export default function AdminSchedulingRules() {
       priority: rule.priority,
       enabled: rule.enabled,
       appliesTo: appliesTo ?? undefined,
+      category: rule.category,
     });
     setEditRule(rule);
   }, []);
@@ -359,14 +373,17 @@ export default function AdminSchedulingRules() {
                         <span className={`text-label-caps px-2 py-0.5 rounded-full text-[11px] ${ruleTypeBadge(rule.ruleType)}`}>
                           {ruleTypeLabel(rule.ruleType)}
                         </span>
-                        <span className={`text-label-caps px-2 py-0.5 rounded-full text-[11px] ${rule.action === 'block' ? 'bg-error-container/50 text-error' : rule.action === 'allow' ? 'bg-success-container/50 text-success' : 'bg-warning-container/50 text-warning'}`}>
-                          {actionLabel(rule.action)}
+                        <span className={`text-label-caps px-2 py-0.5 rounded-full text-[11px] ${rule.action === 'block' ? 'bg-error-container/50 text-error' : rule.action === 'allow' ? 'bg-success-container/50 text-success' : rule.action === 'doubleBooking' ? 'bg-info-container/50 text-info' : 'bg-warning-container/50 text-warning'}`}>
+                          {rule.action === 'doubleBooking' ? 'Doble Sesión' : actionLabel(rule.action)}
+                        </span>
+                        <span className={`text-label-caps px-2 py-0.5 rounded-full text-[11px] ${rule.category === 'generation' ? 'bg-info-container/50 text-info' : 'bg-surface-container-high text-on-surface-variant'}`}>
+                          {rule.category === 'generation' ? 'Generación' : 'Evaluación'}
                         </span>
                       </div>
                       <p className="text-xs text-on-surface-variant mt-1 line-clamp-2">{rule.naturalLanguage}</p>
                       <div className="flex items-center gap-3 mt-2 text-label-caps text-on-surface-variant">
                         <span>Prioridad: {rule.priority}</span>
-                        {rule.structuredRules && (
+                        {rule.structuredRules && rule.category !== 'generation' && (
                           <span className="flex items-center gap-1 text-tertiary">
                             <span className="material-symbols-outlined text-[14px]">auto_awesome</span>
                             Traducida
@@ -397,24 +414,26 @@ export default function AdminSchedulingRules() {
                         />
                       </button>
 
-                      {/* Translate AI */}
-                      <button
-                        onClick={() => handleTranslate(rule.id)}
-                        disabled={
-                          translatingId === rule.id ||
-                          !!rule.structuredRules ||
-                          !rule.naturalLanguage
-                        }
-                        className="w-11 h-11 flex items-center justify-center rounded-lg hover:bg-surface-container-low disabled:opacity-30 disabled:cursor-not-allowed text-tertiary"
-                        aria-label="Traducir con IA"
-                        title="Traducir con IA"
-                      >
-                        {translatingId === rule.id ? (
-                          <span className="material-symbols-outlined text-[20px] animate-spin">sync</span>
-                        ) : (
-                          <span className="material-symbols-outlined text-[20px]">auto_awesome</span>
-                        )}
-                      </button>
+                      {/* Translate AI — only for evaluation rules */}
+                      {rule.category !== 'generation' && (
+                        <button
+                          onClick={() => handleTranslate(rule.id)}
+                          disabled={
+                            translatingId === rule.id ||
+                            !!rule.structuredRules ||
+                            !rule.naturalLanguage
+                          }
+                          className="w-11 h-11 flex items-center justify-center rounded-lg hover:bg-surface-container-low disabled:opacity-30 disabled:cursor-not-allowed text-tertiary"
+                          aria-label="Traducir con IA"
+                          title="Traducir con IA"
+                        >
+                          {translatingId === rule.id ? (
+                            <span className="material-symbols-outlined text-[20px] animate-spin">sync</span>
+                          ) : (
+                            <span className="material-symbols-outlined text-[20px]">auto_awesome</span>
+                          )}
+                        </button>
+                      )}
 
                       {/* Edit */}
                       <button
@@ -449,6 +468,39 @@ export default function AdminSchedulingRules() {
               }}
               className="space-y-4"
             >
+              {/* Category selector */}
+              <div>
+                <label className="block text-sm font-medium text-on-surface mb-1">Categoría</label>
+                <div className="flex gap-2">
+                  {RULE_CATEGORIES.map((cat) => (
+                    <button
+                      key={cat}
+                      type="button"
+                      onClick={() =>
+                        setCreateForm((f) => ({
+                          ...f,
+                          category: cat,
+                          action: cat === 'generation' ? 'doubleBooking' : undefined,
+                          ruleType: cat === 'generation' ? undefined : f.ruleType,
+                        }))
+                      }
+                      className={`flex-1 px-3 py-2 rounded-lg text-sm font-medium border min-h-[44px] cursor-pointer transition-colors ${
+                        createForm.category === cat
+                          ? 'bg-primary text-white border-primary'
+                          : 'bg-surface-container-low text-on-surface-variant border-outline-variant/30 hover:bg-surface-container-high'
+                      }`}
+                    >
+                      {cat === 'evaluation' ? 'Evaluación' : 'Generación'}
+                    </button>
+                  ))}
+                </div>
+                <p className="text-xs text-on-surface-variant mt-1">
+                  {createForm.category === 'generation'
+                    ? 'Las reglas de generación definen cómo se crean los slots (ej: doble sesión automática). No usan traducción IA.'
+                    : 'Las reglas de evaluación definen qué slots se bloquean, permiten o advierten.'}
+                </p>
+              </div>
+
               <div>
                 <label className="block text-sm font-medium text-on-surface mb-1">Nombre</label>
                 <input
@@ -461,29 +513,65 @@ export default function AdminSchedulingRules() {
                 />
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-on-surface mb-1">
-                  Lenguaje natural <span className="text-error">*</span>
-                </label>
-                <textarea
-                  required
-                  rows={3}
-                  value={createForm.naturalLanguage}
-                  onChange={(e) => setCreateForm((f) => ({ ...f, naturalLanguage: e.target.value }))}
-                  className="w-full rounded-lg border border-outline-variant/30 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary resize-none"
-                  placeholder="Ej: Juan Pérez no da clases de coche automático los viernes"
-                />
-                <p className="text-xs text-on-surface-variant mt-1">
-                  La IA detectará automáticamente el tipo de regla, la acción, los profesores y vehículos involucrados al guardar.
-                </p>
-              </div>
-
+              {createForm.category === 'evaluation' && (
                 <div>
-                  <label className="block text-sm font-medium text-on-surface mb-1">Prioridad</label>
-                  <input
-                    type="number"
-                    min={0}
-                    value={createForm.priority}
+                  <label className="block text-sm font-medium text-on-surface mb-1">
+                    Lenguaje natural <span className="text-error">*</span>
+                  </label>
+                  <textarea
+                    required
+                    rows={3}
+                    value={createForm.naturalLanguage}
+                    onChange={(e) => setCreateForm((f) => ({ ...f, naturalLanguage: e.target.value }))}
+                    className="w-full rounded-lg border border-outline-variant/30 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary resize-none"
+                    placeholder="Ej: Juan Pérez no da clases de coche automático los viernes"
+                  />
+                  <p className="text-xs text-on-surface-variant mt-1">
+                    La IA detectará automáticamente el tipo de regla, la acción, los profesores y vehículos involucrados al guardar.
+                  </p>
+                </div>
+              )}
+
+              {createForm.category === 'generation' && (
+                <div>
+                  <label className="block text-sm font-medium text-on-surface mb-1">
+                    Lenguaje natural
+                  </label>
+                  <textarea
+                    rows={2}
+                    value={createForm.naturalLanguage}
+                    onChange={(e) => setCreateForm((f) => ({ ...f, naturalLanguage: e.target.value }))}
+                    className="w-full rounded-lg border border-outline-variant/30 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary resize-none"
+                    placeholder="Ej: Generar doble sesión automática para Juan Pérez"
+                  />
+                  <p className="text-xs text-on-surface-variant mt-1">
+                    Opcional — las reglas de generación no requieren traducción IA.
+                  </p>
+                </div>
+              )}
+
+              {createForm.category === 'generation' && (
+                <div>
+                  <label className="block text-sm font-medium text-on-surface mb-1">Acción</label>
+                  <select
+                    value={createForm.action ?? 'doubleBooking'}
+                    onChange={(e) => setCreateForm((f) => ({ ...f, action: e.target.value as RuleAction }))}
+                    className="w-full rounded-lg border border-outline-variant/30 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                  >
+                    <option value="doubleBooking">Doble sesión</option>
+                  </select>
+                  <p className="text-xs text-on-surface-variant mt-1">
+                    Las reglas de generación solo soportan la acción de doble sesión.
+                  </p>
+                </div>
+              )}
+
+              <div>
+                <label className="block text-sm font-medium text-on-surface mb-1">Prioridad</label>
+                <input
+                  type="number"
+                  min={0}
+                  value={createForm.priority}
                   onChange={(e) => setCreateForm((f) => ({ ...f, priority: parseInt(e.target.value) || 0 }))}
                   className="w-full rounded-lg border border-outline-variant/30 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                 />
@@ -518,6 +606,18 @@ export default function AdminSchedulingRules() {
                 }}
                 className="space-y-4"
               >
+                {/* Category badge */}
+                <div className="flex items-center gap-2">
+                  <span className="text-xs font-medium text-on-surface-variant">Categoría:</span>
+                  <span className={`text-label-caps px-2 py-0.5 rounded-full text-[11px] ${
+                    editRule.category === 'generation'
+                      ? 'bg-info-container/50 text-info'
+                      : 'bg-surface-container-high text-on-surface-variant'
+                  }`}>
+                    {editRule.category === 'generation' ? 'Generación' : 'Evaluación'}
+                  </span>
+                </div>
+
                 <div>
                   <label className="block text-sm font-medium text-on-surface mb-1">Nombre</label>
                   <input
@@ -539,35 +639,53 @@ export default function AdminSchedulingRules() {
                   <p className="text-xs text-on-surface-variant mt-1">El lenguaje natural no se puede modificar después de crear la regla.</p>
                 </div>
 
-                <div className="grid grid-cols-2 gap-3">
-                  <div>
-                    <label className="block text-sm font-medium text-on-surface mb-1">Tipo de regla</label>
-                    <select
-                      value={editForm.ruleType ?? editRule.ruleType}
-                      onChange={(e) => setEditForm((f) => ({ ...f, ruleType: e.target.value as RuleType }))}
-                      className="w-full rounded-lg border border-outline-variant/30 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-                    >
-                      <option value="availability">Disponibilidad</option>
-                      <option value="overlap">Solapamiento</option>
-                      <option value="duration">Duración</option>
-                      <option value="vehicle">Vehículo</option>
-                      <option value="general">General</option>
-                    </select>
-                  </div>
+                {editRule.category !== 'generation' && (
+                  <div className="grid grid-cols-2 gap-3">
+                    <div>
+                      <label className="block text-sm font-medium text-on-surface mb-1">Tipo de regla</label>
+                      <select
+                        value={editForm.ruleType ?? editRule.ruleType}
+                        onChange={(e) => setEditForm((f) => ({ ...f, ruleType: e.target.value as RuleType }))}
+                        className="w-full rounded-lg border border-outline-variant/30 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                      >
+                        <option value="availability">Disponibilidad</option>
+                        <option value="overlap">Solapamiento</option>
+                        <option value="duration">Duración</option>
+                        <option value="vehicle">Vehículo</option>
+                        <option value="general">General</option>
+                      </select>
+                    </div>
 
+                    <div>
+                      <label className="block text-sm font-medium text-on-surface mb-1">Acción</label>
+                      <select
+                        value={editForm.action ?? editRule.action}
+                        onChange={(e) => setEditForm((f) => ({ ...f, action: e.target.value as RuleAction }))}
+                        className="w-full rounded-lg border border-outline-variant/30 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
+                      >
+                        <option value="block">Bloquear</option>
+                        <option value="warn">Advertir</option>
+                        <option value="allow">Permitir</option>
+                      </select>
+                    </div>
+                  </div>
+                )}
+
+                {editRule.category === 'generation' && (
                   <div>
                     <label className="block text-sm font-medium text-on-surface mb-1">Acción</label>
                     <select
                       value={editForm.action ?? editRule.action}
-                      onChange={(e) => setEditForm((f) => ({ ...f, action: e.target.value as 'block' | 'warn' | 'allow' }))}
+                      onChange={(e) => setEditForm((f) => ({ ...f, action: e.target.value as RuleAction }))}
                       className="w-full rounded-lg border border-outline-variant/30 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
                     >
-                      <option value="block">Bloquear</option>
-                      <option value="warn">Advertir</option>
-                      <option value="allow">Permitir</option>
+                      <option value="doubleBooking">Doble sesión</option>
                     </select>
+                    <p className="text-xs text-on-surface-variant mt-1">
+                      Las reglas de generación solo soportan la acción de doble sesión.
+                    </p>
                   </div>
-                </div>
+                )}
 
                 <div>
                   <label className="block text-sm font-medium text-on-surface mb-1">Prioridad</label>

@@ -1,11 +1,12 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { Card, CardHeader } from '@/components/layouts/Card';
 import { DataView } from '@/components/DataView';
 import { useData } from '@/hooks/useData';
 import { services } from '@/services';
 import type { ReservationDto } from '@/services/interfaces';
+import { CreateReservationModal } from './components/CreateReservationModal';
 
 function formatDate(iso: string): string {
   return new Date(iso).toLocaleDateString('es-ES', { weekday: 'short', day: 'numeric', month: 'short', year: 'numeric' });
@@ -36,6 +37,22 @@ export default function AdminReservations() {
   const [cancelReason, setCancelReason] = useState('');
   const [cancelError, setCancelError] = useState<string | null>(null);
 
+  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);
+
+  // Auto-dismiss success message after 3s
+  useEffect(() => {
+    if (!successMessage) return;
+    const timer = setTimeout(() => setSuccessMessage(null), 3000);
+    return () => clearTimeout(timer);
+  }, [successMessage]);
+
+  function handleCreateSuccess() {
+    setIsModalOpen(false);
+    setSuccessMessage('Reserva creada correctamente');
+    refresh();
+  }
+
   const { data, isLoading, error, refresh } = useData<{ data: ReservationDto[]; total: number }>(
     () => services.reservation.list({ status: statusFilter || undefined, limit: 50 }),
     [statusFilter],
@@ -61,22 +78,36 @@ export default function AdminReservations() {
 
   return (
     <div className="space-y-4">
-      <div className="flex items-center gap-2 flex-wrap">
-        <span className="text-sm text-on-surface-variant">Filtrar:</span>
-        {['', 'pending', 'confirmed', 'completed', 'cancelled'].map((s) => (
-          <button
-            key={s}
-            onClick={() => { setStatusFilter(s); setCancelError(null); }}
-            className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors cursor-pointer ${
-              statusFilter === s
-                ? 'bg-primary text-white'
-                : 'bg-surface-container-low text-on-surface-variant hover:bg-surface-container'
-            }`}
-          >
-            {s === '' ? 'Todas' : statusLabel[s] ?? s}
-          </button>
-        ))}
+      <div className="flex items-center justify-between gap-4">
+        <div className="flex items-center gap-2 flex-wrap">
+          <span className="text-sm text-on-surface-variant">Filtrar:</span>
+          {['', 'pending', 'confirmed', 'completed', 'cancelled'].map((s) => (
+            <button
+              key={s}
+              onClick={() => { setStatusFilter(s); setCancelError(null); }}
+              className={`px-3 py-1.5 rounded-lg text-sm font-medium transition-colors cursor-pointer ${
+                statusFilter === s
+                  ? 'bg-primary text-white'
+                  : 'bg-surface-container-low text-on-surface-variant hover:bg-surface-container'
+              }`}
+            >
+              {s === '' ? 'Todas' : statusLabel[s] ?? s}
+            </button>
+          ))}
+        </div>
+        <button
+          onClick={() => setIsModalOpen(true)}
+          className="px-4 py-2 text-sm font-medium bg-primary text-white rounded-lg hover:bg-primary/90 transition-colors cursor-pointer shrink-0"
+        >
+          + Nueva Reserva
+        </button>
       </div>
+
+      {successMessage && (
+        <div className="p-3 bg-green-50 text-green-700 rounded-lg text-sm">
+          {successMessage}
+        </div>
+      )}
 
       {cancelError && (
         <div className="p-3 bg-error-container text-error rounded-lg text-sm flex items-center gap-2">
@@ -153,6 +184,12 @@ export default function AdminReservations() {
           </div>
         )}
       </DataView>
+
+      <CreateReservationModal
+        open={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+        onSuccess={handleCreateSuccess}
+      />
     </div>
   );
 }

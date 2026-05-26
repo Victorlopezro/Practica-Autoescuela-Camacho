@@ -4,6 +4,7 @@ import {
   IsEnum,
   IsInt,
   IsBoolean,
+  IsIn,
   Min,
   MinLength,
   MaxLength,
@@ -70,4 +71,12 @@ export class UpdateSchedulingRuleDto {
   @IsOptional()
   @IsObject()
   appliesTo?: Record<string, unknown>;
+
+  @ApiPropertyOptional({
+    description: 'Rule category — evaluation or generation',
+    enum: ['evaluation', 'generation'],
+  })
+  @IsOptional()
+  @IsIn(['evaluation', 'generation'])
+  category?: string;
 }

@@ -1,8 +1,14 @@
 export const RULE_TYPES = ['availability', 'overlap', 'duration', 'vehicle', 'general'] as const;
 export type RuleType = (typeof RULE_TYPES)[number];
 
-export const RULE_ACTIONS = ['allow', 'block', 'warn'] as const;
+export const RULE_ACTIONS = ['allow', 'block', 'warn', 'doubleBooking'] as const;
 export type RuleAction = (typeof RULE_ACTIONS)[number];
+
+export const RULE_CATEGORIES = ['evaluation', 'generation'] as const;
+export type RuleCategory = (typeof RULE_CATEGORIES)[number];
+
+export const GENERATION_ACTIONS = ['doubleBooking'] as const;
+export type GenerationAction = (typeof GENERATION_ACTIONS)[number];
 
 export interface SchedulingRuleDto {
   id: string;
@@ -15,6 +21,7 @@ export interface SchedulingRuleDto {
   enabled: boolean;
   appliesTo: Record<string, unknown> | null;
   createdById: string;
+  category: RuleCategory;
   createdAt: string;
   updatedAt: string;
 }
@@ -36,6 +43,7 @@ export interface CreateSchedulingRuleDto {
   priority?: number;
   enabled?: boolean;
   appliesTo?: AppliesTo;
+  category?: RuleCategory;
 }
 
 export interface UpdateSchedulingRuleDto {
@@ -45,6 +53,7 @@ export interface UpdateSchedulingRuleDto {
   priority?: number;
   enabled?: boolean;
   appliesTo?: AppliesTo;
+  category?: RuleCategory;
 }
 
 export interface SchedulingRuleQueryDto {

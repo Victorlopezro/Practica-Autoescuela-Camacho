@@ -62,7 +62,11 @@ interface CachedRule {
   ruleType: string;
   structuredRules: StructuredRuleData | null;
   appliesTo: Record<string, unknown> | null;
+  category: string; // "evaluation" | "generation"
 }
+
+/** A generation rule result — same shape as CachedRule but returned by getGenerationRules */
+export interface GenerationRule extends CachedRule {}
 
 @Injectable()
 export class RuleEngineService implements OnModuleInit {
@@ -127,6 +131,7 @@ export class RuleEngineService implements OnModuleInit {
       ruleType: r.ruleType,
       structuredRules: r.structuredRules as StructuredRuleData | null,
       appliesTo: r.appliesTo as Record<string, unknown> | null,
+      category: r.category,
     }));
 
     this.cacheInvalidated = false;
@@ -208,6 +213,20 @@ export class RuleEngineService implements OnModuleInit {
       blockingRule,
       warnings,
     };
+  }
+
+  /**
+   * Get all active generation rules that apply to a specific teacher.
+   * Generation rules affect HOW slots are generated (e.g. double booking).
+   */
+  async getGenerationRules(teacherId: string): Promise<CachedRule[]> {
+    await this.ensureRulesLoaded();
+    return this.cachedRules.filter(
+      (rule) =>
+        rule.category === 'generation' &&
+        rule.action === 'doubleBooking' &&
+        this.doesRuleApplyToTeacher(rule, teacherId),
+    );
   }
 
   // ──────────────────────────────────────────────

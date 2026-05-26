@@ -45,6 +45,7 @@ export class StudentsController {
     @Query('page') page = '1',
     @Query('limit') limit = '20',
     @CurrentUser() currentUser: JwtPayload,
+    @Query('search') search?: string,
   ) {
     const skip = (Number(page) - 1) * Number(limit);
 
@@ -72,6 +73,16 @@ export class StudentsController {
           },
         }
       : {};
+
+    if (search) {
+      (where as any).user = {
+        OR: [
+          { name: { contains: search, mode: 'insensitive' } },
+          { lastName: { contains: search, mode: 'insensitive' } },
+          { username: { contains: search, mode: 'insensitive' } },
+        ],
+      };
+    }
 
     const [data, total] = await Promise.all([
       this.prisma.student.findMany({
