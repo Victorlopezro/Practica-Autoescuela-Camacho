@@ -4,7 +4,9 @@ import { useState, useEffect, useMemo, useCallback } from 'react';
 import { Card } from '@/components/layouts/Card';
 import { Button } from '@/components/ui/button';
 import { services } from '@/services';
-import type { TeacherAvailabilityDto, OverrideDto, BatchOverrideEntry } from '@/services/interfaces';
+import { ScheduleBlockEditor } from '@/components/scheduling/ScheduleBlockEditor';
+import type { BlockData } from '@/components/scheduling/ScheduleBlockEditor';
+import type { TeacherAvailabilityDto, OverrideDto } from '@/services/interfaces';
 import { CopyWeekModal } from './CopyWeekModal';
 
 /* ─── Helpers ────────────────────────────────────────────────── */
@@ -29,7 +31,6 @@ function addDays(date: Date, days: number): Date {
 }
 
 function toBackendDayOfWeek(jsDay: number): number {
-  // JS: 0=Sun…6=Sat → Backend: 1=Mon…7=Sun
   return jsDay === 0 ? 7 : jsDay;
 }
 
@@ -47,11 +48,11 @@ interface DayState {
   date: string;
   dayLabel: string;
   isAvailable: boolean;
-  startTime: string;
-  endTime: string;
   reason?: string;
   /** Base availability per track (read-only visual info) */
   tracks: DayTrackInfo[];
+  /** Override blocks for this date (per-track override entries) */
+  overrideBlocks: BlockData[];
 }
 
 interface Props {
@@ -60,9 +61,14 @@ interface Props {
   onRefreshPlanning?: () => void;
 }
 
+let _blockSeq = 0;
+function uid(): string {
+  return `b${++_blockSeq}`;
+}
+
 /* ─── Component ──────────────────────────────────────────────── */
 
-export function WeeklyPlanningEditor({
+export function AdminTeacherScheduleManager({
   teachers,
   initialTeacherId,
   onRefreshPlanning,
@@ -78,7 +84,6 @@ export function WeeklyPlanningEditor({
   const [error, setError] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
   const [days, setDays] = useState<DayState[]>([]);
-  const [dirtyDates, setDirtyDates] = useState<Set<string>>(new Set());
   const [copyModalOpen, setCopyModalOpen] = useState(false);
 
   /* ── Load availability when teacher changes ────────────────── */
@@ -107,7 +112,6 @@ export function WeeklyPlanningEditor({
   useEffect(() => {
     if (!availability) {
       setDays([]);
-      setDirtyDates(new Set());
       return;
     }
 
@@ -120,84 +124,60 @@ export function WeeklyPlanningEditor({
       const jsDayOfWeek = date.getDay();
       const backendDayOfWeek = toBackendDayOfWeek(jsDayOfWeek);
 
-      // Check override first
-      const override = availability.overrides.find(
+      // All overrides for this date (per-track)
+      const dateOverrides = availability.overrides.filter(
         (o: OverrideDto) => o.date === dateStr,
       );
+
+      // Find if there's a "general" override (track=null) that sets availability
+      const generalOverride = dateOverrides.find((o) => o.track == null);
+      const isAvailable = dateOverrides.length === 0 || (generalOverride?.isAvailable ?? true);
+
+      // Build override blocks from track-specific overrides
+      const overrideBlocks: BlockData[] = dateOverrides
+        .filter((o) => o.track != null) // only track-specific overrides become blocks
+        .map((o) => ({
+          id: uid(),
+          start: o.startTime ?? '08:00',
+          end: o.endTime ?? '14:00',
+          track: o.track ?? '',
+          saved: true,
+        }));
+
+      // Also show a block for the general override if it has custom hours
+      if (generalOverride && generalOverride.isAvailable && generalOverride.startTime) {
+        overrideBlocks.push({
+          id: uid(),
+          start: generalOverride.startTime,
+          end: generalOverride.endTime ?? '14:00',
+          track: '',
+          saved: true,
+        });
+      }
 
       // All base availability entries for this dayOfWeek (multi-track)
       const dayAvail = availability.availability.filter(
         (a) => a.dayOfWeek === backendDayOfWeek,
       );
 
-      // Collect track info for visual display
       const tracks: DayTrackInfo[] = dayAvail.map((a) => ({
         track: a.track ?? 'default',
         startTime: a.startTime,
         endTime: a.endTime,
       }));
 
-      // First entry = primary for fallback hours
-      const primaryAvail = dayAvail.length > 0 ? dayAvail[0] : null;
-
-      if (override) {
-        newDays.push({
-          date: dateStr,
-          dayLabel: DAY_LABELS[i],
-          isAvailable: override.isAvailable,
-          startTime: override.startTime ?? primaryAvail?.startTime ?? '08:00',
-          endTime: override.endTime ?? primaryAvail?.endTime ?? '14:00',
-          reason: override.reason ?? undefined,
-          tracks,
-        });
-      } else if (primaryAvail) {
-        newDays.push({
-          date: dateStr,
-          dayLabel: DAY_LABELS[i],
-          isAvailable: true,
-          startTime: primaryAvail.startTime,
-          endTime: primaryAvail.endTime,
-          tracks,
-        });
-      } else {
-        newDays.push({
-          date: dateStr,
-          dayLabel: DAY_LABELS[i],
-          isAvailable: false,
-          startTime: '08:00',
-          endTime: '14:00',
-          tracks: [],
-        });
-      }
+      newDays.push({
+        date: dateStr,
+        dayLabel: DAY_LABELS[i],
+        isAvailable,
+        reason: generalOverride?.reason ?? undefined,
+        tracks,
+        overrideBlocks,
+      });
     }
 
     setDays(newDays);
-    setDirtyDates(new Set());
   }, [availability, weekStart]);
-
-  /* ── Dirty entries for save payload ─────────────────────────── */
-
-  const dirtyEntries: BatchOverrideEntry[] = useMemo(
-    () =>
-      days
-        .filter((d) => dirtyDates.has(d.date))
-        .map((d) => ({
-          date: d.date,
-          isAvailable: d.isAvailable,
-          ...(d.isAvailable
-            ? { startTime: d.startTime, endTime: d.endTime }
-            : {}),
-        })),
-    [days, dirtyDates],
-  );
-
-  const hasDirtyDays = dirtyDates.size > 0;
-
-  // Check if any day has track-based availability (motorcycle teacher)
-  const hasMultiTrack = useMemo(
-    () => days.some((d) => d.tracks.length > 1),
-    [days],
-  );
 
   /* ── Week navigation ────────────────────────────────────────── */
 
@@ -229,45 +209,119 @@ export function WeeklyPlanningEditor({
     setWeekStart(formatDate(getMonday(today)));
   }
 
-  /* ── Day edits ──────────────────────────────────────────────── */
+  /* ── Day toggle (available / not available) ─────────────────── */
 
-  function toggleDay(date: string) {
-    setDays((prev) =>
-      prev.map((d) =>
-        d.date === date ? { ...d, isAvailable: !d.isAvailable } : d,
-      ),
-    );
-    setDirtyDates((prev) => new Set(prev).add(date));
-  }
+  async function toggleDay(date: string) {
+    if (!selectedTeacherId) return;
+    const day = days.find((d) => d.date === date);
+    if (!day) return;
 
-  function updateDay(date: string, updates: Partial<DayState>) {
-    setDays((prev) =>
-      prev.map((d) => (d.date === date ? { ...d, ...updates } : d)),
-    );
-    setDirtyDates((prev) => new Set(prev).add(date));
-  }
-
-  /* ── Save ───────────────────────────────────────────────────── */
-
-  async function handleSave() {
-    if (!selectedTeacherId || dirtyEntries.length === 0) return;
     setSaving(true);
     setError('');
     setSuccessMsg('');
+
     try {
-      const result = await services.scheduling.batchSetOverrides(
-        selectedTeacherId,
-        dirtyEntries,
-      );
-      setSuccessMsg(`Guardados ${result.count} cambio${result.count !== 1 ? 's' : ''} correctamente`);
-      setDirtyDates(new Set());
+      if (day.isAvailable) {
+        // Mark as not available — create general override
+        await services.scheduling.setOverride(selectedTeacherId, date, false, undefined, undefined, undefined, undefined);
+        setSuccessMsg('Día marcado como no disponible');
+      } else {
+        // Remove the general "not available" override
+        await services.scheduling.removeOverride(selectedTeacherId, date);
+        setSuccessMsg('Disponibilidad restaurada');
+      }
       await loadAvailability();
       onRefreshPlanning?.();
     } catch (err) {
-      setError(err instanceof Error ? err.message : 'Error al guardar');
+      setError(err instanceof Error ? err.message : 'Error al cambiar disponibilidad');
     } finally {
       setSaving(false);
     }
+  }
+
+  /* ── Override block operations ──────────────────────────────── */
+
+  async function saveBlock(dayIndex: number, block: BlockData) {
+    if (!selectedTeacherId) return;
+    setSaving(true);
+    setError('');
+    setSuccessMsg('');
+
+    try {
+      const day = days[dayIndex];
+      const track = block.track || undefined;
+      await services.scheduling.setOverride(
+        selectedTeacherId,
+        day.date,
+        true,
+        block.start,
+        block.end,
+        undefined,
+        track,
+      );
+      setSuccessMsg(`Bloque guardado${track ? ` (${track})` : ''}`);
+      await loadAvailability();
+      onRefreshPlanning?.();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Error al guardar bloque');
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  async function removeBlock(dayIndex: number, block: BlockData) {
+    if (!selectedTeacherId) return;
+    setSaving(true);
+    setError('');
+    setSuccessMsg('');
+
+    try {
+      const day = days[dayIndex];
+      const track = block.track || undefined;
+      await services.scheduling.removeOverride(selectedTeacherId, day.date, track);
+      setSuccessMsg('Bloque eliminado');
+      await loadAvailability();
+      onRefreshPlanning?.();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Error al eliminar bloque');
+    } finally {
+      setSaving(false);
+    }
+  }
+
+  function addBlock(dayIndex: number) {
+    setDays((prev) =>
+      prev.map((d, i) => {
+        if (i !== dayIndex) return d;
+        const existingTracks = new Set(d.overrideBlocks.map((b) => b.track));
+        const defaultTrack = existingTracks.has('pista')
+          ? 'circulacion'
+          : existingTracks.has('circulacion')
+            ? 'pista'
+            : 'pista';
+        return {
+          ...d,
+          overrideBlocks: [
+            ...d.overrideBlocks,
+            { id: uid(), start: '08:00', end: '14:00', track: defaultTrack, saved: false },
+          ],
+        };
+      }),
+    );
+  }
+
+  function updateBlock(dayIndex: number, blockId: string, field: 'start' | 'end' | 'track', value: string) {
+    setDays((prev) =>
+      prev.map((d, i) => {
+        if (i !== dayIndex) return d;
+        return {
+          ...d,
+          overrideBlocks: d.overrideBlocks.map((b) =>
+            b.id === blockId ? { ...b, [field]: value } : b,
+          ),
+        };
+      }),
+    );
   }
 
   /* ── Copy week callback ─────────────────────────────────────── */
@@ -279,12 +333,10 @@ export function WeeklyPlanningEditor({
     onRefreshPlanning?.();
   }
 
-  /* ── Reusable input class ───────────────────────────────────── */
+  /* ── Render ─────────────────────────────────────────────────── */
 
   const inputClass =
     'w-full px-2 py-1.5 text-xs border border-outline-variant/50 rounded-lg bg-white text-on-surface text-center';
-
-  /* ── Render ─────────────────────────────────────────────────── */
 
   return (
     <div className="space-y-4">
@@ -296,7 +348,6 @@ export function WeeklyPlanningEditor({
             value={selectedTeacherId}
             onChange={(e) => {
               setSelectedTeacherId(e.target.value);
-              setDirtyDates(new Set());
             }}
             className="px-2.5 py-1.5 text-sm border border-outline-variant/50 rounded-lg bg-white text-on-surface"
           >
@@ -402,11 +453,12 @@ export function WeeklyPlanningEditor({
                 <div key={d.date} className="flex justify-center">
                   <button
                     onClick={() => toggleDay(d.date)}
+                    disabled={saving}
                     className={`w-10 h-6 rounded-lg text-xs font-medium cursor-pointer transition-colors ${
                       d.isAvailable
                         ? 'bg-green-100 text-green-700 border border-green-300'
                         : 'bg-gray-100 text-gray-400 border border-gray-200'
-                    } ${dirtyDates.has(d.date) ? 'ring-2 ring-primary/40' : ''}`}
+                    }`}
                   >
                     {d.isAvailable ? 'Sí' : 'No'}
                   </button>
@@ -414,77 +466,66 @@ export function WeeklyPlanningEditor({
               ))}
             </div>
 
-            {/* Override hours row */}
+            {/* Override blocks per day — using ScheduleBlockEditor */}
             <div className="grid grid-cols-[140px_repeat(7,1fr)] gap-2 mb-1">
-              <div className="text-xs text-on-surface-variant self-center">
-                Horario
+              <div className="text-xs text-on-surface-variant self-start pt-1">
+                Bloques
               </div>
               {days.map((d) => (
                 <div key={d.date} className="flex flex-col items-center gap-1">
                   {d.isAvailable ? (
-                    <>
-                      <input
-                        type="time"
-                        value={d.startTime}
-                        onChange={(e) =>
-                          updateDay(d.date, { startTime: e.target.value })
-                        }
-                        className={inputClass}
-                        step="900"
+                    <div className="w-full">
+                      <ScheduleBlockEditor
+                        teacherId={selectedTeacherId}
+                        dayIndex={days.indexOf(d)}
+                        dayLabel={d.dayLabel}
+                        blocks={d.overrideBlocks}
+                        isSaving={saving}
+                        maxBlocks={3}
+                        onSave={saveBlock}
+                        onRemove={removeBlock}
+                        onAdd={addBlock}
+                        onUpdate={updateBlock}
                       />
-                      <span className="text-[10px] text-on-surface-variant">
-                        a
-                      </span>
-                      <input
-                        type="time"
-                        value={d.endTime}
-                        onChange={(e) =>
-                          updateDay(d.date, { endTime: e.target.value })
-                        }
-                        className={inputClass}
-                        step="900"
-                      />
-                    </>
+                    </div>
                   ) : (
                     <span className="text-xs text-on-surface-variant py-3">
-                      —
+                      {d.reason ?? '—'}
                     </span>
                   )}
                 </div>
               ))}
             </div>
 
-            {/* Track blocks row(s) — read-only base availability per track */}
-            {hasMultiTrack && (
-              <div className="grid grid-cols-[140px_repeat(7,1fr)] gap-2">
-                <div className="text-[10px] text-on-surface-variant self-center">
-                  Bloques base
-                </div>
-                {days.map((day) => (
-                  <div key={day.date} className="flex flex-col items-center gap-0.5">
-                    {day.isAvailable && day.tracks.length > 0 ? (
-                      day.tracks.map((t) => (
-                        <span
-                          key={t.track}
-                          className={`text-[10px] px-1.5 py-0.5 rounded-full w-full text-center ${
-                            t.track === 'pista'
-                              ? 'bg-amber-50 text-amber-700'
-                              : t.track === 'circulacion'
-                                ? 'bg-sky-50 text-sky-700'
-                                : 'bg-surface-container-low text-on-surface-variant'
-                          }`}
-                        >
-                          {t.track === 'pista' ? 'P' : t.track === 'circulacion' ? 'C' : '—'}{' '}
-                          {t.startTime}-{t.endTime}
-                        </span>
-                      ))
-                    ) : (
-                      <span className="text-[10px] text-on-surface-variant py-0.5">—</span>
-                    )}
-                  </div>
-                ))}
+            {/* Base availability track info (read-only) */}
+            <div className="grid grid-cols-[140px_repeat(7,1fr)] gap-2">
+              <div className="text-[10px] text-on-surface-variant self-center">
+                Bloques base
               </div>
-            )}
+              {days.map((day) => (
+                <div key={day.date} className="flex flex-col items-center gap-0.5">
+                  {day.tracks.length > 0 ? (
+                    day.tracks.map((t) => (
+                      <span
+                        key={t.track}
+                        className={`text-[10px] px-1.5 py-0.5 rounded-full w-full text-center ${
+                          t.track === 'pista'
+                            ? 'bg-amber-50 text-amber-700'
+                            : t.track === 'circulacion'
+                              ? 'bg-sky-50 text-sky-700'
+                              : 'bg-surface-container-low text-on-surface-variant'
+                        }`}
+                      >
+                        {t.track === 'pista' ? 'P' : t.track === 'circulacion' ? 'C' : '—'}{' '}
+                        {t.startTime}-{t.endTime}
+                      </span>
+                    ))
+                  ) : (
+                    <span className="text-[10px] text-on-surface-variant py-0.5">—</span>
+                  )}
+                </div>
+              ))}
+            </div>
           </div>
 
           {/* ═══ MOBILE ═══ */}
@@ -505,6 +546,7 @@ export function WeeklyPlanningEditor({
                   </div>
                   <button
                     onClick={() => toggleDay(d.date)}
+                    disabled={saving}
                     className={`px-2.5 py-1 rounded-lg text-xs font-medium cursor-pointer transition-colors ${
                       d.isAvailable
                         ? 'bg-green-100 text-green-700'
@@ -516,32 +558,25 @@ export function WeeklyPlanningEditor({
                 </div>
 
                 {d.isAvailable && (
-                  <div className="flex items-center gap-2 mb-2">
-                    <input
-                      type="time"
-                      value={d.startTime}
-                      onChange={(e) =>
-                        updateDay(d.date, { startTime: e.target.value })
-                      }
-                      className={inputClass + ' flex-1'}
-                      step="900"
-                    />
-                    <span className="text-xs text-on-surface-variant">a</span>
-                    <input
-                      type="time"
-                      value={d.endTime}
-                      onChange={(e) =>
-                        updateDay(d.date, { endTime: e.target.value })
-                      }
-                      className={inputClass + ' flex-1'}
-                      step="900"
+                  <div className="mb-2">
+                    <ScheduleBlockEditor
+                      teacherId={selectedTeacherId}
+                      dayIndex={days.indexOf(d)}
+                      dayLabel={d.dayLabel}
+                      blocks={d.overrideBlocks}
+                      isSaving={saving}
+                      maxBlocks={3}
+                      onSave={saveBlock}
+                      onRemove={removeBlock}
+                      onAdd={addBlock}
+                      onUpdate={updateBlock}
                     />
                   </div>
                 )}
 
-                {/* Track blocks for mobile */}
+                {/* Base track blocks for mobile */}
                 {d.tracks.length > 1 && d.isAvailable && (
-                  <div className="flex flex-col gap-1 mb-2">
+                  <div className="flex flex-col gap-1 mt-2">
                     {d.tracks.map((t) => (
                       <span
                         key={t.track}
@@ -557,10 +592,6 @@ export function WeeklyPlanningEditor({
                       </span>
                     ))}
                   </div>
-                )}
-
-                {dirtyDates.has(d.date) && (
-                  <p className="text-[10px] text-primary mt-1">Modificado</p>
                 )}
               </Card>
             ))}
@@ -580,21 +611,6 @@ export function WeeklyPlanningEditor({
           </span>
           Copiar semana
         </Button>
-
-        <div className="flex items-center gap-2">
-          {hasDirtyDays && (
-            <span className="text-xs text-on-surface-variant">
-              {dirtyDates.size} día{dirtyDates.size !== 1 ? 's' : ''} modificado
-              {dirtyDates.size !== 1 ? 's' : ''}
-            </span>
-          )}
-          <Button
-            onClick={handleSave}
-            disabled={!hasDirtyDays || saving || loading}
-          >
-            {saving ? 'Guardando...' : 'Guardar cambios'}
-          </Button>
-        </div>
       </div>
 
       {/* ── Copy week modal ──────────────────────────────────── */}

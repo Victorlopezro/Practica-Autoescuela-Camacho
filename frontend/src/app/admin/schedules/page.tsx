@@ -7,7 +7,7 @@ import { Modal } from '@/components/shared/Modal';
 import { useData } from '@/hooks/useData';
 import { services } from '@/services';
 import type { AdminPlanningDto, DayPlanningDto, PlanningReservationDto } from '@/lib/dto/admin-planning.dto';
-import { WeeklyPlanningEditor } from './WeeklyPlanningEditor';
+import { AdminTeacherScheduleManager } from './AdminTeacherScheduleManager';
 
 /* ─── Helpers ─────────────────────────────────────────────────── */
 
@@ -267,7 +267,7 @@ export default function AdminSchedulesPage() {
       </div>
 
       {planningMode && data ? (
-        <WeeklyPlanningEditor
+        <AdminTeacherScheduleManager
           teachers={data.teachers.map((t) => ({ id: t.id, name: t.name }))}
           initialTeacherId={data.teachers[0]?.id}
           onRefreshPlanning={refresh}

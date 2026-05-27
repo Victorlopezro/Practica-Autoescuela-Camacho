@@ -41,4 +41,12 @@ export class SetOverrideDto {
   @IsOptional()
   @IsString()
   reason?: string;
+
+  @ApiProperty({
+    description: 'Track — pista | circulacion | null (general)',
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  track?: string;
 }

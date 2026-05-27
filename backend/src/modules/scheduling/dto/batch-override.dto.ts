@@ -50,6 +50,14 @@ export class BatchOverrideEntry {
   @IsOptional()
   @IsString()
   reason?: string;
+
+  @ApiProperty({
+    description: 'Track — pista | circulacion | null (general)',
+    required: false,
+  })
+  @IsOptional()
+  @IsString()
+  track?: string;
 }
 
 export class BatchOverrideDto {

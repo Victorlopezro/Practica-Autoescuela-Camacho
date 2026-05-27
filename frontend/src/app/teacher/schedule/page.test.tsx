@@ -194,17 +194,19 @@ describe('TeacherSchedule', () => {
     expect(screen.queryByDisplayValue('09:00')).not.toBeInTheDocument();
   });
 
-  it('saves a block via Guardar button', async () => {
+  it('saves a block via button', async () => {
     const user = userEvent.setup();
     await renderPage();
 
     await waitFor(() => {
-      expect(screen.getAllByText('Guardar').length).toBeGreaterThan(0);
+      // Saved blocks show "Actualizar"; unsaved blocks show "Guardar"
+      const buttons = screen.getAllByRole('button', { name: /actualizar|guardar/i });
+      expect(buttons.length).toBeGreaterThan(0);
     });
 
-    // Click first Guardar button
-    const guardarButtons = screen.getAllByText('Guardar');
-    await user.click(guardarButtons[0]);
+    // Click first save button (Actualizar for pre-saved blocks)
+    const saveButtons = screen.getAllByRole('button', { name: /actualizar|guardar/i });
+    await user.click(saveButtons[0]);
 
     await waitFor(() => {
       expect(setAvailabilityMock).toHaveBeenCalled();
@@ -230,9 +232,9 @@ describe('TeacherSchedule', () => {
       await user.type(timeInputs[0], '14:00');
     }
 
-    // Click save
-    const guardarButtons = screen.getAllByText('Guardar');
-    await user.click(guardarButtons[0]);
+    // Click save button
+    const saveButton = screen.getAllByRole('button', { name: /actualizar|guardar/i })[0];
+    await user.click(saveButton);
 
     await waitFor(() => {
       expect(screen.getByText(/inicio debe ser anterior/)).toBeInTheDocument();

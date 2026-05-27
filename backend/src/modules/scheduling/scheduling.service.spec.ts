@@ -22,7 +22,11 @@ describe('SchedulingService', () => {
         delete: jest.fn(),
       },
       availabilityOverride: {
-        upsert: jest.fn(),
+        findFirst: jest.fn(),
+        create: jest.fn(),
+        update: jest.fn(),
+        delete: jest.fn(),
+        deleteMany: jest.fn(),
         findMany: jest.fn(),
       },
       reservation: {
@@ -86,78 +90,105 @@ describe('SchedulingService', () => {
       ).rejects.toThrow(NotFoundException);
     });
 
-    it('should call $transaction with upsert for each override', async () => {
+    it('should call $transaction and create new overrides', async () => {
       prisma.teacher.findUnique.mockResolvedValue({ id: 'teacher-1', doubleSession: false });
-      prisma.$transaction.mockImplementation((ops) => Promise.all(ops));
+      // Simulate the transaction callback executing with prisma mock as tx
+      prisma.$transaction.mockImplementation(async (cb: Function) => cb(prisma));
+      // No existing overrides → all go to create
+      prisma.availabilityOverride.findFirst.mockResolvedValue(null);
 
       await service.batchSetOverrides('teacher-1', multipleOverrides);
 
       expect(prisma.$transaction).toHaveBeenCalledTimes(1);
-      expect(prisma.availabilityOverride.upsert).toHaveBeenCalledTimes(3);
+      expect(prisma.availabilityOverride.create).toHaveBeenCalledTimes(3);
+      expect(prisma.availabilityOverride.update).not.toHaveBeenCalled();
     });
 
-    it('should pass correct where/create/update to each upsert', async () => {
+    it('should update existing overrides and create new ones', async () => {
       prisma.teacher.findUnique.mockResolvedValue({ id: 'teacher-1', doubleSession: false });
-      prisma.$transaction.mockImplementation((ops) => Promise.all(ops));
+      prisma.$transaction.mockImplementation(async (cb: Function) => cb(prisma));
+      // First override exists, second doesn't, third exists
+      prisma.availabilityOverride.findFirst
+        .mockResolvedValueOnce({ id: 'existing-1', track: null })
+        .mockResolvedValueOnce(null)
+        .mockResolvedValueOnce({ id: 'existing-3', track: null });
 
       await service.batchSetOverrides('teacher-1', multipleOverrides);
 
-      // First override: available with custom hours
-      expect(prisma.availabilityOverride.upsert).toHaveBeenNthCalledWith(
-        1,
+      // First: update, Second: create, Third: update
+      expect(prisma.availabilityOverride.update).toHaveBeenCalledTimes(2);
+      expect(prisma.availabilityOverride.create).toHaveBeenCalledTimes(1);
+    });
+
+    it('should pass correct data to create for new override', async () => {
+      prisma.teacher.findUnique.mockResolvedValue({ id: 'teacher-1', doubleSession: false });
+      prisma.$transaction.mockImplementation(async (cb: Function) => cb(prisma));
+      prisma.availabilityOverride.findFirst.mockResolvedValue(null);
+
+      await service.batchSetOverrides('teacher-1', [multipleOverrides[0]]);
+
+      expect(prisma.availabilityOverride.create).toHaveBeenCalledWith(
         expect.objectContaining({
-          where: {
-            teacherId_date: { teacherId: 'teacher-1', date: expect.any(Date) },
-          },
-          create: expect.objectContaining({
+          data: expect.objectContaining({
             teacherId: 'teacher-1',
             isAvailable: true,
             startTime: '09:00',
             endTime: '14:00',
-          }),
-          update: expect.objectContaining({
-            isAvailable: true,
-            startTime: '09:00',
-            endTime: '14:00',
+            track: null,
           }),
         }),
       );
+    });
 
-      // Second override: unavailable — times should be null
-      expect(prisma.availabilityOverride.upsert).toHaveBeenNthCalledWith(
-        2,
-        expect.objectContaining({
-          create: expect.objectContaining({
-            isAvailable: false,
-            startTime: null,
-            endTime: null,
-          }),
-          update: expect.objectContaining({
-            isAvailable: false,
-            startTime: null,
-            endTime: null,
-          }),
-        }),
-      );
+    it('should pass correct data to update for existing override', async () => {
+      prisma.teacher.findUnique.mockResolvedValue({ id: 'teacher-1', doubleSession: false });
+      prisma.$transaction.mockImplementation(async (cb: Function) => cb(prisma));
+      prisma.availabilityOverride.findFirst.mockResolvedValue({ id: 'existing-1', track: null });
 
-      // Third override: available with reason
-      expect(prisma.availabilityOverride.upsert).toHaveBeenNthCalledWith(
-        3,
+      await service.batchSetOverrides('teacher-1', [multipleOverrides[0]]);
+
+      expect(prisma.availabilityOverride.update).toHaveBeenCalledWith({
+        where: { id: 'existing-1' },
+        data: {
+          isAvailable: true,
+          startTime: '09:00',
+          endTime: '14:00',
+          reason: undefined,
+        },
+      });
+    });
+
+    it('should pass track to create when specified', async () => {
+      prisma.teacher.findUnique.mockResolvedValue({ id: 'teacher-1', doubleSession: false });
+      prisma.$transaction.mockImplementation(async (cb: Function) => cb(prisma));
+      prisma.availabilityOverride.findFirst.mockResolvedValue(null);
+
+      await service.batchSetOverrides('teacher-1', [
+        { date: '2026-06-01', isAvailable: true, startTime: '09:00', endTime: '14:00', track: 'pista' },
+      ]);
+
+      expect(prisma.availabilityOverride.create).toHaveBeenCalledWith(
         expect.objectContaining({
-          create: expect.objectContaining({
-            isAvailable: true,
-            startTime: '10:00',
-            endTime: '12:00',
-            reason: 'Feriado local',
-          }),
-          update: expect.objectContaining({
-            isAvailable: true,
-            startTime: '10:00',
-            endTime: '12:00',
-            reason: 'Feriado local',
+          data: expect.objectContaining({
+            track: 'pista',
           }),
         }),
       );
+    });
+
+    it('should pass track to update when specified', async () => {
+      prisma.teacher.findUnique.mockResolvedValue({ id: 'teacher-1', doubleSession: false });
+      prisma.$transaction.mockImplementation(async (cb: Function) => cb(prisma));
+      prisma.availabilityOverride.findFirst.mockResolvedValue({ id: 'existing-1', track: 'pista' });
+
+      await service.batchSetOverrides('teacher-1', [
+        { date: '2026-06-01', isAvailable: true, startTime: '09:00', endTime: '14:00', track: 'pista' },
+      ]);
+
+      // findFirst should have been called with the track filter
+      expect(prisma.availabilityOverride.findFirst).toHaveBeenCalledWith({
+        where: { teacherId: 'teacher-1', date: expect.any(Date), track: 'pista' },
+      });
     });
 
     it('should throw BadRequestException for invalid startTime format', async () => {
@@ -192,6 +223,29 @@ describe('SchedulingService', () => {
 
       expect(result).toEqual(expectedResult);
     });
+
+    it('should clean up stale overrides (tracks not in the batch) for the same dates', async () => {
+      prisma.teacher.findUnique.mockResolvedValue({ id: 'teacher-1', doubleSession: false });
+      prisma.$transaction.mockImplementation(async (cb: Function) => cb(prisma));
+      prisma.availabilityOverride.findFirst.mockResolvedValue(null);
+
+      await service.batchSetOverrides('teacher-1', [
+        { date: '2026-06-01', isAvailable: true, startTime: '09:00', endTime: '14:00', track: 'pista' },
+      ]);
+
+      // Should delete overrides for June 1 that are NOT pista
+      expect(prisma.availabilityOverride.deleteMany).toHaveBeenCalledWith(
+        expect.objectContaining({
+          where: expect.objectContaining({
+            teacherId: 'teacher-1',
+            OR: expect.arrayContaining([
+              expect.objectContaining({ track: { notIn: ['pista'] } }),
+              expect.objectContaining({ track: null }),
+            ]),
+          }),
+        }),
+      );
+    });
   });
 
   // ────────────────────────────────────────────
@@ -211,6 +265,7 @@ describe('SchedulingService', () => {
         startTime: null,
         endTime: null,
         reason: null,
+        track: null,
         createdAt: new Date(),
       },
       {
@@ -221,6 +276,7 @@ describe('SchedulingService', () => {
         startTime: '09:00',
         endTime: '14:00',
         reason: 'Feriado',
+        track: null,
         createdAt: new Date(),
       },
     ];
@@ -245,33 +301,76 @@ describe('SchedulingService', () => {
 
     it('should copy source overrides to target week with shifted dates', async () => {
       prisma.teacher.findUnique.mockResolvedValue({ id: 'teacher-1', doubleSession: false });
+      prisma.$transaction.mockImplementation(async (cb: Function) => cb(prisma));
+      // First findMany: source overrides
+      // Second findMany: no existing target overrides
       prisma.availabilityOverride.findMany
-        .mockResolvedValueOnce(sourceOverrides)  // source fetch
-        .mockResolvedValueOnce([]);               // target fetch (no existing)
+        .mockResolvedValueOnce(sourceOverrides)
+        .mockResolvedValueOnce([]);
+
+      // No existing overrides for target dates → all creates
+      prisma.availabilityOverride.findFirst.mockResolvedValue(null);
 
       await service.copyWeekOverrides('teacher-1', sourceDate, targetDate);
 
-      // Should upsert 2 overrides
-      expect(prisma.availabilityOverride.upsert).toHaveBeenCalledTimes(2);
       expect(prisma.$transaction).toHaveBeenCalledTimes(1);
+      expect(prisma.availabilityOverride.create).toHaveBeenCalledTimes(2);
+      expect(prisma.availabilityOverride.update).not.toHaveBeenCalled();
 
-      // First upsert: source 2026-06-01 → target 2026-06-08
-      const firstCall = prisma.availabilityOverride.upsert.mock.calls[0][0];
-      expect(firstCall.where.teacherId_date.teacherId).toBe('teacher-1');
-      expect(firstCall.create.isAvailable).toBe(false);
-      expect(firstCall.create.startTime).toBeNull();
-      expect(firstCall.create.reason).toBeNull();
+      // First create: source 2026-06-01 → target 2026-06-08
+      const firstCreate = prisma.availabilityOverride.create.mock.calls[0][0];
+      expect(firstCreate.data.isAvailable).toBe(false);
 
-      // Second upsert: source 2026-06-03 → target 2026-06-10
-      const secondCall = prisma.availabilityOverride.upsert.mock.calls[1][0];
-      expect(secondCall.create.isAvailable).toBe(true);
-      expect(secondCall.create.startTime).toBe('09:00');
-      expect(secondCall.create.endTime).toBe('14:00');
-      expect(secondCall.create.reason).toBe('Feriado');
+      // Second create: source 2026-06-03 → target 2026-06-10
+      const secondCreate = prisma.availabilityOverride.create.mock.calls[1][0];
+      expect(secondCreate.data.isAvailable).toBe(true);
+      expect(secondCreate.data.startTime).toBe('09:00');
+      expect(secondCreate.data.endTime).toBe('14:00');
+      expect(secondCreate.data.reason).toBe('Feriado');
+    });
+
+    it('should propagate track when copying overrides', async () => {
+      prisma.teacher.findUnique.mockResolvedValue({ id: 'teacher-1', doubleSession: false });
+      prisma.$transaction.mockImplementation(async (cb: Function) => cb(prisma));
+      const trackSourceOverrides = [
+        {
+          id: 'ov-3',
+          teacherId: 'teacher-1',
+          date: new Date('2026-06-01'),
+          isAvailable: true,
+          startTime: '09:00',
+          endTime: '12:00',
+          reason: null,
+          track: 'pista',
+          createdAt: new Date(),
+        },
+        {
+          id: 'ov-4',
+          teacherId: 'teacher-1',
+          date: new Date('2026-06-01'),
+          isAvailable: true,
+          startTime: '13:00',
+          endTime: '15:00',
+          reason: null,
+          track: 'circulacion',
+          createdAt: new Date(),
+        },
+      ];
+      prisma.availabilityOverride.findMany
+        .mockResolvedValueOnce(trackSourceOverrides)
+        .mockResolvedValueOnce([]);
+      prisma.availabilityOverride.findFirst.mockResolvedValue(null);
+
+      await service.copyWeekOverrides('teacher-1', sourceDate, targetDate);
+
+      expect(prisma.availabilityOverride.create).toHaveBeenCalledTimes(2);
+      expect(prisma.availabilityOverride.create.mock.calls[0][0].data.track).toBe('pista');
+      expect(prisma.availabilityOverride.create.mock.calls[1][0].data.track).toBe('circulacion');
     });
 
     it('should skip target dates that already have overrides when overrideExisting is false', async () => {
       prisma.teacher.findUnique.mockResolvedValue({ id: 'teacher-1', doubleSession: false });
+      prisma.$transaction.mockImplementation(async (cb: Function) => cb(prisma));
       // Source overrides (June 1 and June 3)
       prisma.availabilityOverride.findMany
         .mockResolvedValueOnce(sourceOverrides)
@@ -285,23 +384,24 @@ describe('SchedulingService', () => {
             startTime: '08:00',
             endTime: '12:00',
             reason: 'Existing',
+            track: null,
             createdAt: new Date(),
           },
         ]);
 
       await service.copyWeekOverrides('teacher-1', sourceDate, targetDate, false);
 
-      // June 1 → June 8: no existing → should upsert
+      // June 1 → June 8: no existing → should create
       // June 3 → June 10: existing → should skip
-      expect(prisma.availabilityOverride.upsert).toHaveBeenCalledTimes(1);
+      expect(prisma.availabilityOverride.create).toHaveBeenCalledTimes(1);
+      expect(prisma.$transaction).toHaveBeenCalledTimes(1);
     });
 
     it('should overwrite target dates when overrideExisting is true', async () => {
       prisma.teacher.findUnique.mockResolvedValue({ id: 'teacher-1', doubleSession: false });
-      // Source overrides (June 1 and June 3, same as above)
+      prisma.$transaction.mockImplementation(async (cb: Function) => cb(prisma));
       prisma.availabilityOverride.findMany
         .mockResolvedValueOnce(sourceOverrides)
-        // Target already has an override for June 10
         .mockResolvedValueOnce([
           {
             id: 'existing-1',
@@ -311,14 +411,29 @@ describe('SchedulingService', () => {
             startTime: '08:00',
             endTime: '12:00',
             reason: 'Existing',
+            track: null,
             createdAt: new Date(),
           },
         ]);
+      // Existing target override found by findFirst → should update
+      prisma.availabilityOverride.findFirst
+        .mockResolvedValueOnce(null) // June 1→8: no existing
+        .mockResolvedValueOnce({ id: 'existing-1', track: null }); // June 3→10: existing
 
       await service.copyWeekOverrides('teacher-1', sourceDate, targetDate, true);
 
-      // Both should be upserted (overwriting the existing one)
-      expect(prisma.availabilityOverride.upsert).toHaveBeenCalledTimes(2);
+      // Both should be created/updated
+      expect(prisma.availabilityOverride.create).toHaveBeenCalledTimes(1);
+      expect(prisma.availabilityOverride.update).toHaveBeenCalledTimes(1);
+      expect(prisma.availabilityOverride.update).toHaveBeenCalledWith({
+        where: { id: 'existing-1' },
+        data: expect.objectContaining({
+          isAvailable: true,
+          startTime: '09:00',
+          endTime: '14:00',
+          reason: 'Feriado',
+        }),
+      });
     });
 
     it('should return the correct copy count', async () => {
@@ -326,7 +441,8 @@ describe('SchedulingService', () => {
       prisma.availabilityOverride.findMany
         .mockResolvedValueOnce(sourceOverrides)
         .mockResolvedValueOnce([]);
-      prisma.$transaction.mockResolvedValue([]);
+      prisma.$transaction.mockImplementation(async (cb: Function) => cb(prisma));
+      prisma.availabilityOverride.findFirst.mockResolvedValue(null);
 
       const result = await service.copyWeekOverrides('teacher-1', sourceDate, targetDate);
 
@@ -347,6 +463,7 @@ describe('SchedulingService', () => {
             startTime: '08:00',
             endTime: '12:00',
             reason: null,
+            track: null,
             createdAt: new Date(),
           },
           {
@@ -357,13 +474,15 @@ describe('SchedulingService', () => {
             startTime: '09:00',
             endTime: '13:00',
             reason: null,
+            track: null,
             createdAt: new Date(),
           },
         ]);
 
       await service.copyWeekOverrides('teacher-1', sourceDate, targetDate, false);
 
-      expect(prisma.availabilityOverride.upsert).not.toHaveBeenCalled();
+      expect(prisma.availabilityOverride.create).not.toHaveBeenCalled();
+      expect(prisma.availabilityOverride.update).not.toHaveBeenCalled();
       expect(prisma.$transaction).not.toHaveBeenCalled();
     });
   });

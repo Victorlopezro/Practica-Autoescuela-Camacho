@@ -149,19 +149,20 @@ export class AdminPlanningController {
     const dayOfWeek = date.getDay();
     const dateStr = format(date, 'yyyy-MM-dd');
 
-    // Check override for this date
-    const override = overrides.find((o) => {
+    // Check overrides for this date (now supports multiple tracks)
+    const dateOverrides = overrides.filter((o) => {
       const oDate = o.date instanceof Date ? o.date : new Date(o.date);
       return format(oDate, 'yyyy-MM-dd') === dateStr;
     });
 
-    // If override marks as unavailable
-    if (override && !override.isAvailable) {
+    // If ANY override marks as unavailable, the day is blocked
+    const blockingOverride = dateOverrides.find((o) => !o.isAvailable);
+    if (blockingOverride) {
       return {
         date: dateStr,
         dayOfWeek,
         isAvailable: false,
-        reason: override.reason ?? undefined,
+        reason: blockingOverride.reason ?? undefined,
         totalSlots: 0,
         bookedSlots: 0,
         freeSlots: 0,
@@ -169,14 +170,17 @@ export class AdminPlanningController {
       };
     }
 
-    // Determine effective time range
+    // Determine effective time range — aggregate across all track overrides
     let startTime: string | null = null;
     let endTime: string | null = null;
 
-    if (override && override.startTime && override.endTime) {
-      // Override with custom hours
-      startTime = override.startTime;
-      endTime = override.endTime;
+    const activeOverrides = dateOverrides.filter((o) => o.startTime && o.endTime);
+    if (activeOverrides.length > 0) {
+      // Use earliest start and latest end across all track overrides
+      for (const o of activeOverrides) {
+        if (!startTime || (o.startTime && o.startTime < startTime)) startTime = o.startTime!;
+        if (!endTime || (o.endTime && o.endTime > endTime)) endTime = o.endTime!;
+      }
     } else {
       // Fall back to base weekly schedule
       const base = availability.find((a) => a.dayOfWeek === dayOfWeek);

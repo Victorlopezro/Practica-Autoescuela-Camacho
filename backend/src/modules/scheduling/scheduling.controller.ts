@@ -92,6 +92,7 @@ export class SchedulingController {
       dto.startTime,
       dto.endTime,
       dto.reason,
+      dto.track,
     );
     return { success: true };
   }
@@ -103,8 +104,9 @@ export class SchedulingController {
   async removeOverride(
     @Param('teacherId') teacherId: string,
     @Param('date') date: string,
+    @Query('track') track?: string,
   ) {
-    await this.scheduling.removeOverride(teacherId, date);
+    await this.scheduling.removeOverride(teacherId, date, track);
   }
 
   /* ───── Batch Overrides ───── */

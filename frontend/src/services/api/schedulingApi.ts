@@ -27,12 +27,13 @@ export const schedulingApi: ISchedulingService = {
     await apiClient.delete(`/scheduling/teachers/${teacherId}/availability/${dayOfWeek}`, { params });
   },
 
-  async setOverride(teacherId: string, date: string, isAvailable: boolean, startTime?: string, endTime?: string, reason?: string): Promise<void> {
-    await apiClient.post(`/scheduling/teachers/${teacherId}/overrides`, { date, isAvailable, startTime, endTime, reason });
+  async setOverride(teacherId: string, date: string, isAvailable: boolean, startTime?: string, endTime?: string, reason?: string, track?: string): Promise<void> {
+    await apiClient.post(`/scheduling/teachers/${teacherId}/overrides`, { date, isAvailable, startTime, endTime, reason, track });
   },
 
-  async removeOverride(teacherId: string, date: string): Promise<void> {
-    await apiClient.delete(`/scheduling/teachers/${teacherId}/overrides/${date}`);
+  async removeOverride(teacherId: string, date: string, track?: string): Promise<void> {
+    const params = track ? { track } : undefined;
+    await apiClient.delete(`/scheduling/teachers/${teacherId}/overrides/${date}`, { params });
   },
 
   async getSlotsRange(teacherId: string, startDate: string, vehicleType: string, days = 30, doubleSession?: boolean, studentId?: string): Promise<SlotRangeResultDto> {

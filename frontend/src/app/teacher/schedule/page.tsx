@@ -5,6 +5,8 @@ import { Card, CardHeader } from '@/components/layouts/Card';
 import { useAuth } from '@/hooks/useAuth';
 import { services } from '@/services';
 import type { OverrideDto } from '@/services/interfaces';
+import { ScheduleBlockEditor } from '@/components/scheduling/ScheduleBlockEditor';
+import type { BlockData } from '@/components/scheduling/ScheduleBlockEditor';
 
 const DAYS = [
   { index: 0, label: 'Domingo' },
@@ -15,12 +17,6 @@ const DAYS = [
   { index: 5, label: 'Viernes' },
   { index: 6, label: 'Sábado' },
 ];
-
-const TRACK_OPTIONS = [
-  { value: '', label: 'General' },
-  { value: 'pista', label: 'Pista (30 min)' },
-  { value: 'circulacion', label: 'Circulación (45 min)' },
-] as const;
 
 let _blockSeq = 0;
 function uid(): string {
@@ -254,55 +250,18 @@ export default function TeacherSchedule() {
 
                 {/* Blocks */}
                 {isActive && (
-                  <div className="mt-2 space-y-2 pl-12">
-                    {blocks.map((block) => (
-                      <div key={block.id} className="flex items-center gap-2 flex-wrap">
-                        <select
-                          value={block.track}
-                          onChange={(e) => updateBlock(day.index, block.id, 'track', e.target.value)}
-                          className="px-2 py-1 text-xs border border-outline-variant/50 rounded-lg bg-white text-on-surface w-auto"
-                        >
-                          {TRACK_OPTIONS.map((opt) => (
-                            <option key={opt.value} value={opt.value}>{opt.label}</option>
-                          ))}
-                        </select>
-                        <input
-                          type="time"
-                          value={block.start}
-                          onChange={(e) => updateBlock(day.index, block.id, 'start', e.target.value)}
-                          className="flex-1 min-w-[100px] px-2 py-1 text-sm border border-outline-variant/50 rounded-lg bg-white text-on-surface"
-                        />
-                        <span className="text-outline text-sm flex-shrink-0">a</span>
-                        <input
-                          type="time"
-                          value={block.end}
-                          onChange={(e) => updateBlock(day.index, block.id, 'end', e.target.value)}
-                          className="flex-1 min-w-[100px] px-2 py-1 text-sm border border-outline-variant/50 rounded-lg bg-white text-on-surface"
-                        />
-                        <button
-                          onClick={() => saveBlock(day.index, block)}
-                          disabled={saving}
-                          className="flex-shrink-0 px-3 py-1 text-xs font-medium bg-primary text-white rounded-lg hover:bg-primary/90 disabled:opacity-50 transition-colors"
-                        >
-                          {saving ? '...' : 'Guardar'}
-                        </button>
-                        <button
-                          onClick={() => removeBlock(day.index, block)}
-                          className="flex-shrink-0 p-1 text-error hover:text-error/80 transition-colors text-sm"
-                          title="Eliminar bloque"
-                        >
-                          ✕
-                        </button>
-                      </div>
-                    ))}
-                    {blocks.length < 2 && (
-                      <button
-                        onClick={() => addBlock(day.index)}
-                        className="text-xs text-primary hover:text-primary/80 font-medium transition-colors"
-                      >
-                        + Añadir bloque
-                      </button>
-                    )}
+                  <div className="mt-2 pl-12">
+                    <ScheduleBlockEditor
+                      teacherId={teacherId ?? ''}
+                      dayIndex={day.index}
+                      dayLabel={day.label}
+                      blocks={blocks}
+                      isSaving={saving}
+                      onSave={saveBlock}
+                      onRemove={removeBlock}
+                      onAdd={addBlock}
+                      onUpdate={updateBlock}
+                    />
                   </div>
                 )}
               </div>

@@ -103,10 +103,11 @@ model AvailabilityOverride {
   startTime   String?  @map("start_time") // null = use regular schedule
   endTime     String?  @map("end_time")
   reason      String?  @map("reason")
+  track       String?  @map("track") // 'pista' | 'circulacion' | null
 
   createdAt DateTime @default(now()) @map("created_at")
 
-  @@unique([teacherId, date])
+  @@unique([teacherId, date, track])
   @@map("availability_overrides")
 }
 

@@ -22,6 +22,7 @@ export interface OverrideDto {
   startTime: string | null;
   endTime: string | null;
   reason: string | null;
+  track?: string | null;
 }
 
 export interface SlotResultDto {
@@ -63,6 +64,7 @@ export interface BatchOverrideEntry {
   startTime?: string;  // HH:mm
   endTime?: string;    // HH:mm
   reason?: string;
+  track?: string;      // track identifier (empty string = general)
 }
 
 export interface BatchOverrideResult {
@@ -84,8 +86,8 @@ export interface ISchedulingService {
   getTeacherAvailability(teacherId: string): Promise<TeacherAvailabilityDto>;
   setAvailability(teacherId: string, dayOfWeek: number, startTime: string, endTime: string, track?: string): Promise<void>;
   removeAvailability(teacherId: string, dayOfWeek: number, track?: string): Promise<void>;
-  setOverride(teacherId: string, date: string, isAvailable: boolean, startTime?: string, endTime?: string, reason?: string): Promise<void>;
-  removeOverride(teacherId: string, date: string): Promise<void>;
+  setOverride(teacherId: string, date: string, isAvailable: boolean, startTime?: string, endTime?: string, reason?: string, track?: string): Promise<void>;
+  removeOverride(teacherId: string, date: string, track?: string): Promise<void>;
   getSlots(teacherId: string, date: string, vehicleType: string, doubleSession?: boolean, studentId?: string): Promise<SlotResultDto>;
   getSlotsRange(teacherId: string, startDate: string, vehicleType: string, days?: number, doubleSession?: boolean, studentId?: string): Promise<SlotRangeResultDto>;
   validateSlot(teacherId: string, studentId: string, vehicleType: string, startTime: string, duration: number, doubleSession?: boolean): Promise<ValidationResultDto>;
