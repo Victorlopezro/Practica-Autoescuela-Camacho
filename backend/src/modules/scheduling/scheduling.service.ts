@@ -161,18 +161,26 @@ export class SchedulingService {
 
     // If setting unavailable, clear time fields
     if (!isAvailable) {
-      const existing = await this.prisma.availabilityOverride.findFirst({
-        where: { teacherId, date: dateObj, track: track ?? null },
-      });
-      if (existing) {
-        return this.prisma.availabilityOverride.update({
-          where: { id: existing.id },
-          data: { isAvailable: false, startTime: null, endTime: null },
+      try {
+        const existing = await this.prisma.availabilityOverride.findFirst({
+          where: { teacherId, date: dateObj, track: track ?? null },
         });
+        if (existing) {
+          return this.prisma.availabilityOverride.update({
+            where: { id: existing.id },
+            data: { isAvailable: false, startTime: null, endTime: null },
+          });
+        }
+        return this.prisma.availabilityOverride.create({
+          data: { teacherId, date: dateObj, isAvailable: false, track: track ?? null },
+        });
+      } catch (err) {
+        this.logger.error(
+          `setOverride(!isAvailable) failed for teacher ${teacherId} date ${date}: ${(err as Error).message}`,
+          (err as Error).stack,
+        );
+        throw err;
       }
-      return this.prisma.availabilityOverride.create({
-        data: { teacherId, date: dateObj, isAvailable: false, track: track ?? null },
-      });
     }
 
     // Available with custom hours — validate
@@ -186,20 +194,28 @@ export class SchedulingService {
       }
     }
 
-    const existing = await this.prisma.availabilityOverride.findFirst({
-      where: { teacherId, date: dateObj, track: track ?? null },
-    });
-
-    if (existing) {
-      return this.prisma.availabilityOverride.update({
-        where: { id: existing.id },
-        data: { isAvailable, startTime, endTime, reason },
+    try {
+      const existing = await this.prisma.availabilityOverride.findFirst({
+        where: { teacherId, date: dateObj, track: track ?? null },
       });
-    }
 
-    return this.prisma.availabilityOverride.create({
-      data: { teacherId, date: dateObj, isAvailable, startTime, endTime, reason, track: track ?? null },
-    });
+      if (existing) {
+        return this.prisma.availabilityOverride.update({
+          where: { id: existing.id },
+          data: { isAvailable, startTime, endTime, reason },
+        });
+      }
+
+      return this.prisma.availabilityOverride.create({
+        data: { teacherId, date: dateObj, isAvailable, startTime, endTime, reason, track: track ?? null },
+      });
+    } catch (err) {
+      this.logger.error(
+        `setOverride(isAvailable=true) failed for teacher ${teacherId} date ${date}: ${(err as Error).message}`,
+        (err as Error).stack,
+      );
+      throw err;
+    }
   }
 
   async removeOverride(teacherId: string, date: string, track?: string) {

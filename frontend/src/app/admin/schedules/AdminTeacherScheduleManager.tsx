@@ -11,15 +11,6 @@ import { CopyWeekModal } from './CopyWeekModal';
 
 /* ─── Helpers ────────────────────────────────────────────────── */
 
-function getMonday(date: Date): Date {
-  const d = new Date(date);
-  const day = d.getDay();
-  const diff = d.getDate() - day + (day === 0 ? -6 : 1);
-  d.setDate(diff);
-  d.setHours(0, 0, 0, 0);
-  return d;
-}
-
 function formatDate(d: Date): string {
   return d.toISOString().split('T')[0];
 }
@@ -34,7 +25,51 @@ function toBackendDayOfWeek(jsDay: number): number {
   return jsDay === 0 ? 7 : jsDay;
 }
 
+/**
+ * Returns an array of Date objects for a full calendar grid.
+ * Monday‑based weeks, padded with leading/lagging days from
+ * adjacent months so the grid always starts on Monday and ends
+ * on Sunday.
+ */
+function getMonthGrid(year: number, month: number): Date[] {
+  const grid: Date[] = [];
+  const first = new Date(year, month, 1);
+  const last = new Date(year, month + 1, 0);
+
+  // JS getDay(): Sunday=0 → convert to Monday=1 … Sunday=7
+  const startDow = first.getDay() || 7;
+  const padBefore = startDow - 1; // days to prepend from prev month
+
+  for (let i = padBefore; i > 0; i--) {
+    grid.push(new Date(year, month, 1 - i));
+  }
+  for (let d = 1; d <= last.getDate(); d++) {
+    grid.push(new Date(year, month, d));
+  }
+  // Pad at end so the last row is full (multiple of 7)
+  const overflow = grid.length % 7;
+  if (overflow !== 0) {
+    for (let i = 1; i <= 7 - overflow; i++) {
+      grid.push(new Date(year, month + 1, i));
+    }
+  }
+  return grid;
+}
+
+function getFirstOfMonth(date: Date): Date {
+  return new Date(date.getFullYear(), date.getMonth(), 1);
+}
+
+/** Returns the first Monday <= startDate (walk backwards). */
+function getMondayBefore(date: Date): Date {
+  const d = new Date(date);
+  while (d.getDay() !== 1) d.setDate(d.getDate() - 1);
+  d.setHours(0, 0, 0, 0);
+  return d;
+}
+
 const DAY_LABELS = ['Lunes', 'Martes', 'Miércoles', 'Jueves', 'Viernes', 'Sábado', 'Domingo'];
+const DAY_LABELS_SHORT = ['Lu', 'Ma', 'Mi', 'Ju', 'Vi', 'Sá', 'Do'];
 
 /* ─── Types ──────────────────────────────────────────────────── */
 
@@ -47,11 +82,11 @@ interface DayTrackInfo {
 interface DayState {
   date: string;
   dayLabel: string;
+  monthDay: number;
+  isCurrentMonth: boolean;
   isAvailable: boolean;
   reason?: string;
-  /** Base availability per track (read-only visual info) */
   tracks: DayTrackInfo[];
-  /** Override blocks for this date (per-track override entries) */
   overrideBlocks: BlockData[];
 }
 
@@ -77,13 +112,14 @@ export function AdminTeacherScheduleManager({
   const [selectedTeacherId, setSelectedTeacherId] = useState(
     initialTeacherId ?? teachers[0]?.id ?? '',
   );
-  const [weekStart, setWeekStart] = useState(() => formatDate(getMonday(today)));
+  const [monthStart, setMonthStart] = useState(() => formatDate(getFirstOfMonth(today)));
   const [availability, setAvailability] = useState<TeacherAvailabilityDto | null>(null);
   const [loading, setLoading] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
   const [successMsg, setSuccessMsg] = useState('');
   const [days, setDays] = useState<DayState[]>([]);
+  const [selectedDayIndex, setSelectedDayIndex] = useState<number | null>(null);
   const [copyModalOpen, setCopyModalOpen] = useState(false);
 
   /* ── Load availability when teacher changes ────────────────── */
@@ -107,7 +143,7 @@ export function AdminTeacherScheduleManager({
     loadAvailability();
   }, [loadAvailability]);
 
-  /* ── Rebuild day grid when availability or weekStart changes ── */
+  /* ── Rebuild day grid when availability or monthStart changes ─ */
 
   useEffect(() => {
     if (!availability) {
@@ -115,27 +151,28 @@ export function AdminTeacherScheduleManager({
       return;
     }
 
+    const [y, m] = monthStart.split('-').map(Number);
+    const gridDates = getMonthGrid(y, m - 1);
+    const currentYear = y;
+    const currentMonth = m - 1;
     const newDays: DayState[] = [];
-    const startDate = new Date(weekStart + 'T12:00:00');
 
-    for (let i = 0; i < 7; i++) {
-      const date = addDays(startDate, i);
+    for (const date of gridDates) {
       const dateStr = formatDate(date);
       const jsDayOfWeek = date.getDay();
       const backendDayOfWeek = toBackendDayOfWeek(jsDayOfWeek);
+      const isCurrentMonth =
+        date.getFullYear() === currentYear && date.getMonth() === currentMonth;
 
-      // All overrides for this date (per-track)
       const dateOverrides = availability.overrides.filter(
         (o: OverrideDto) => o.date === dateStr,
       );
 
-      // Find if there's a "general" override (track=null) that sets availability
       const generalOverride = dateOverrides.find((o) => o.track == null);
       const isAvailable = dateOverrides.length === 0 || (generalOverride?.isAvailable ?? true);
 
-      // Build override blocks from track-specific overrides
       const overrideBlocks: BlockData[] = dateOverrides
-        .filter((o) => o.track != null) // only track-specific overrides become blocks
+        .filter((o) => o.track != null)
         .map((o) => ({
           id: uid(),
           start: o.startTime ?? '08:00',
@@ -144,7 +181,6 @@ export function AdminTeacherScheduleManager({
           saved: true,
         }));
 
-      // Also show a block for the general override if it has custom hours
       if (generalOverride && generalOverride.isAvailable && generalOverride.startTime) {
         overrideBlocks.push({
           id: uid(),
@@ -155,7 +191,6 @@ export function AdminTeacherScheduleManager({
         });
       }
 
-      // All base availability entries for this dayOfWeek (multi-track)
       const dayAvail = availability.availability.filter(
         (a) => a.dayOfWeek === backendDayOfWeek,
       );
@@ -168,7 +203,9 @@ export function AdminTeacherScheduleManager({
 
       newDays.push({
         date: dateStr,
-        dayLabel: DAY_LABELS[i],
+        dayLabel: DAY_LABELS[jsDayOfWeek === 0 ? 6 : jsDayOfWeek - 1],
+        monthDay: date.getDate(),
+        isCurrentMonth,
         isAvailable,
         reason: generalOverride?.reason ?? undefined,
         tracks,
@@ -177,36 +214,34 @@ export function AdminTeacherScheduleManager({
     }
 
     setDays(newDays);
-  }, [availability, weekStart]);
+    // Reset selection when month changes
+    setSelectedDayIndex(null);
+  }, [availability, monthStart]);
 
-  /* ── Week navigation ────────────────────────────────────────── */
+  /* ── Month navigation ──────────────────────────────────────── */
 
-  const weekEnd = useMemo(() => {
-    const d = new Date(weekStart + 'T12:00:00');
-    d.setDate(d.getDate() + 6);
-    return formatDate(d);
-  }, [weekStart]);
+  const monthLabel = useMemo(() => {
+    const [y, m] = monthStart.split('-').map(Number);
+    const d = new Date(y, m - 1, 15);
+    return d.toLocaleDateString('es-ES', { month: 'long', year: 'numeric' });
+  }, [monthStart]);
 
-  const weekLabel = useMemo(() => {
-    const start = new Date(weekStart + 'T12:00:00');
-    const end = new Date(weekEnd + 'T12:00:00');
-    return `${start.toLocaleDateString('es-ES', { day: 'numeric', month: 'short' })} — ${end.toLocaleDateString('es-ES', { day: 'numeric', month: 'short', year: 'numeric' })}`;
-  }, [weekStart, weekEnd]);
-
-  function prevWeek() {
-    const d = new Date(weekStart + 'T12:00:00');
-    d.setDate(d.getDate() - 7);
-    setWeekStart(formatDate(d));
+  function prevMonth() {
+    const [y, m] = monthStart.split('-').map(Number);
+    const d = new Date(y, m - 1, 1);
+    d.setMonth(d.getMonth() - 1);
+    setMonthStart(formatDate(getFirstOfMonth(d)));
   }
 
-  function nextWeek() {
-    const d = new Date(weekStart + 'T12:00:00');
-    d.setDate(d.getDate() + 7);
-    setWeekStart(formatDate(d));
+  function nextMonth() {
+    const [y, m] = monthStart.split('-').map(Number);
+    const d = new Date(y, m - 1, 1);
+    d.setMonth(d.getMonth() + 1);
+    setMonthStart(formatDate(getFirstOfMonth(d)));
   }
 
-  function goToCurrentWeek() {
-    setWeekStart(formatDate(getMonday(today)));
+  function goToCurrentMonth() {
+    setMonthStart(formatDate(getFirstOfMonth(today)));
   }
 
   /* ── Day toggle (available / not available) ─────────────────── */
@@ -222,11 +257,9 @@ export function AdminTeacherScheduleManager({
 
     try {
       if (day.isAvailable) {
-        // Mark as not available — create general override
         await services.scheduling.setOverride(selectedTeacherId, date, false, undefined, undefined, undefined, undefined);
         setSuccessMsg('Día marcado como no disponible');
       } else {
-        // Remove the general "not available" override
         await services.scheduling.removeOverride(selectedTeacherId, date);
         setSuccessMsg('Disponibilidad restaurada');
       }
@@ -324,6 +357,10 @@ export function AdminTeacherScheduleManager({
     );
   }
 
+  /* ── Selected day (for block editing) ───────────────────────── */
+
+  const selectedDay = selectedDayIndex !== null ? days[selectedDayIndex] : null;
+
   /* ── Copy week callback ─────────────────────────────────────── */
 
   async function handleCopySuccess() {
@@ -333,6 +370,39 @@ export function AdminTeacherScheduleManager({
     onRefreshPlanning?.();
   }
 
+  /** First Monday of the current month (used as copy-week default). */
+  const firstMonday = useMemo(() => {
+    return formatDate(getMondayBefore(new Date(monthStart + 'T12:00:00')));
+  }, [monthStart]);
+
+  /* ── Render helpers ─────────────────────────────────────────── */
+
+  function renderTrackLabel(t: DayTrackInfo, compact = false) {
+    const isPista = t.track === 'pista';
+    const isCirculacion = t.track === 'circulacion';
+    const cls = compact
+      ? `text-[9px] leading-tight px-1 rounded-full w-full text-center truncate ${
+          isPista
+            ? 'bg-amber-50 text-amber-700'
+            : isCirculacion
+              ? 'bg-sky-50 text-sky-700'
+              : 'bg-surface-container-low text-on-surface-variant'
+        }`
+      : `text-[10px] px-1.5 py-0.5 rounded-full w-full text-center ${
+          isPista
+            ? 'bg-amber-50 text-amber-700'
+            : isCirculacion
+              ? 'bg-sky-50 text-sky-700'
+              : 'bg-surface-container-low text-on-surface-variant'
+        }`;
+
+    return (
+      <span key={t.track} className={cls}>
+        {isPista ? 'P' : isCirculacion ? 'C' : '—'} {t.startTime}-{t.endTime}
+      </span>
+    );
+  }
+
   /* ── Render ─────────────────────────────────────────────────── */
 
   const inputClass =
@@ -340,7 +410,7 @@ export function AdminTeacherScheduleManager({
 
   return (
     <div className="space-y-4">
-      {/* ── Header: teacher selector + week nav ──────────────── */}
+      {/* ── Header: teacher selector + month nav ──────────────── */}
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3">
         <div className="flex items-center gap-2">
           <label className="text-sm text-on-surface-variant">Profesor:</label>
@@ -361,27 +431,27 @@ export function AdminTeacherScheduleManager({
 
         <div className="flex items-center gap-1.5">
           <button
-            onClick={prevWeek}
+            onClick={prevMonth}
             className="p-1.5 rounded-lg hover:bg-surface-container-low transition-colors cursor-pointer"
-            aria-label="Semana anterior"
+            aria-label="Mes anterior"
           >
             <span className="material-symbols-outlined text-[18px]">
               chevron_left
             </span>
           </button>
           <button
-            onClick={goToCurrentWeek}
+            onClick={goToCurrentMonth}
             className="px-2 py-1 text-xs font-medium text-primary hover:bg-primary-container/20 rounded-lg transition-colors cursor-pointer"
           >
-            ESTA SEMANA
+            ESTE MES
           </button>
-          <span className="text-sm font-medium text-on-surface min-w-[180px] text-center">
-            {weekLabel}
+          <span className="text-sm font-medium text-on-surface capitalize min-w-[140px] text-center">
+            {monthLabel}
           </span>
           <button
-            onClick={nextWeek}
+            onClick={nextMonth}
             className="p-1.5 rounded-lg hover:bg-surface-container-low transition-colors cursor-pointer"
-            aria-label="Semana siguiente"
+            aria-label="Mes siguiente"
           >
             <span className="material-symbols-outlined text-[18px]">
               chevron_right
@@ -417,186 +487,304 @@ export function AdminTeacherScheduleManager({
             person_search
           </span>
           <p className="text-sm text-on-surface-variant">
-            Selecciona un profesor para ver su planificación semanal
+            Selecciona un profesor para ver su planificación mensual
           </p>
         </div>
       )}
 
-      {/* ── Day grid ─────────────────────────────────────────── */}
+      {/* ── Calendar grid ────────────────────────────────────── */}
       {!loading && days.length > 0 && (
-        <div className="space-y-2">
+        <>
           {/* ═══ DESKTOP ═══ */}
           <div className="hidden sm:block">
-            {/* Grid header */}
-            <div className="grid grid-cols-[140px_repeat(7,1fr)] gap-2 mb-1">
-              <div />
-              {days.map((d) => (
+            {/* Day-of-week header row */}
+            <div className="grid grid-cols-7 gap-px mb-px bg-outline-variant/30 rounded-t-lg overflow-hidden">
+              {DAY_LABELS_SHORT.map((label) => (
                 <div
-                  key={d.date}
-                  className="text-xs font-medium text-on-surface-variant text-center py-1"
+                  key={label}
+                  className="bg-surface-container-low px-2 py-1.5 text-center text-xs font-semibold text-on-surface-variant"
                 >
-                  {d.dayLabel}
-                  <br />
-                  <span className="text-[10px]">
-                    {new Date(d.date + 'T12:00:00').getDate()}
-                  </span>
+                  {label}
                 </div>
               ))}
             </div>
 
-            {/* Availability toggle row */}
-            <div className="grid grid-cols-[140px_repeat(7,1fr)] gap-2 mb-2">
-              <div className="text-xs text-on-surface-variant self-center">
-                Disponible
-              </div>
-              {days.map((d) => (
-                <div key={d.date} className="flex justify-center">
-                  <button
-                    onClick={() => toggleDay(d.date)}
-                    disabled={saving}
-                    className={`w-10 h-6 rounded-lg text-xs font-medium cursor-pointer transition-colors ${
-                      d.isAvailable
-                        ? 'bg-green-100 text-green-700 border border-green-300'
-                        : 'bg-gray-100 text-gray-400 border border-gray-200'
-                    }`}
+            {/* Calendar cells */}
+            <div className="grid grid-cols-7 gap-px bg-outline-variant/30 rounded-b-lg overflow-hidden">
+              {days.map((day, idx) => {
+                const isSelected = selectedDayIndex === idx;
+                const isToday = formatDate(today) === day.date;
+
+                return (
+                  <div
+                    key={day.date}
+                    onClick={() => setSelectedDayIndex(idx)}
+                    className={`
+                      relative bg-white p-1.5 min-h-[90px] cursor-pointer
+                      transition-colors duration-100
+                      ${!day.isCurrentMonth ? 'opacity-30 bg-gray-50' : ''}
+                      ${isSelected ? 'ring-2 ring-primary ring-inset bg-primary-container/10' : ''}
+                      ${isToday && !isSelected ? 'ring-1 ring-primary/50 ring-inset' : ''}
+                      hover:bg-surface-container-low/60
+                    `}
                   >
-                    {d.isAvailable ? 'Sí' : 'No'}
-                  </button>
-                </div>
-              ))}
-            </div>
-
-            {/* Override blocks per day — using ScheduleBlockEditor */}
-            <div className="grid grid-cols-[140px_repeat(7,1fr)] gap-2 mb-1">
-              <div className="text-xs text-on-surface-variant self-start pt-1">
-                Bloques
-              </div>
-              {days.map((d) => (
-                <div key={d.date} className="flex flex-col items-center gap-1">
-                  {d.isAvailable ? (
-                    <div className="w-full">
-                      <ScheduleBlockEditor
-                        teacherId={selectedTeacherId}
-                        dayIndex={days.indexOf(d)}
-                        dayLabel={d.dayLabel}
-                        blocks={d.overrideBlocks}
-                        isSaving={saving}
-                        maxBlocks={3}
-                        onSave={saveBlock}
-                        onRemove={removeBlock}
-                        onAdd={addBlock}
-                        onUpdate={updateBlock}
-                      />
-                    </div>
-                  ) : (
-                    <span className="text-xs text-on-surface-variant py-3">
-                      {d.reason ?? '—'}
-                    </span>
-                  )}
-                </div>
-              ))}
-            </div>
-
-            {/* Base availability track info (read-only) */}
-            <div className="grid grid-cols-[140px_repeat(7,1fr)] gap-2">
-              <div className="text-[10px] text-on-surface-variant self-center">
-                Bloques base
-              </div>
-              {days.map((day) => (
-                <div key={day.date} className="flex flex-col items-center gap-0.5">
-                  {day.tracks.length > 0 ? (
-                    day.tracks.map((t) => (
+                    {/* Day number */}
+                    <div className="flex items-start justify-between mb-1">
                       <span
-                        key={t.track}
-                        className={`text-[10px] px-1.5 py-0.5 rounded-full w-full text-center ${
-                          t.track === 'pista'
-                            ? 'bg-amber-50 text-amber-700'
-                            : t.track === 'circulacion'
-                              ? 'bg-sky-50 text-sky-700'
-                              : 'bg-surface-container-low text-on-surface-variant'
-                        }`}
+                        className={`
+                          text-xs font-semibold leading-none
+                          ${isToday ? 'bg-primary text-on-primary w-5 h-5 flex items-center justify-center rounded-full' : 'text-on-surface'}
+                        `}
                       >
-                        {t.track === 'pista' ? 'P' : t.track === 'circulacion' ? 'C' : '—'}{' '}
-                        {t.startTime}-{t.endTime}
+                        {day.monthDay}
                       </span>
-                    ))
-                  ) : (
-                    <span className="text-[10px] text-on-surface-variant py-0.5">—</span>
-                  )}
-                </div>
-              ))}
+
+                      {/* Toggle button */}
+                      <button
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          toggleDay(day.date);
+                        }}
+                        disabled={saving || !day.isCurrentMonth}
+                        className={`
+                          text-[10px] font-medium px-1.5 py-0.5 rounded
+                          transition-colors cursor-pointer leading-none
+                          ${!day.isCurrentMonth ? 'opacity-0 pointer-events-none' : ''}
+                          ${day.isAvailable
+                            ? 'bg-green-100 text-green-700 hover:bg-green-200'
+                            : 'bg-gray-100 text-gray-400 hover:bg-gray-200'
+                          }
+                        `}
+                      >
+                        {day.isAvailable ? 'Sí' : 'No'}
+                      </button>
+                    </div>
+
+                    {/* Track / block labels */}
+                    <div className="flex flex-col gap-0.5">
+                      {/* Override blocks (saved) */}
+                      {day.overrideBlocks
+                        .filter((b) => b.saved)
+                        .map((b) => (
+                          <span
+                            key={b.id}
+                            className={`
+                              text-[9px] leading-tight px-1 rounded-full w-full truncate
+                              ${!b.track || b.track === ''
+                                ? 'bg-green-50 text-green-600'
+                                : b.track === 'pista'
+                                  ? 'bg-amber-50 text-amber-700'
+                                  : 'bg-sky-50 text-sky-700'
+                              }
+                            `}
+                          >
+                            {b.track === 'pista' ? 'P' : b.track === 'circulacion' ? 'C' : 'G'}{' '}
+                            {b.start}-{b.end}
+                          </span>
+                        ))}
+
+                      {/* Base availability labels (only on current-month days with no overrides hiding them) */}
+                      {day.isAvailable &&
+                        day.tracks.length > 0 &&
+                        day.tracks.map((t) => {
+                          // skip if already shown as an override block
+                          const alreadyShown = day.overrideBlocks.some(
+                            (b) => b.saved && b.track === (t.track === 'default' ? '' : t.track),
+                          );
+                          if (alreadyShown) return null;
+                          return (
+                            <span
+                              key={t.track}
+                              className={`
+                                text-[9px] leading-tight px-1 rounded-full w-full truncate
+                                ${t.track === 'pista'
+                                  ? 'bg-amber-50/60 text-amber-600'
+                                  : t.track === 'circulacion'
+                                    ? 'bg-sky-50/60 text-sky-600'
+                                    : 'bg-surface-container-low text-on-surface-variant/60'
+                                }
+                              `}
+                            >
+                              {t.track === 'pista' ? 'P' : t.track === 'circulacion' ? 'C' : '—'}{' '}
+                              {t.startTime}-{t.endTime}
+                            </span>
+                          );
+                        })}
+
+                      {/* Reason if not available */}
+                      {!day.isAvailable && day.reason && (
+                        <span className="text-[9px] text-gray-400 truncate leading-tight mt-0.5">
+                          {day.reason}
+                        </span>
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
             </div>
           </div>
 
           {/* ═══ MOBILE ═══ */}
           <div className="sm:hidden space-y-2">
-            {days.map((d) => (
-              <Card key={d.date} className="!p-3">
-                <div className="flex items-center justify-between mb-2">
-                  <div className="flex items-center gap-2">
-                    <span
-                      className={`w-2 h-2 rounded-full shrink-0 ${
-                        d.isAvailable ? 'bg-green-500' : 'bg-gray-400'
-                      }`}
-                    />
-                    <span className="text-sm font-medium text-on-surface">
-                      {d.dayLabel}{' '}
-                      {new Date(d.date + 'T12:00:00').getDate()}
-                    </span>
-                  </div>
-                  <button
-                    onClick={() => toggleDay(d.date)}
-                    disabled={saving}
-                    className={`px-2.5 py-1 rounded-lg text-xs font-medium cursor-pointer transition-colors ${
-                      d.isAvailable
-                        ? 'bg-green-100 text-green-700'
-                        : 'bg-gray-100 text-gray-400'
-                    }`}
+            {/* Month header with nav */}
+            <div className="flex items-center justify-between gap-2 mb-2">
+              <button
+                onClick={prevMonth}
+                className="p-1.5 rounded-lg hover:bg-surface-container-low transition-colors cursor-pointer"
+              >
+                <span className="material-symbols-outlined text-[18px]">chevron_left</span>
+              </button>
+              <button
+                onClick={goToCurrentMonth}
+                className="px-2 py-1 text-xs font-medium text-primary hover:bg-primary-container/20 rounded-lg"
+              >
+                ESTE MES
+              </button>
+              <span className="text-sm font-medium text-on-surface capitalize">{monthLabel}</span>
+              <button
+                onClick={nextMonth}
+                className="p-1.5 rounded-lg hover:bg-surface-container-low transition-colors cursor-pointer"
+              >
+                <span className="material-symbols-outlined text-[18px]">chevron_right</span>
+              </button>
+            </div>
+
+            {/* Day headers */}
+            <div className="grid grid-cols-7 gap-px mb-px">
+              {DAY_LABELS_SHORT.map((l) => (
+                <div key={l} className="text-center text-[10px] font-semibold text-on-surface-variant py-1">
+                  {l}
+                </div>
+              ))}
+            </div>
+
+            {/* Calendar cells */}
+            <div className="grid grid-cols-7 gap-px bg-outline-variant/30 rounded-lg overflow-hidden">
+              {days.map((day, idx) => {
+                const isSelected = selectedDayIndex === idx;
+                return (
+                  <div
+                    key={day.date}
+                    onClick={() => setSelectedDayIndex(idx)}
+                    className={`
+                      relative bg-white p-1 min-h-[48px] cursor-pointer
+                      text-center transition-colors duration-100
+                      ${!day.isCurrentMonth ? 'opacity-20 bg-gray-50' : ''}
+                      ${isSelected ? 'ring-2 ring-primary ring-inset bg-primary-container/10' : ''}
+                      ${formatDate(today) === day.date && !isSelected ? 'ring-1 ring-primary/40 ring-inset' : ''}
+                    `}
                   >
-                    {d.isAvailable ? 'Disponible' : 'No disponible'}
-                  </button>
+                    <span
+                      className={`
+                        text-[11px] font-semibold leading-none
+                        ${formatDate(today) === day.date
+                          ? 'bg-primary text-on-primary w-5 h-5 inline-flex items-center justify-center rounded-full'
+                          : 'text-on-surface'
+                        }
+                      `}
+                    >
+                      {day.monthDay}
+                    </span>
+
+                    <div className="flex justify-center gap-0.5 mt-0.5">
+                      {day.isAvailable ? (
+                        <span className="w-1.5 h-1.5 rounded-full bg-green-500 inline-block" />
+                      ) : (
+                        <span className="w-1.5 h-1.5 rounded-full bg-gray-300 inline-block" />
+                      )}
+                      {day.overrideBlocks.filter((b) => b.saved).length > 0 && (
+                        <span className="w-1.5 h-1.5 rounded-full bg-amber-400 inline-block" />
+                      )}
+                    </div>
+                  </div>
+                );
+              })}
+            </div>
+          </div>
+
+          {/* ═══ Selected day detail panel ═══ */}
+          {selectedDay && (
+            <Card className="!p-4">
+              <div className="flex items-center justify-between mb-3">
+                <div className="flex items-center gap-2">
+                  <span
+                    className={`w-3 h-3 rounded-full shrink-0 ${
+                      selectedDay.isAvailable ? 'bg-green-500' : 'bg-gray-400'
+                    }`}
+                  />
+                  <span className="text-sm font-semibold text-on-surface">
+                    {selectedDay.dayLabel}
+                    {' '}
+                    {new Date(selectedDay.date + 'T12:00:00').toLocaleDateString('es-ES', {
+                      day: 'numeric',
+                      month: 'long',
+                    })}
+                  </span>
+                  <span className="text-[10px] text-on-surface-variant bg-surface-container-low px-1.5 py-0.5 rounded-full">
+                    {selectedDay.isAvailable ? 'Disponible' : 'No disponible'}
+                  </span>
                 </div>
 
-                {d.isAvailable && (
-                  <div className="mb-2">
-                    <ScheduleBlockEditor
-                      teacherId={selectedTeacherId}
-                      dayIndex={days.indexOf(d)}
-                      dayLabel={d.dayLabel}
-                      blocks={d.overrideBlocks}
-                      isSaving={saving}
-                      maxBlocks={3}
-                      onSave={saveBlock}
-                      onRemove={removeBlock}
-                      onAdd={addBlock}
-                      onUpdate={updateBlock}
-                    />
-                  </div>
-                )}
+                <div className="flex items-center gap-2">
+                  <button
+                    onClick={() => toggleDay(selectedDay.date)}
+                    disabled={saving}
+                    className={`px-2.5 py-1 rounded-lg text-xs font-medium cursor-pointer transition-colors ${
+                      selectedDay.isAvailable
+                        ? 'bg-gray-100 text-gray-500 hover:bg-gray-200'
+                        : 'bg-green-100 text-green-700 hover:bg-green-200'
+                    }`}
+                  >
+                    {selectedDay.isAvailable ? 'Desactivar día' : 'Activar día'}
+                  </button>
+                </div>
+              </div>
 
-                {/* Base track blocks for mobile */}
-                {d.tracks.length > 1 && d.isAvailable && (
-                  <div className="flex flex-col gap-1 mt-2">
-                    {d.tracks.map((t) => (
-                      <span
-                        key={t.track}
-                        className={`text-[10px] px-2 py-0.5 rounded-full ${
-                          t.track === 'pista'
-                            ? 'bg-amber-50 text-amber-700'
-                            : t.track === 'circulacion'
-                              ? 'bg-sky-50 text-sky-700'
-                              : 'bg-surface-container-low text-on-surface-variant'
-                        }`}
-                      >
-                        {t.track === 'pista' ? 'Pista' : t.track === 'circulacion' ? 'Circulación' : 'Base'}: {t.startTime}-{t.endTime}
-                      </span>
-                    ))}
-                  </div>
-                )}
-              </Card>
-            ))}
-          </div>
-        </div>
+              {/* Day info: reason */}
+              {!selectedDay.isAvailable && selectedDay.reason && (
+                <div className="mb-3 text-xs text-on-surface-variant">
+                  Motivo: {selectedDay.reason}
+                </div>
+              )}
+
+              {/* Base track info */}
+              {selectedDay.tracks.length > 0 && (
+                <div className="flex flex-wrap gap-1 mb-3">
+                  {selectedDay.tracks.map((t) => (
+                    <span
+                      key={t.track}
+                      className={`text-[10px] px-2 py-0.5 rounded-full ${
+                        t.track === 'pista'
+                          ? 'bg-amber-50 text-amber-700'
+                          : t.track === 'circulacion'
+                            ? 'bg-sky-50 text-sky-700'
+                            : 'bg-surface-container-low text-on-surface-variant'
+                      }`}
+                    >
+                      {t.track === 'pista' ? 'Pista' : t.track === 'circulacion' ? 'Circulación' : 'Base'}: {t.startTime}-{t.endTime}
+                    </span>
+                  ))}
+                </div>
+              )}
+
+              {/* Block editor */}
+              {selectedDay.isAvailable && (
+                <ScheduleBlockEditor
+                  teacherId={selectedTeacherId}
+                  dayIndex={selectedDayIndex!}
+                  dayLabel={selectedDay.dayLabel}
+                  blocks={selectedDay.overrideBlocks}
+                  isSaving={saving}
+                  maxBlocks={3}
+                  onSave={saveBlock}
+                  onRemove={removeBlock}
+                  onAdd={addBlock}
+                  onUpdate={updateBlock}
+                />
+              )}
+            </Card>
+          )}
+        </>
       )}
 
       {/* ── Actions bar ──────────────────────────────────────── */}
@@ -618,7 +806,7 @@ export function AdminTeacherScheduleManager({
         open={copyModalOpen}
         onClose={() => setCopyModalOpen(false)}
         teacherId={selectedTeacherId}
-        sourceWeekStart={weekStart}
+        sourceWeekStart={firstMonday}
         onSuccess={handleCopySuccess}
       />
     </div>

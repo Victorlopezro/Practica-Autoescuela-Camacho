@@ -33,13 +33,11 @@ export class GlobalExceptionFilter implements ExceptionFilter {
       }
     }
 
-    // Log detailed error in non-production
-    if (process.env.NODE_ENV !== 'production') {
-      this.logger.error(
-        `${request.method} ${request.url} — ${status} — ${message}`,
-        exception instanceof Error ? exception.stack : undefined,
-      );
-    }
+    // Log detailed error (always)
+    this.logger.error(
+      `${request.method} ${request.url} — ${status} — ${JSON.stringify(message)}`,
+      exception instanceof Error ? exception.stack : undefined,
+    );
 
     response.status(status).json({
       statusCode: status,
