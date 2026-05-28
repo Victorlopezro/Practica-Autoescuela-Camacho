@@ -67,26 +67,29 @@ describe('AdminTeacherScheduleManager', () => {
     expect(screen.getByText('Laura Sánchez')).toBeInTheDocument();
   });
 
-  it('should render week navigation with current week label', async () => {
+  it('should render month navigation with current month label', async () => {
     await renderManager();
 
     await waitFor(() => {
-      expect(screen.getByText('ESTA SEMANA')).toBeInTheDocument();
+      // ESTE MES appears in both desktop and mobile nav
+      const esteMesButtons = screen.getAllByText('ESTE MES');
+      expect(esteMesButtons.length).toBeGreaterThan(0);
     });
 
-    expect(screen.getByLabelText('Semana anterior')).toBeInTheDocument();
-    expect(screen.getByLabelText('Semana siguiente')).toBeInTheDocument();
+    expect(screen.getByLabelText('Mes anterior')).toBeInTheDocument();
+    expect(screen.getByLabelText('Mes siguiente')).toBeInTheDocument();
   });
 
-  it('should render day columns with labels', async () => {
+  it('should render day-of-week header labels', async () => {
     await renderManager();
 
     await waitFor(() => {
-      expect(screen.getByText('Lunes')).toBeInTheDocument();
-      expect(screen.getByText('Martes')).toBeInTheDocument();
-      expect(screen.getByText('Miércoles')).toBeInTheDocument();
-      expect(screen.getByText('Jueves')).toBeInTheDocument();
-      expect(screen.getByText('Viernes')).toBeInTheDocument();
+      // Day headers appear in both desktop + mobile views
+      expect(screen.getAllByText('Lu').length).toBeGreaterThanOrEqual(1);
+      expect(screen.getAllByText('Ma').length).toBeGreaterThanOrEqual(1);
+      expect(screen.getAllByText('Mi').length).toBeGreaterThanOrEqual(1);
+      expect(screen.getAllByText('Ju').length).toBeGreaterThanOrEqual(1);
+      expect(screen.getAllByText('Vi').length).toBeGreaterThanOrEqual(1);
     });
   });
 
