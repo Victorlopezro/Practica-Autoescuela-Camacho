@@ -55,7 +55,14 @@ export class TeachersController {
   @Roles('admin:manage', 'teacher:view')
   @ApiOperation({ summary: 'Get teacher by ID with user profile' })
   async findOne(@Param('id') id: string) {
-    const teacher = await this.prisma.teacher.findUnique({ where: { id } });
+    const teacher = await this.prisma.teacher.findUnique({
+      where: { id },
+      include: {
+        teacherVehicles: {
+          include: { vehicle: true },
+        },
+      },
+    });
     if (!teacher) throw new NotFoundException('Teacher not found');
 
     const user = await this.prisma.user.findFirst({
@@ -70,7 +77,11 @@ export class TeachersController {
       },
     });
 
-    return { ...teacher, user: user ?? null };
+    const vehicles = (teacher.teacherVehicles ?? []).map((tv) => tv.vehicle);
+    // eslint-disable-next-line @typescript-eslint/no-unused-vars
+    const { teacherVehicles: _, ...teacherData } = teacher;
+
+    return { ...teacherData, user: user ?? null, vehicles };
   }
 
   @Get(':id/stats')

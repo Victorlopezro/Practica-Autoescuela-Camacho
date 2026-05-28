@@ -10,8 +10,8 @@ describe('TeachersController', () => {
   let commandBus: any;
 
   const mockTeachers = [
-    { id: 'teacher-1', name: 'John Doe', createdAt: new Date() },
-    { id: 'teacher-2', name: 'Jane Smith', createdAt: new Date() },
+    { id: 'teacher-1', name: 'John Doe', createdAt: new Date(), teacherVehicles: [] },
+    { id: 'teacher-2', name: 'Jane Smith', createdAt: new Date(), teacherVehicles: [] },
   ];
 
   const mockUser = {
@@ -105,8 +105,11 @@ describe('TeachersController', () => {
       const result = await controller.findOne('teacher-1');
 
       expect(result).toEqual({
-        ...mockTeachers[0],
+        id: mockTeachers[0].id,
+        name: mockTeachers[0].name,
+        createdAt: mockTeachers[0].createdAt,
         user: mockUser,
+        vehicles: [],
       });
       expect(prisma.user.findFirst).toHaveBeenCalledWith({
         where: { teacherId: 'teacher-1' },

@@ -55,7 +55,7 @@ export function EditTeacherModal({ open, onClose, onSuccess, teacher }: Props) {
         password: '',
         email: teacher.user?.email ?? '',
         phone: teacher.user?.phone ?? '',
-        vehicleIds: [],
+        vehicleIds: teacher.vehicles?.map((v) => v.id) ?? [],
       });
     }
   }, [open, teacher]);

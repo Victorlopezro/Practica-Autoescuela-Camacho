@@ -16,6 +16,7 @@ export interface TeacherDto {
 
 export interface TeacherWithUserDto extends TeacherDto {
   user: TeacherUserProfile | null;
+  vehicles?: { id: string; plate: string; type: string }[];
 }
 
 export interface CreateTeacherDTO {
