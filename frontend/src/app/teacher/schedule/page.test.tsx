@@ -73,10 +73,10 @@ async function renderPage() {
   return render(<Page />);
 }
 
-async function renderPageAndGetContainer() {
-  const Page = (await import('./page')).default;
-  const result = render(<Page />);
-  return { container: result.container };
+/** Expand the collapsible weekly template section (collapsed by default). */
+async function expandWeeklyTemplate() {
+  const header = await screen.findByText('Horario semanal base');
+  await userEvent.setup().click(header);
 }
 
 describe('TeacherSchedule', () => {
@@ -88,6 +88,8 @@ describe('TeacherSchedule', () => {
     cleanup();
     vi.clearAllMocks();
   });
+
+  /* ─── Loading ────────────────────────────────────────────────── */
 
   it('shows loading state initially', async () => {
     getAvailabilityMock.mockImplementationOnce(() => new Promise(() => {}));
@@ -102,22 +104,6 @@ describe('TeacherSchedule', () => {
     });
   });
 
-  it('renders day blocks from loaded data', async () => {
-    await renderPage();
-
-    // Lunes (index 1) should have 2 blocks and be active
-    await waitFor(() => {
-      const lunesHeaders = screen.getAllByText('Lunes');
-      expect(lunesHeaders.length).toBeGreaterThan(0);
-    });
-
-    // Lunes blocks rendered (track General + track Pista)
-    expect(screen.getAllByDisplayValue('09:00').length).toBeGreaterThan(0);
-    expect(screen.getAllByDisplayValue('13:00').length).toBeGreaterThan(0);
-    expect(screen.getAllByDisplayValue('16:00').length).toBeGreaterThan(0);
-    expect(screen.getAllByDisplayValue('19:00').length).toBeGreaterThan(0);
-  });
-
   it('shows error message on load failure', async () => {
     getAvailabilityMock.mockRejectedValueOnce(new Error('Network error'));
     await renderPage();
@@ -127,30 +113,68 @@ describe('TeacherSchedule', () => {
     });
   });
 
-  it('shows overrides from loaded data', async () => {
+  /* ─── CalendarGrid ──────────────────────────────────────────── */
+
+  it('renders CalendarGrid as primary view with month navigation', async () => {
     await renderPage();
 
     await waitFor(() => {
-      expect(screen.getByText(/junio/)).toBeInTheDocument();
+      // CalendarGrid renders "ESTE MES" twice (desktop + mobile)
+      expect(screen.getAllByText('ESTE MES').length).toBeGreaterThan(0);
+    });
+
+    // Month navigation arrows should be present
+    expect(screen.getByLabelText('Mes anterior')).toBeInTheDocument();
+    expect(screen.getByLabelText('Mes siguiente')).toBeInTheDocument();
+  });
+
+  /* ─── Weekly Template (collapsible) ─────────────────────────── */
+
+  it('weekly template is collapsed by default', async () => {
+    await renderPage();
+
+    await waitFor(() => {
+      expect(screen.getByText('Horario semanal base')).toBeInTheDocument();
+    });
+
+    // Collapsed: full day labels should NOT be visible
+    expect(screen.queryByText('Domingo')).not.toBeInTheDocument();
+  });
+
+  it('expands weekly template on click', async () => {
+    await renderPage();
+    await expandWeeklyTemplate();
+
+    await waitFor(() => {
+      expect(screen.getByText('Domingo')).toBeInTheDocument();
+      expect(screen.getByText('Lunes')).toBeInTheDocument();
+      expect(screen.getByText('Sábado')).toBeInTheDocument();
+    });
+  });
+
+  /* ─── Day blocks (within expanded weekly template) ──────────── */
+
+  it('renders day blocks from loaded data after expanding weekly template', async () => {
+    await renderPage();
+    await expandWeeklyTemplate();
+
+    await waitFor(() => {
+      expect(screen.getByDisplayValue('09:00')).toBeInTheDocument();
+      expect(screen.getByDisplayValue('13:00')).toBeInTheDocument();
+      expect(screen.getByDisplayValue('16:00')).toBeInTheDocument();
+      expect(screen.getByDisplayValue('19:00')).toBeInTheDocument();
     });
   });
 
   it('toggles day on when clicking inactive day', async () => {
     await renderPage();
+    await expandWeeklyTemplate();
 
-    // Domingo (index 0) is inactive — click its toggle button
     await waitFor(() => {
       expect(screen.getAllByText('Domingo').length).toBeGreaterThan(0);
     });
 
-    // The toggle buttons are the rounded buttons inside each day row
-    const toggleButtons = screen.getAllByRole('button');
-    // Find the toggle for Domingo (first day, index 0) by looking for buttons
-    // in the Domingo row
-    const domingoToggle = toggleButtons.find(
-      (btn) => btn.className.includes('rounded-full') && btn.onclick,
-    );
-    // We'll find it differently — look for the parent container
+    // Find the toggle inside Domingo's row
     const domingos = screen.getAllByText('Domingo');
     const domingoRow = domingos[0].closest('div')?.closest('div');
     expect(domingoRow).toBeTruthy();
@@ -160,7 +184,6 @@ describe('TeacherSchedule', () => {
       if (toggle) await userEvent.setup().click(toggle);
     }
 
-    // Should now show a default block
     await waitFor(() => {
       expect(screen.getByDisplayValue('08:00')).toBeInTheDocument();
     });
@@ -168,12 +191,12 @@ describe('TeacherSchedule', () => {
 
   it('toggles day off and removes saved blocks', async () => {
     await renderPage();
+    await expandWeeklyTemplate();
 
     await waitFor(() => {
       expect(screen.getAllByText('Lunes').length).toBeGreaterThan(0);
     });
 
-    // Find Lunes toggle button
     const lunesHeaders = screen.getAllByText('Lunes');
     const lunesRow = lunesHeaders[0].closest('div')?.closest('div');
     expect(lunesRow).toBeTruthy();
@@ -183,28 +206,25 @@ describe('TeacherSchedule', () => {
       if (toggle) await userEvent.setup().click(toggle);
     }
 
-    // Should call removeAvailability for saved blocks
     await waitFor(() => {
       expect(removeAvailabilityMock).toHaveBeenCalledTimes(2);
       expect(removeAvailabilityMock).toHaveBeenCalledWith('t1', 1, undefined);
       expect(removeAvailabilityMock).toHaveBeenCalledWith('t1', 1, 'pista');
     });
 
-    // Blocks should be gone
     expect(screen.queryByDisplayValue('09:00')).not.toBeInTheDocument();
   });
 
   it('saves a block via button', async () => {
     const user = userEvent.setup();
     await renderPage();
+    await expandWeeklyTemplate();
 
     await waitFor(() => {
-      // Saved blocks show "Actualizar"; unsaved blocks show "Guardar"
       const buttons = screen.getAllByRole('button', { name: /actualizar|guardar/i });
       expect(buttons.length).toBeGreaterThan(0);
     });
 
-    // Click first save button (Actualizar for pre-saved blocks)
     const saveButtons = screen.getAllByRole('button', { name: /actualizar|guardar/i });
     await user.click(saveButtons[0]);
 
@@ -212,7 +232,6 @@ describe('TeacherSchedule', () => {
       expect(setAvailabilityMock).toHaveBeenCalled();
     });
 
-    // Should be called with teacherId, dayOfWeek, start, end, track
     const call = setAvailabilityMock.mock.calls[0];
     expect(call[0]).toBe('t1');
   });
@@ -220,19 +239,18 @@ describe('TeacherSchedule', () => {
   it('shows error when start >= end on save', async () => {
     const user = userEvent.setup();
     await renderPage();
+    await expandWeeklyTemplate();
 
     await waitFor(() => {
       expect(screen.getAllByText('Lunes').length).toBeGreaterThan(0);
     });
 
-    // Modify a block time to invalid (same start/end)
     const timeInputs = screen.getAllByDisplayValue('09:00');
     if (timeInputs.length > 0) {
       await user.clear(timeInputs[0]);
       await user.type(timeInputs[0], '14:00');
     }
 
-    // Click save button
     const saveButton = screen.getAllByRole('button', { name: /actualizar|guardar/i })[0];
     await user.click(saveButton);
 
@@ -246,12 +264,12 @@ describe('TeacherSchedule', () => {
   it('removes a saved block with API call', async () => {
     const user = userEvent.setup();
     await renderPage();
+    await expandWeeklyTemplate();
 
     await waitFor(() => {
       expect(screen.getAllByText('Lunes').length).toBeGreaterThan(0);
     });
 
-    // Find remove buttons (✕ or title="Eliminar bloque")
     const removeButtons = screen.getAllByTitle('Eliminar bloque');
     expect(removeButtons.length).toBeGreaterThan(0);
 
@@ -265,20 +283,17 @@ describe('TeacherSchedule', () => {
   it('adds a second block for a day', async () => {
     const user = userEvent.setup();
     await renderPage();
+    await expandWeeklyTemplate();
 
     await waitFor(() => {
       expect(screen.getAllByText('Lunes').length).toBeGreaterThan(0);
     });
 
-    // Lunes has 2 blocks already from mockAvailability (General + Pista)
-    // Should not show "+ Añadir bloque" for Lunes
-    // Click "+ Añadir bloque" for Miércoles (has 1 block, can add second)
     const addButtons = screen.getAllByText('+ Añadir bloque');
     expect(addButtons.length).toBeGreaterThan(0);
 
     await user.click(addButtons[0]);
 
-    // Should now see a Circulación (45 min) option somewhere
     await waitFor(() => {
       const circulacionOptions = screen.getAllByText('Circulación (45 min)');
       expect(circulacionOptions.length).toBeGreaterThan(0);
@@ -286,60 +301,19 @@ describe('TeacherSchedule', () => {
   });
 
   it('does not show add block button when day has 2 blocks', async () => {
-    // Give Lunes 2 blocks from data and check no "Añadir bloque" for it
     await renderPage();
+    await expandWeeklyTemplate();
 
     await waitFor(() => {
-      expect(screen.getAllByText('+ Añadir bloque').length).toBeLessThan(7); // Only days with <2 blocks
-    });
-
-    // Lunes has 2 blocks already, should not have "+ Añadir bloque"
-    // Miércoles has 1 block, should have it
-    // Other days have 0 blocks, should have it
-  });
-
-  it('adds override date on button click', async () => {
-    const user = userEvent.setup();
-    const { container } = await renderPageAndGetContainer();
-
-    await waitFor(() => {
-      expect(screen.getByText('Marcar no disponible')).toBeInTheDocument();
-    });
-
-    // Find date input by type attribute (no role="textbox" in jsdom for type="date")
-    const dateInput = container.querySelector('input[type="date"]') as HTMLInputElement;
-    expect(dateInput).toBeInTheDocument();
-
-    await user.clear(dateInput);
-    await user.type(dateInput, '2026-06-15');
-
-    // Click the button
-    await user.click(screen.getByText('Marcar no disponible'));
-
-    await waitFor(() => {
-      expect(setOverrideMock).toHaveBeenCalledWith('t1', '2026-06-15', false);
+      expect(screen.getAllByText('+ Añadir bloque').length).toBeLessThan(7);
     });
   });
 
-  it('toggles double session', async () => {
-    const user = userEvent.setup();
+  /* ─── Day labels ────────────────────────────────────────────── */
+
+  it('loads and shows all day labels after expanding weekly template', async () => {
     await renderPage();
-
-    await waitFor(() => {
-      expect(screen.getByText('Doble sesión')).toBeInTheDocument();
-    });
-
-    // Find double session toggle by accessible name (button inside a label)
-    const doubleSessionToggle = screen.getByRole('button', { name: /desactivado/i });
-    await user.click(doubleSessionToggle);
-
-    await waitFor(() => {
-      expect(updateTeacherMock).toHaveBeenCalledWith('t1', { doubleSession: true });
-    });
-  });
-
-  it('loads and shows all day labels', async () => {
-    await renderPage();
+    await expandWeeklyTemplate();
 
     await waitFor(() => {
       expect(screen.getByText('Domingo')).toBeInTheDocument();
@@ -352,27 +326,21 @@ describe('TeacherSchedule', () => {
     });
   });
 
-  it('renders overrides section with header', async () => {
-    await renderPage();
+  /* ─── Double Session ────────────────────────────────────────── */
 
-    await waitFor(() => {
-      expect(screen.getByText('Excepciones')).toBeInTheDocument();
-      expect(screen.getByText(/Días específicos sin disponibilidad/)).toBeInTheDocument();
-    });
-  });
-
-  it('removes an override via Eliminar button', async () => {
+  it('toggles double session', async () => {
     const user = userEvent.setup();
     await renderPage();
 
     await waitFor(() => {
-      expect(screen.getAllByText('Eliminar').length).toBeGreaterThan(0);
+      expect(screen.getByText('Doble sesión')).toBeInTheDocument();
     });
 
-    await user.click(screen.getAllByText('Eliminar')[0]);
+    const doubleSessionToggle = screen.getByRole('button', { name: /desactivado/i });
+    await user.click(doubleSessionToggle);
 
     await waitFor(() => {
-      expect(removeOverrideMock).toHaveBeenCalledWith('t1', '2026-06-01');
+      expect(updateTeacherMock).toHaveBeenCalledWith('t1', { doubleSession: true });
     });
   });
 });
