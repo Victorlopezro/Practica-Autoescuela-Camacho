@@ -37,6 +37,7 @@ export default tseslint.config(
       '@typescript-eslint/require-await': 'off',
       '@typescript-eslint/unbound-method': 'off',
       '@typescript-eslint/no-empty-object-type': 'warn',
+      '@typescript-eslint/no-redundant-type-constituents': 'warn',
       '@typescript-eslint/no-unused-vars': 'warn',
       "prettier/prettier": ["error", { endOfLine: "auto" }],
     },
