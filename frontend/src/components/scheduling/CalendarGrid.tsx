@@ -4,7 +4,7 @@ import { useState, useMemo, useEffect } from 'react';
 import { Card } from '@/components/layouts/Card';
 import { ScheduleBlockEditor } from '@/components/scheduling/ScheduleBlockEditor';
 import type { BlockData } from '@/components/scheduling/ScheduleBlockEditor';
-import type { TeacherAvailabilityDto } from '@/services/interfaces';
+import type { TeacherAvailabilityDto, OverrideDto, BatchOverrideEntry } from '@/services/interfaces';
 import {
   formatDate,
   getFirstOfMonth,
@@ -30,6 +30,8 @@ export interface CalendarGridProps {
   onDismissFeedback?: () => void;
   /** Optional admin-only label shown in the detail panel header */
   teacherName?: string;
+  /** Called when user clicks "Guardar Todo" — receives all dates with unsaved blocks */
+  onBatchSave?: (blocksByDate: Record<string, BlockData[]>) => Promise<void>;
 }
 
 /* ─── Local ID generator ──────────────────────────────────────── */
@@ -53,6 +55,7 @@ export function CalendarGrid({
   onRemoveBlock,
   onDismissFeedback,
   teacherName,
+  onBatchSave,
 }: CalendarGridProps) {
   const today = new Date();
   const [monthStart, setMonthStart] = useState(() =>
@@ -60,6 +63,7 @@ export function CalendarGrid({
   );
   const [selectedDayIndex, setSelectedDayIndex] = useState<number | null>(null);
   const [unsavedBlocks, setUnsavedBlocks] = useState<Record<string, BlockData[]>>({});
+  const [isBatchSaving, setIsBatchSaving] = useState(false);
 
   /* ── Build day grid ────────────────────────────────────────── */
 
@@ -85,6 +89,12 @@ export function CalendarGrid({
     const local = unsavedBlocks[selectedDay.date] || [];
     return [...selectedDay.overrideBlocks, ...local] as BlockData[];
   }, [selectedDay, unsavedBlocks]);
+
+  /* ── Pending count (unsaved blocks) ────────────────────────── */
+
+  const pendingCount = useMemo(() => {
+    return Object.values(unsavedBlocks).flat().filter((b) => !b.saved).length;
+  }, [unsavedBlocks]);
 
   /* ── Month navigation helpers ──────────────────────────────── */
 
@@ -160,6 +170,20 @@ export function CalendarGrid({
     }
   }
 
+  /** Trigger batch save — collects all unsaved blocks and delegates to parent */
+  async function handleBatchSaveClick() {
+    if (!onBatchSave || pendingCount === 0) return;
+    setIsBatchSaving(true);
+    try {
+      await onBatchSave(unsavedBlocks);
+      setUnsavedBlocks({});
+    } catch {
+      // Error already set by parent — keep unsavedBlocks for retry
+    } finally {
+      setIsBatchSaving(false);
+    }
+  }
+
   /** Wraps onSaveBlock: resolves date from dayIndex before calling parent */
   async function handleBlockSave(dayIndex: number, block: BlockData) {
     const day = days[dayIndex];
@@ -171,9 +195,25 @@ export function CalendarGrid({
   /** Wraps onRemoveBlock: resolves date from dayIndex before calling parent */
   async function handleBlockRemove(dayIndex: number, block: BlockData) {
     const day = days[dayIndex];
-    if (day) {
-      await onRemoveBlock(day.date, block);
+    if (!day) return;
+
+    if (!block.saved) {
+      // Unsaved block — remove locally only, skip API call
+      setUnsavedBlocks((prev) => {
+        const next = { ...prev };
+        const filtered = (next[day.date] || []).filter((b) => b.id !== block.id);
+        if (filtered.length > 0) {
+          next[day.date] = filtered;
+        } else {
+          delete next[day.date];
+        }
+        return next;
+      });
+      return;
     }
+
+    // Saved block — delegate to parent
+    await onRemoveBlock(day.date, block);
   }
 
   /* ── Render helpers ────────────────────────────────────────── */
@@ -279,6 +319,22 @@ export function CalendarGrid({
             </span>
           </button>
         </div>
+
+        {/* ── Batch save area ─────────────────────────────── */}
+        {pendingCount > 0 && (
+          <div className="flex items-center gap-2 shrink-0">
+            <span className="text-xs font-medium text-amber-700 bg-amber-50 px-2 py-1 rounded-full whitespace-nowrap">
+              {pendingCount} pendiente{pendingCount !== 1 ? 's' : ''}
+            </span>
+            <button
+              onClick={handleBatchSaveClick}
+              disabled={isBatchSaving}
+              className="px-3 py-1 text-xs font-medium bg-primary text-on-primary rounded-lg hover:bg-primary/90 transition-colors cursor-pointer disabled:opacity-50 disabled:cursor-not-allowed whitespace-nowrap"
+            >
+              {isBatchSaving ? 'Guardando...' : 'Guardar Todo'}
+            </button>
+          </div>
+        )}
       </div>
 
       {/* ── Feedbacks ───────────────────────────────────────── */}
@@ -609,4 +665,56 @@ export function CalendarGrid({
       )}
     </div>
   );
+}
+
+/* ─── Utility: merge overrides for batch save ───────────────── */
+
+/**
+ * Builds the DESIRED FINAL STATE for a single date by merging existing
+ * saved overrides with new unsaved blocks. Unsaved blocks' tracks win
+ * over existing overrides (they replace). The result is what should be
+ * sent to batchSetOverrides to avoid the backend's stale-cleanup from
+ * deleting existing entries.
+ */
+export function mergeOverridesForBatch(
+  existingOverrides: OverrideDto[],
+  date: string,
+  unsavedBlocks: BlockData[],
+): BatchOverrideEntry[] {
+  const existingForDate = existingOverrides.filter((o) => {
+    const d =
+      typeof o.date === 'string'
+        ? o.date.split('T')[0]
+        : new Date(o.date).toISOString().split('T')[0];
+    return d === date;
+  });
+
+  const unsavedTracks = new Set(unsavedBlocks.map((b) => b.track));
+  const result: BatchOverrideEntry[] = [];
+
+  // Keep existing overrides whose track is NOT being overwritten
+  for (const ov of existingForDate) {
+    if (!unsavedTracks.has(ov.track ?? '')) {
+      result.push({
+        date,
+        isAvailable: ov.isAvailable,
+        startTime: ov.startTime ?? undefined,
+        endTime: ov.endTime ?? undefined,
+        track: ov.track ?? undefined,
+      });
+    }
+  }
+
+  // Append unsaved blocks (these win for overlapping tracks)
+  for (const b of unsavedBlocks) {
+    result.push({
+      date,
+      isAvailable: true,
+      startTime: b.start,
+      endTime: b.end,
+      track: b.track || undefined,
+    });
+  }
+
+  return result;
 }

@@ -1,9 +1,10 @@
 import { describe, it, expect, vi, afterEach } from 'vitest';
 import { render, screen, cleanup, waitFor } from '@testing-library/react';
 import userEvent from '@testing-library/user-event';
-import type { TeacherAvailabilityDto } from '@/services/interfaces';
-import { CalendarGrid } from './CalendarGrid';
+import type { TeacherAvailabilityDto, OverrideDto } from '@/services/interfaces';
+import { CalendarGrid, mergeOverridesForBatch } from './CalendarGrid';
 import type { CalendarGridProps } from './CalendarGrid';
+import type { BlockData } from '@/components/scheduling/ScheduleBlockEditor';
 import { formatDate, getFirstOfMonth } from '@/lib/calendar-utils';
 
 /* ─── Helpers to get fixed references into the current month ─── */
@@ -310,5 +311,245 @@ describe('CalendarGrid', () => {
     renderGrid({ teacherName: 'Carlos Martínez' });
     const esteMesButtons = screen.getAllByText('ESTE MES');
     expect(esteMesButtons.length).toBeGreaterThan(0);
+  });
+
+  /* ── Batch Save UI (badge + button) ──────────────────────────── */
+
+  it('shows no batch badge when no unsaved blocks', () => {
+    renderGrid();
+    expect(screen.queryByText(/pendiente/)).not.toBeInTheDocument();
+    expect(screen.queryByText('Guardar Todo')).not.toBeInTheDocument();
+  });
+
+  it('shows batch badge and Guardar Todo after adding an unsaved block', async () => {
+    const user = userEvent.setup();
+    renderGrid({ onBatchSave: vi.fn().mockResolvedValue(undefined) });
+
+    // Open a day detail panel
+    const dayNumbers = screen.getAllByText(/^\d+$/).filter(
+      (el) => el.tagName === 'SPAN' && !el.closest('.opacity-20'),
+    );
+    await user.click(dayNumbers[0]);
+    await waitFor(() => {
+      expect(screen.getByText('Disponible')).toBeInTheDocument();
+    });
+
+    // Add an unsaved block
+    const addBtn = screen.queryByText('+ Añadir bloque');
+    if (addBtn) await user.click(addBtn);
+
+    // Badge + button should appear
+    await waitFor(() => {
+      expect(screen.getByText(/1 pendiente/)).toBeInTheDocument();
+      expect(screen.getByText('Guardar Todo')).toBeInTheDocument();
+    });
+  });
+
+  it('hides batch badge after successful batch save', async () => {
+    const user = userEvent.setup();
+    const onBatchSave = vi.fn().mockResolvedValue(undefined);
+    renderGrid({ onBatchSave });
+
+    const dayNumbers = screen.getAllByText(/^\d+$/).filter(
+      (el) => el.tagName === 'SPAN' && !el.closest('.opacity-20'),
+    );
+    await user.click(dayNumbers[0]);
+    await waitFor(() => {
+      expect(screen.getByText('Disponible')).toBeInTheDocument();
+    });
+
+    const addBtn = screen.queryByText('+ Añadir bloque');
+    if (addBtn) await user.click(addBtn);
+
+    await waitFor(() => {
+      expect(screen.getByText('Guardar Todo')).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByText('Guardar Todo'));
+
+    await waitFor(() => {
+      expect(onBatchSave).toHaveBeenCalled();
+      expect(screen.queryByText(/pendiente/)).not.toBeInTheDocument();
+      expect(screen.queryByText('Guardar Todo')).not.toBeInTheDocument();
+    });
+  });
+
+  it('keeps batch badge after failed batch save', async () => {
+    const user = userEvent.setup();
+    const onBatchSave = vi.fn().mockRejectedValue(new Error('Network error'));
+    renderGrid({ onBatchSave });
+
+    const dayNumbers = screen.getAllByText(/^\d+$/).filter(
+      (el) => el.tagName === 'SPAN' && !el.closest('.opacity-20'),
+    );
+    await user.click(dayNumbers[0]);
+    await waitFor(() => {
+      expect(screen.getByText('Disponible')).toBeInTheDocument();
+    });
+
+    const addBtn = screen.queryByText('+ Añadir bloque');
+    if (addBtn) await user.click(addBtn);
+
+    await waitFor(() => {
+      expect(screen.getByText('Guardar Todo')).toBeInTheDocument();
+    });
+
+    await user.click(screen.getByText('Guardar Todo'));
+
+    await waitFor(() => {
+      expect(onBatchSave).toHaveBeenCalled();
+      // Badge and button should still be visible after failure
+      expect(screen.getByText(/1 pendiente/)).toBeInTheDocument();
+      expect(screen.getByText('Guardar Todo')).toBeInTheDocument();
+    });
+  });
+
+  /* ── Unsaved block removal (404 fix) ─────────────────────────── */
+
+  it('removes unsaved block locally without calling onRemoveBlock', async () => {
+    const user = userEvent.setup();
+    const onRemoveBlock = vi.fn().mockResolvedValue(undefined);
+    renderGrid({ onRemoveBlock });
+
+    const dayNumbers = screen.getAllByText(/^\d+$/).filter(
+      (el) => el.tagName === 'SPAN' && !el.closest('.opacity-20'),
+    );
+    await user.click(dayNumbers[0]);
+    await waitFor(() => {
+      expect(screen.getByText('Disponible')).toBeInTheDocument();
+    });
+
+    const addBtn = screen.queryByText('+ Añadir bloque');
+    if (addBtn) await user.click(addBtn);
+
+    // Wait for block editor to render with remove button
+    await waitFor(() => {
+      expect(screen.getByTitle('Eliminar bloque')).toBeInTheDocument();
+    });
+
+    // Click remove
+    await user.click(screen.getByTitle('Eliminar bloque'));
+
+    // Block should be removed locally
+    await waitFor(() => {
+      expect(screen.queryByTitle('Eliminar bloque')).not.toBeInTheDocument();
+      expect(screen.queryByText(/pendiente/)).not.toBeInTheDocument();
+    });
+
+    // Parent's onRemoveBlock should NOT have been called
+    expect(onRemoveBlock).not.toHaveBeenCalled();
+  });
+});
+
+/* ─── mergeOverridesForBatch unit tests ─────────────────────── */
+
+describe('mergeOverridesForBatch', () => {
+  const baseOverrides: OverrideDto[] = [
+    {
+      id: 'o1',
+      teacherId: 't1',
+      date: '2026-06-01T00:00:00.000Z',
+      isAvailable: true,
+      startTime: '09:00',
+      endTime: '12:00',
+      reason: null,
+      track: 'pista',
+    },
+    {
+      id: 'o2',
+      teacherId: 't1',
+      date: '2026-06-01T00:00:00.000Z',
+      isAvailable: true,
+      startTime: '14:00',
+      endTime: '16:00',
+      reason: null,
+      track: 'circulacion',
+    },
+    {
+      id: 'o3',
+      teacherId: 't1',
+      date: '2026-06-02T00:00:00.000Z',
+      isAvailable: true,
+      startTime: '08:00',
+      endTime: '12:00',
+      reason: null,
+      track: 'pista',
+    },
+  ];
+
+  it('merges existing overrides with unsaved blocks for the same date', () => {
+    const unsaved: BlockData[] = [
+      { id: 'l1', start: '10:00', end: '11:00', track: 'circulacion', saved: false },
+    ];
+    const result = mergeOverridesForBatch(baseOverrides, '2026-06-01', unsaved);
+
+    // Should include existing pista override (track not in unsaved)
+    expect(result).toContainEqual(
+      expect.objectContaining({ date: '2026-06-01', track: 'pista', startTime: '09:00', endTime: '12:00' }),
+    );
+    // Should include the new circulacion block (overrides old circulacion)
+    expect(result).toContainEqual(
+      expect.objectContaining({ date: '2026-06-01', track: 'circulacion', startTime: '10:00', endTime: '11:00' }),
+    );
+    expect(result).toHaveLength(2);
+  });
+
+  it('preserves existing overrides with different tracks', () => {
+    const unsaved: BlockData[] = [
+      { id: 'l1', start: '11:00', end: '14:00', track: 'pista', saved: false },
+    ];
+    const result = mergeOverridesForBatch(baseOverrides, '2026-06-01', unsaved);
+
+    // circulacion (different track) should be preserved
+    expect(result).toContainEqual(
+      expect.objectContaining({ date: '2026-06-01', track: 'circulacion', startTime: '14:00', endTime: '16:00' }),
+    );
+    // pista should be the new unsaved version
+    expect(result).toContainEqual(
+      expect.objectContaining({ date: '2026-06-01', track: 'pista', startTime: '11:00', endTime: '14:00' }),
+    );
+    expect(result).toHaveLength(2);
+  });
+
+  it('only affects overrides for the matching date', () => {
+    const unsaved: BlockData[] = [
+      { id: 'l1', start: '08:00', end: '14:00', track: 'pista', saved: false },
+    ];
+    const result = mergeOverridesForBatch(baseOverrides, '2026-06-01', unsaved);
+
+    // All results should only be for '2026-06-01' — the 2026-06-02 override must NOT appear
+    const hasOtherDate = result.some((r) => r.date !== '2026-06-01');
+    expect(hasOtherDate).toBe(false);
+  });
+
+  it('unsaved blocks override existing overrides with the same track', () => {
+    const unsaved: BlockData[] = [
+      { id: 'l1', start: '11:00', end: '14:00', track: 'pista', saved: false },
+    ];
+    const result = mergeOverridesForBatch(baseOverrides, '2026-06-01', unsaved);
+
+    // pista should be replaced by unsaved version
+    expect(result).toContainEqual(
+      expect.objectContaining({ date: '2026-06-01', track: 'pista', startTime: '11:00', endTime: '14:00' }),
+    );
+    // circulacion (different track) should be preserved unchanged
+    expect(result).toContainEqual(
+      expect.objectContaining({ date: '2026-06-01', track: 'circulacion', startTime: '14:00', endTime: '16:00' }),
+    );
+    expect(result).toHaveLength(2);
+  });
+
+  it('returns empty array when no existing overrides and no unsaved blocks', () => {
+    const result = mergeOverridesForBatch([], '2026-06-01', []);
+    expect(result).toHaveLength(0);
+  });
+
+  it('returns only unsaved blocks when no existing overrides for the date', () => {
+    const unsaved: BlockData[] = [
+      { id: 'l1', start: '08:00', end: '14:00', track: 'pista', saved: false },
+    ];
+    const result = mergeOverridesForBatch([], '2026-06-01', unsaved);
+    expect(result).toHaveLength(1);
+    expect(result[0]).toMatchObject({ date: '2026-06-01', track: 'pista', startTime: '08:00', endTime: '14:00' });
   });
 });

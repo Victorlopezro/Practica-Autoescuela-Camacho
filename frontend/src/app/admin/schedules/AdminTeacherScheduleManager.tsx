@@ -3,7 +3,9 @@
 import { useState, useEffect, useMemo, useCallback } from 'react';
 import { Button } from '@/components/ui/button';
 import { services } from '@/services';
-import type { TeacherAvailabilityDto } from '@/services/interfaces';
+import type { TeacherAvailabilityDto, BatchOverrideEntry, OverrideDto } from '@/services/interfaces';
+import type { BlockData } from '@/components/scheduling/ScheduleBlockEditor';
+import { mergeOverridesForBatch } from '@/components/scheduling/CalendarGrid';
 import { formatDate, getMondayBefore } from '@/lib/calendar-utils';
 import { CalendarGrid } from '@/components/scheduling/CalendarGrid';
 import { CopyWeekModal } from './CopyWeekModal';
@@ -144,6 +146,53 @@ export function AdminTeacherScheduleManager({
     }
   }
 
+  /* ── Batch save handler ─────────────────────────────────────── */
+
+  async function handleBatchSave(blocksByDate: Record<string, BlockData[]>) {
+    if (!selectedTeacherId || !availability) return;
+
+    const entries = Object.entries(blocksByDate);
+    const affectedDates = entries.map(([d]) => d);
+    const payload: BatchOverrideEntry[] = [];
+
+    for (const [date, unsaved] of entries) {
+      const merged = mergeOverridesForBatch(availability.overrides, date, unsaved);
+      payload.push(...merged);
+    }
+
+    try {
+      await services.scheduling.batchSetOverrides(selectedTeacherId, payload);
+
+      // Optimistic merge: replace overrides for affected dates with synthetic entries
+      setAvailability((prev) => {
+        if (!prev) return prev;
+        const filtered = prev.overrides.filter((o) => {
+          const d =
+            typeof o.date === 'string'
+              ? o.date.split('T')[0]
+              : new Date(o.date).toISOString().split('T')[0];
+          return !affectedDates.includes(d);
+        });
+        const synthetic: OverrideDto[] = payload.map((entry) => ({
+          id: `batch-${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+          teacherId: selectedTeacherId,
+          date: entry.date + 'T00:00:00.000Z',
+          isAvailable: entry.isAvailable,
+          startTime: entry.startTime ?? null,
+          endTime: entry.endTime ?? null,
+          reason: null,
+          track: entry.track ?? null,
+        }));
+        return { ...prev, overrides: [...filtered, ...synthetic] };
+      });
+      setSuccessMsg('Cambios guardados');
+      onRefreshPlanning?.();
+    } catch (err) {
+      setError(err instanceof Error ? err.message : 'Error al guardar cambios');
+      throw err; // re-throw so CalendarGrid knows to keep unsavedBlocks
+    }
+  }
+
   /* ── Dismiss feedback ──────────────────────────────────────── */
 
   function dismissFeedback() {
@@ -200,6 +249,7 @@ export function AdminTeacherScheduleManager({
         onSaveBlock={saveBlock}
         onRemoveBlock={removeBlock}
         onDismissFeedback={dismissFeedback}
+        onBatchSave={handleBatchSave}
       />
 
       {/* ── Actions bar ──────────────────────────────────────── */}
