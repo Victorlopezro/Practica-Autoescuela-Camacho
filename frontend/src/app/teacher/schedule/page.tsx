@@ -4,9 +4,9 @@ import { useState, useEffect, useCallback } from 'react';
 import { Card, CardHeader } from '@/components/layouts/Card';
 import { useAuth } from '@/hooks/useAuth';
 import { services } from '@/services';
-import type { OverrideDto } from '@/services/interfaces';
 import { ScheduleBlockEditor } from '@/components/scheduling/ScheduleBlockEditor';
-import type { BlockData } from '@/components/scheduling/ScheduleBlockEditor';
+import { CalendarGrid } from '@/components/scheduling/CalendarGrid';
+import type { TeacherAvailabilityDto } from '@/services/interfaces';
 
 const DAYS = [
   { index: 0, label: 'Domingo' },
@@ -35,13 +35,13 @@ export default function TeacherSchedule() {
   const { user } = useAuth();
   const teacherId = user?.teacherId ?? user?.id;
 
+  const [availability, setAvailability] = useState<TeacherAvailabilityDto | null>(null);
   const [blocksByDay, setBlocksByDay] = useState<Record<number, BlockEntry[]>>({});
   const [doubleSession, setDoubleSession] = useState(false);
-  const [overrides, setOverrides] = useState<OverrideDto[]>([]);
-  const [newOverrideDate, setNewOverrideDate] = useState('');
   const [saving, setSaving] = useState(false);
   const [message, setMessage] = useState<{ type: 'success' | 'error'; text: string } | null>(null);
   const [loading, setLoading] = useState(true);
+  const [weeklyOpen, setWeeklyOpen] = useState(false);
 
   const load = useCallback(async () => {
     if (!teacherId) return;
@@ -59,9 +59,9 @@ export default function TeacherSchedule() {
           saved: true,
         });
       }
+      setAvailability(data);
       setBlocksByDay(grouped);
       setDoubleSession(data.doubleSession);
-      setOverrides(data.overrides);
     } catch {
       setMessage({ type: 'error', text: 'Error al cargar disponibilidad' });
     } finally {
@@ -71,7 +71,7 @@ export default function TeacherSchedule() {
 
   useEffect(() => { load(); }, [load]);
 
-  /* ─── Block helpers ─── */
+  /* ─── Weekly template block helpers ─── */
 
   function getBlocks(day: number): BlockEntry[] {
     return blocksByDay[day] ?? [];
@@ -90,12 +90,11 @@ export default function TeacherSchedule() {
     setBlocks(day, getBlocks(day).map((b) => (b.id === blockId ? { ...b, [field]: value } : b)));
   }
 
-  /* ─── Day toggle ─── */
+  /* ─── Weekly template: Day toggle ─── */
 
   const toggleDay = (dayIndex: number) => {
     const blocks = getBlocks(dayIndex);
     if (blocks.length > 0) {
-      // Remove all blocks — fire API calls for saved ones
       for (const b of blocks) {
         if (b.saved && teacherId) {
           services.scheduling.removeAvailability(teacherId, dayIndex, b.track || undefined).catch(() => {
@@ -111,7 +110,7 @@ export default function TeacherSchedule() {
     }
   };
 
-  /* ─── Block save ─── */
+  /* ─── Weekly template: Block save ─── */
 
   const saveBlock = async (dayIndex: number, block: BlockEntry) => {
     if (!teacherId) return;
@@ -137,7 +136,7 @@ export default function TeacherSchedule() {
     }
   };
 
-  /* ─── Block remove (individual) ─── */
+  /* ─── Weekly template: Block remove (individual) ─── */
 
   const removeBlock = async (dayIndex: number, block: BlockEntry) => {
     if (!teacherId) return;
@@ -156,56 +155,85 @@ export default function TeacherSchedule() {
     setMessage(remaining.length === 0 ? null : { type: 'success', text: 'Bloque eliminado' });
   };
 
-  /* ─── Add block ─── */
+  /* ─── Weekly template: Add block ─── */
 
   const addBlock = (dayIndex: number) => {
     const blocks = getBlocks(dayIndex);
     if (blocks.length >= 2) return;
 
-    // Auto-select the opposite track if one is already set
     const existingTracks = new Set(blocks.map((b) => b.track));
     const defaultTrack = existingTracks.has('pista') ? 'circulacion' : existingTracks.has('circulacion') ? 'pista' : '';
 
     setBlocks(dayIndex, [...blocks, { id: uid(), start: '08:00', end: '14:00', track: defaultTrack, saved: false }]);
   };
 
-  /* ─── Overrides ─── */
+  /* ─── CalendarGrid API handlers ─── */
 
-  const removeOverride = async (date: string) => {
+  async function handleToggleDay(date: string) {
+    if (!teacherId || !availability) return;
+
+    const todayOverrides = availability.overrides.filter((o) => {
+      const oDate =
+        typeof o.date === 'string'
+          ? o.date.split('T')[0]
+          : new Date(o.date).toISOString().split('T')[0];
+      return oDate === date;
+    });
+    const generalOverride = todayOverrides.find((o) => o.track == null);
+    const isAvailable =
+      todayOverrides.length === 0 || (generalOverride?.isAvailable ?? true);
+
+    setMessage(null);
+
+    try {
+      if (isAvailable) {
+        await services.scheduling.setOverride(teacherId, date, false);
+        setMessage({ type: 'success', text: 'Día marcado como no disponible' });
+      } else {
+        await services.scheduling.removeOverride(teacherId, date);
+        setMessage({ type: 'success', text: 'Disponibilidad restaurada' });
+      }
+      await load();
+    } catch {
+      setMessage({ type: 'error', text: 'Error al cambiar disponibilidad' });
+    }
+  }
+
+  async function handleSaveBlock(date: string, block: { start: string; end: string; track?: string }) {
     if (!teacherId) return;
-    try {
-      await services.scheduling.removeOverride(teacherId, date);
-      setOverrides((prev) => prev.filter((o) => o.date !== date));
-      setMessage({ type: 'success', text: 'Excepción eliminada' });
-    } catch {
-      setMessage({ type: 'error', text: 'Error al eliminar excepción' });
-    }
-  };
+    setMessage(null);
 
-  const addOverride = async () => {
-    if (!teacherId || !newOverrideDate) return;
     try {
-      await services.scheduling.setOverride(teacherId, newOverrideDate, false);
-      setOverrides((prev) => [
-        ...prev,
-        {
-          id: `temp-${Date.now()}`,
-          teacherId,
-          date: newOverrideDate,
-          isAvailable: false,
-          startTime: null,
-          endTime: null,
-          reason: null,
-        },
-      ]);
-      setNewOverrideDate('');
-      setMessage({ type: 'success', text: 'Excepción añadida (no disponible)' });
+      const track = block.track || undefined;
+      await services.scheduling.setOverride(teacherId, date, true, block.start, block.end, undefined, track);
+      setMessage({ type: 'success', text: `Bloque guardado${track ? ` (${track})` : ''}` });
+      await load();
     } catch {
-      setMessage({ type: 'error', text: 'Error al añadir excepción' });
+      setMessage({ type: 'error', text: 'Error al guardar bloque' });
     }
-  };
+  }
 
-  if (loading) {
+  async function handleRemoveBlock(date: string, block: { track?: string }) {
+    if (!teacherId) return;
+    setMessage(null);
+
+    try {
+      const track = block.track || undefined;
+      await services.scheduling.removeOverride(teacherId, date, track);
+      setMessage({ type: 'success', text: 'Bloque eliminado' });
+      await load();
+    } catch {
+      setMessage({ type: 'error', text: 'Error al eliminar bloque' });
+    }
+  }
+
+  function handleDismissFeedback() {
+    setMessage(null);
+  }
+
+  /* ─── Loading state (first load only) ─── */
+
+  if (loading && !availability) {
     return (
       <div className="flex items-center justify-center p-12">
         <div className="animate-pulse text-on-surface-variant">Cargando disponibilidad...</div>
@@ -213,64 +241,104 @@ export default function TeacherSchedule() {
     );
   }
 
+  /* ─── Derived feedback props for CalendarGrid ─── */
+
+  const calendarError = message?.type === 'error' ? message.text : undefined;
+  const calendarSuccess = message?.type === 'success' ? message.text : undefined;
+
   return (
     <div className="space-y-6">
-      {/* Weekly Schedule */}
-      <Card accent>
-        <CardHeader title="Horario semanal" subtitle="Configura los días y horarios en que das clase" />
-        <div className="space-y-2">
-          {DAYS.map((day) => {
-            const blocks = getBlocks(day.index);
-            const isActive = blocks.length > 0;
-            return (
-              <div
-                key={day.index}
-                className={`p-3 rounded-lg transition-colors ${
-                  isActive ? 'bg-primary-container/20' : 'bg-surface-container-low/50'
-                }`}
-              >
-                {/* Day header row */}
-                <div className="flex items-center gap-2 min-w-0">
-                  <button
-                    onClick={() => toggleDay(day.index)}
-                    className={`w-10 h-6 rounded-full transition-colors relative flex-shrink-0 ${
-                      isActive ? 'bg-primary' : 'bg-outline/30'
-                    }`}
-                  >
-                    <span
-                      className={`absolute left-0.5 top-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${
-                        isActive ? 'translate-x-[18px]' : 'translate-x-0'
-                      }`}
-                    />
-                  </button>
-                  <span className={`text-sm font-medium w-20 ${isActive ? 'text-on-surface' : 'text-outline'}`}>
-                    {day.label}
-                  </span>
-                </div>
+      {/* ═══ CalendarGrid (PRIMARY VIEW) ═══ */}
+      <CalendarGrid
+        teacherId={teacherId ?? ''}
+        availability={availability}
+        loading={loading}
+        saving={saving}
+        error={calendarError}
+        successMsg={calendarSuccess}
+        onToggleDay={handleToggleDay}
+        onSaveBlock={handleSaveBlock}
+        onRemoveBlock={handleRemoveBlock}
+        onDismissFeedback={handleDismissFeedback}
+      />
 
-                {/* Blocks */}
-                {isActive && (
-                  <div className="mt-2 pl-12">
-                    <ScheduleBlockEditor
-                      teacherId={teacherId ?? ''}
-                      dayIndex={day.index}
-                      dayLabel={day.label}
-                      blocks={blocks}
-                      isSaving={saving}
-                      onSave={saveBlock}
-                      onRemove={removeBlock}
-                      onAdd={addBlock}
-                      onUpdate={updateBlock}
-                    />
+      {/* ═══ Weekly Template (COLLAPSIBLE — default collapsed) ═══ */}
+      <Card accent>
+        <button
+          type="button"
+          onClick={() => setWeeklyOpen((prev) => !prev)}
+          className="w-full flex items-start justify-between gap-2 text-left cursor-pointer"
+          aria-expanded={weeklyOpen}
+        >
+          <CardHeader
+            title="Horario semanal base"
+            subtitle="Define el patrón base de días y horarios de la semana"
+          />
+          <span
+            className={`mt-2 shrink-0 text-on-surface-variant transition-transform ${
+              weeklyOpen ? 'rotate-180' : ''
+            }`}
+          >
+            <span className="material-symbols-outlined text-[20px]">expand_more</span>
+          </span>
+        </button>
+
+        {weeklyOpen && (
+          <div className="space-y-2">
+            {DAYS.map((day) => {
+              const blocks = getBlocks(day.index);
+              const isActive = blocks.length > 0;
+              return (
+                <div
+                  key={day.index}
+                  className={`p-3 rounded-lg transition-colors ${
+                    isActive ? 'bg-primary-container/20' : 'bg-surface-container-low/50'
+                  }`}
+                >
+                  {/* Day header row */}
+                  <div className="flex items-center gap-2 min-w-0">
+                    <button
+                      type="button"
+                      onClick={() => toggleDay(day.index)}
+                      className={`w-10 h-6 rounded-full transition-colors relative flex-shrink-0 ${
+                        isActive ? 'bg-primary' : 'bg-outline/30'
+                      }`}
+                    >
+                      <span
+                        className={`absolute left-0.5 top-0.5 w-5 h-5 bg-white rounded-full shadow transition-transform ${
+                          isActive ? 'translate-x-[18px]' : 'translate-x-0'
+                        }`}
+                      />
+                    </button>
+                    <span className={`text-sm font-medium w-20 ${isActive ? 'text-on-surface' : 'text-outline'}`}>
+                      {day.label}
+                    </span>
                   </div>
-                )}
-              </div>
-            );
-          })}
-        </div>
+
+                  {/* Blocks */}
+                  {isActive && (
+                    <div className="mt-2 pl-12">
+                      <ScheduleBlockEditor
+                        teacherId={teacherId ?? ''}
+                        dayIndex={day.index}
+                        dayLabel={day.label}
+                        blocks={blocks}
+                        isSaving={saving}
+                        onSave={saveBlock}
+                        onRemove={removeBlock}
+                        onAdd={addBlock}
+                        onUpdate={updateBlock}
+                      />
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
       </Card>
 
-      {/* Double Session Toggle */}
+      {/* ═══ Double Session Toggle ═══ */}
       <Card>
         <CardHeader
           title="Doble sesión"
@@ -278,6 +346,7 @@ export default function TeacherSchedule() {
         />
         <label className="flex items-center gap-3 cursor-pointer">
           <button
+            type="button"
             onClick={async () => {
               if (!teacherId) return;
               const next = !doubleSession;
@@ -306,51 +375,7 @@ export default function TeacherSchedule() {
         </label>
       </Card>
 
-      {/* Date Overrides */}
-      <Card>
-        <CardHeader title="Excepciones" subtitle="Días específicos sin disponibilidad (festivos, etc.)" />
-        <div className="flex gap-2 mb-4">
-          <input
-            type="date"
-            value={newOverrideDate}
-            onChange={(e) => setNewOverrideDate(e.target.value)}
-            className="flex-1 px-3 py-2 text-sm border border-outline-variant/50 rounded-lg bg-white text-on-surface"
-          />
-          <button
-            onClick={addOverride}
-            disabled={!newOverrideDate}
-            className="px-4 py-2 text-sm font-medium bg-error/10 text-error rounded-lg hover:bg-error/20 disabled:opacity-50 transition-colors"
-          >
-            Marcar no disponible
-          </button>
-        </div>
-        {overrides.length === 0 ? (
-          <p className="text-body-sm text-on-surface-variant text-center py-3">No hay excepciones registradas</p>
-        ) : (
-          <div className="space-y-2">
-            {overrides.map((o) => (
-              <div key={o.id} className="flex items-center justify-between p-2 bg-surface-container-low rounded-lg">
-                <div>
-                  <span className="text-sm font-medium text-on-surface">
-                    {new Date(o.date).toLocaleDateString('es-ES', { weekday: 'long', day: 'numeric', month: 'long' })}
-                  </span>
-                  <span className="text-xs text-on-surface-variant ml-2">
-                    {o.isAvailable ? 'Disponible (horario especial)' : 'No disponible'}
-                  </span>
-                </div>
-                <button
-                  onClick={() => removeOverride(o.date)}
-                  className="text-error hover:text-error/80 text-sm"
-                >
-                  Eliminar
-                </button>
-              </div>
-            ))}
-          </div>
-        )}
-      </Card>
-
-      {/* Status Message */}
+      {/* Status Message Toast */}
       {message && (
         <div
           className={`fixed bottom-6 right-6 px-4 py-3 rounded-xl shadow-lg text-sm font-medium transition-all ${
@@ -358,7 +383,9 @@ export default function TeacherSchedule() {
           }`}
         >
           {message.text}
-          <button onClick={() => setMessage(null)} className="ml-3 opacity-70 hover:opacity-100">✕</button>
+          <button type="button" onClick={() => setMessage(null)} className="ml-3 opacity-70 hover:opacity-100">
+            ✕
+          </button>
         </div>
       )}
     </div>
