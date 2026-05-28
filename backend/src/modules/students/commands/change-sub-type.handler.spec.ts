@@ -70,7 +70,13 @@ describe('ChangeSubTypeHandler', () => {
     // Simulate transaction callback being called with tx object
     const txMock = {
       reservation: { update: jest.fn() },
-      student: { update: jest.fn().mockResolvedValue({ ...mockStudent, remainingClasses: 7, licenseSubType: 'circulacion' }) },
+      student: {
+        update: jest.fn().mockResolvedValue({
+          ...mockStudent,
+          remainingClasses: 7,
+          licenseSubType: 'circulacion',
+        }),
+      },
     };
     prisma.$transaction.mockImplementation(async (cb: Function) => cb(txMock));
 
@@ -125,7 +131,13 @@ describe('ChangeSubTypeHandler', () => {
     prisma.reservation.findMany.mockResolvedValue(mockFutureReservations);
     const txMock = {
       reservation: { update: jest.fn() },
-      student: { update: jest.fn().mockResolvedValue({ ...mockStudent, remainingClasses: 7, licenseSubType: 'circulacion' }) },
+      student: {
+        update: jest.fn().mockResolvedValue({
+          ...mockStudent,
+          remainingClasses: 7,
+          licenseSubType: 'circulacion',
+        }),
+      },
     };
     prisma.$transaction.mockImplementation(async (cb: Function) => cb(txMock));
 
@@ -143,7 +155,13 @@ describe('ChangeSubTypeHandler', () => {
     prisma.reservation.findMany.mockResolvedValue([]); // No future reservations
     const txMock = {
       reservation: { update: jest.fn() },
-      student: { update: jest.fn().mockResolvedValue({ ...mockStudent, remainingClasses: 5, licenseSubType: 'circulacion' }) },
+      student: {
+        update: jest.fn().mockResolvedValue({
+          ...mockStudent,
+          remainingClasses: 5,
+          licenseSubType: 'circulacion',
+        }),
+      },
     };
     prisma.$transaction.mockImplementation(async (cb: Function) => cb(txMock));
 
@@ -206,12 +224,32 @@ describe('ChangeSubTypeHandler', () => {
     prisma.student.findUnique.mockResolvedValue(mockStudent);
     // Mix of 45min and 90min reservations
     prisma.reservation.findMany.mockResolvedValue([
-      { id: 'res-1', studentId: 'student-1', vehicleType: 'moto-pista', startTime: new Date('2026-06-15T10:00:00Z'), duration: 45, status: 'confirmed' },
-      { id: 'res-2', studentId: 'student-1', vehicleType: 'moto-pista', startTime: new Date('2026-06-16T10:00:00Z'), duration: 90, status: 'confirmed' },
+      {
+        id: 'res-1',
+        studentId: 'student-1',
+        vehicleType: 'moto-pista',
+        startTime: new Date('2026-06-15T10:00:00Z'),
+        duration: 45,
+        status: 'confirmed',
+      },
+      {
+        id: 'res-2',
+        studentId: 'student-1',
+        vehicleType: 'moto-pista',
+        startTime: new Date('2026-06-16T10:00:00Z'),
+        duration: 90,
+        status: 'confirmed',
+      },
     ]);
     const txMock = {
       reservation: { update: jest.fn() },
-      student: { update: jest.fn().mockResolvedValue({ ...mockStudent, remainingClasses: 8, licenseSubType: 'circulacion' }) },
+      student: {
+        update: jest.fn().mockResolvedValue({
+          ...mockStudent,
+          remainingClasses: 8,
+          licenseSubType: 'circulacion',
+        }),
+      },
     };
     prisma.$transaction.mockImplementation(async (cb: Function) => cb(txMock));
 

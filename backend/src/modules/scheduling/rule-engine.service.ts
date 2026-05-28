@@ -14,7 +14,16 @@ import { RuleChangedEvent } from '../scheduling-rules/events/rule-changed.event'
 
 export interface RuleCondition {
   field: string;
-  operator: 'eq' | 'neq' | 'lt' | 'gt' | 'lte' | 'gte' | 'in' | 'notIn' | 'contains';
+  operator:
+    | 'eq'
+    | 'neq'
+    | 'lt'
+    | 'gt'
+    | 'lte'
+    | 'gte'
+    | 'in'
+    | 'notIn'
+    | 'contains';
   value: unknown;
 }
 

@@ -174,12 +174,16 @@ export class AdminPlanningController {
     let startTime: string | null = null;
     let endTime: string | null = null;
 
-    const activeOverrides = dateOverrides.filter((o) => o.startTime && o.endTime);
+    const activeOverrides = dateOverrides.filter(
+      (o) => o.startTime && o.endTime,
+    );
     if (activeOverrides.length > 0) {
       // Use earliest start and latest end across all track overrides
       for (const o of activeOverrides) {
-        if (!startTime || (o.startTime && o.startTime < startTime)) startTime = o.startTime!;
-        if (!endTime || (o.endTime && o.endTime > endTime)) endTime = o.endTime!;
+        if (!startTime || (o.startTime && o.startTime < startTime))
+          startTime = o.startTime!;
+        if (!endTime || (o.endTime && o.endTime > endTime))
+          endTime = o.endTime!;
       }
     } else {
       // Fall back to base weekly schedule

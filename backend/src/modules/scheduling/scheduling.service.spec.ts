@@ -71,15 +71,26 @@ describe('SchedulingService', () => {
     };
 
     const multipleOverrides = [
-      { date: '2026-06-01', isAvailable: true, startTime: '09:00', endTime: '14:00' },
+      {
+        date: '2026-06-01',
+        isAvailable: true,
+        startTime: '09:00',
+        endTime: '14:00',
+      },
       { date: '2026-06-02', isAvailable: false },
-      { date: '2026-06-03', isAvailable: true, startTime: '10:00', endTime: '12:00', reason: 'Feriado local' },
+      {
+        date: '2026-06-03',
+        isAvailable: true,
+        startTime: '10:00',
+        endTime: '12:00',
+        reason: 'Feriado local',
+      },
     ];
 
     it('should throw BadRequestException when overrides array is empty', async () => {
-      await expect(
-        service.batchSetOverrides('teacher-1', []),
-      ).rejects.toThrow(BadRequestException);
+      await expect(service.batchSetOverrides('teacher-1', [])).rejects.toThrow(
+        BadRequestException,
+      );
     });
 
     it('should throw NotFoundException when teacher does not exist', async () => {
@@ -91,9 +102,14 @@ describe('SchedulingService', () => {
     });
 
     it('should call $transaction and create new overrides', async () => {
-      prisma.teacher.findUnique.mockResolvedValue({ id: 'teacher-1', doubleSession: false });
+      prisma.teacher.findUnique.mockResolvedValue({
+        id: 'teacher-1',
+        doubleSession: false,
+      });
       // Simulate the transaction callback executing with prisma mock as tx
-      prisma.$transaction.mockImplementation(async (cb: Function) => cb(prisma));
+      prisma.$transaction.mockImplementation(async (cb: Function) =>
+        cb(prisma),
+      );
       // No existing overrides → all go to create
       prisma.availabilityOverride.findFirst.mockResolvedValue(null);
 
@@ -105,8 +121,13 @@ describe('SchedulingService', () => {
     });
 
     it('should update existing overrides and create new ones', async () => {
-      prisma.teacher.findUnique.mockResolvedValue({ id: 'teacher-1', doubleSession: false });
-      prisma.$transaction.mockImplementation(async (cb: Function) => cb(prisma));
+      prisma.teacher.findUnique.mockResolvedValue({
+        id: 'teacher-1',
+        doubleSession: false,
+      });
+      prisma.$transaction.mockImplementation(async (cb: Function) =>
+        cb(prisma),
+      );
       // First override exists, second doesn't, third exists
       prisma.availabilityOverride.findFirst
         .mockResolvedValueOnce({ id: 'existing-1', track: null })
@@ -121,8 +142,13 @@ describe('SchedulingService', () => {
     });
 
     it('should pass correct data to create for new override', async () => {
-      prisma.teacher.findUnique.mockResolvedValue({ id: 'teacher-1', doubleSession: false });
-      prisma.$transaction.mockImplementation(async (cb: Function) => cb(prisma));
+      prisma.teacher.findUnique.mockResolvedValue({
+        id: 'teacher-1',
+        doubleSession: false,
+      });
+      prisma.$transaction.mockImplementation(async (cb: Function) =>
+        cb(prisma),
+      );
       prisma.availabilityOverride.findFirst.mockResolvedValue(null);
 
       await service.batchSetOverrides('teacher-1', [multipleOverrides[0]]);
@@ -141,9 +167,17 @@ describe('SchedulingService', () => {
     });
 
     it('should pass correct data to update for existing override', async () => {
-      prisma.teacher.findUnique.mockResolvedValue({ id: 'teacher-1', doubleSession: false });
-      prisma.$transaction.mockImplementation(async (cb: Function) => cb(prisma));
-      prisma.availabilityOverride.findFirst.mockResolvedValue({ id: 'existing-1', track: null });
+      prisma.teacher.findUnique.mockResolvedValue({
+        id: 'teacher-1',
+        doubleSession: false,
+      });
+      prisma.$transaction.mockImplementation(async (cb: Function) =>
+        cb(prisma),
+      );
+      prisma.availabilityOverride.findFirst.mockResolvedValue({
+        id: 'existing-1',
+        track: null,
+      });
 
       await service.batchSetOverrides('teacher-1', [multipleOverrides[0]]);
 
@@ -159,12 +193,23 @@ describe('SchedulingService', () => {
     });
 
     it('should pass track to create when specified', async () => {
-      prisma.teacher.findUnique.mockResolvedValue({ id: 'teacher-1', doubleSession: false });
-      prisma.$transaction.mockImplementation(async (cb: Function) => cb(prisma));
+      prisma.teacher.findUnique.mockResolvedValue({
+        id: 'teacher-1',
+        doubleSession: false,
+      });
+      prisma.$transaction.mockImplementation(async (cb: Function) =>
+        cb(prisma),
+      );
       prisma.availabilityOverride.findFirst.mockResolvedValue(null);
 
       await service.batchSetOverrides('teacher-1', [
-        { date: '2026-06-01', isAvailable: true, startTime: '09:00', endTime: '14:00', track: 'pista' },
+        {
+          date: '2026-06-01',
+          isAvailable: true,
+          startTime: '09:00',
+          endTime: '14:00',
+          track: 'pista',
+        },
       ]);
 
       expect(prisma.availabilityOverride.create).toHaveBeenCalledWith(
@@ -177,42 +222,79 @@ describe('SchedulingService', () => {
     });
 
     it('should pass track to update when specified', async () => {
-      prisma.teacher.findUnique.mockResolvedValue({ id: 'teacher-1', doubleSession: false });
-      prisma.$transaction.mockImplementation(async (cb: Function) => cb(prisma));
-      prisma.availabilityOverride.findFirst.mockResolvedValue({ id: 'existing-1', track: 'pista' });
+      prisma.teacher.findUnique.mockResolvedValue({
+        id: 'teacher-1',
+        doubleSession: false,
+      });
+      prisma.$transaction.mockImplementation(async (cb: Function) =>
+        cb(prisma),
+      );
+      prisma.availabilityOverride.findFirst.mockResolvedValue({
+        id: 'existing-1',
+        track: 'pista',
+      });
 
       await service.batchSetOverrides('teacher-1', [
-        { date: '2026-06-01', isAvailable: true, startTime: '09:00', endTime: '14:00', track: 'pista' },
+        {
+          date: '2026-06-01',
+          isAvailable: true,
+          startTime: '09:00',
+          endTime: '14:00',
+          track: 'pista',
+        },
       ]);
 
       // findFirst should have been called with the track filter
       expect(prisma.availabilityOverride.findFirst).toHaveBeenCalledWith({
-        where: { teacherId: 'teacher-1', date: expect.any(Date), track: 'pista' },
+        where: {
+          teacherId: 'teacher-1',
+          date: expect.any(Date),
+          track: 'pista',
+        },
       });
     });
 
     it('should throw BadRequestException for invalid startTime format', async () => {
-      prisma.teacher.findUnique.mockResolvedValue({ id: 'teacher-1', doubleSession: false });
+      prisma.teacher.findUnique.mockResolvedValue({
+        id: 'teacher-1',
+        doubleSession: false,
+      });
 
       await expect(
         service.batchSetOverrides('teacher-1', [
-          { date: '2026-06-01', isAvailable: true, startTime: '25:00', endTime: '14:00' },
+          {
+            date: '2026-06-01',
+            isAvailable: true,
+            startTime: '25:00',
+            endTime: '14:00',
+          },
         ]),
       ).rejects.toThrow(BadRequestException);
     });
 
     it('should throw BadRequestException when endTime is before startTime', async () => {
-      prisma.teacher.findUnique.mockResolvedValue({ id: 'teacher-1', doubleSession: false });
+      prisma.teacher.findUnique.mockResolvedValue({
+        id: 'teacher-1',
+        doubleSession: false,
+      });
 
       await expect(
         service.batchSetOverrides('teacher-1', [
-          { date: '2026-06-01', isAvailable: true, startTime: '14:00', endTime: '09:00' },
+          {
+            date: '2026-06-01',
+            isAvailable: true,
+            startTime: '14:00',
+            endTime: '09:00',
+          },
         ]),
       ).rejects.toThrow(BadRequestException);
     });
 
     it('should return the transaction result', async () => {
-      prisma.teacher.findUnique.mockResolvedValue({ id: 'teacher-1', doubleSession: false });
+      prisma.teacher.findUnique.mockResolvedValue({
+        id: 'teacher-1',
+        doubleSession: false,
+      });
       const expectedResult = [{ id: 'override-1' }, { id: 'override-2' }];
       prisma.$transaction.mockResolvedValue(expectedResult);
 
@@ -225,12 +307,23 @@ describe('SchedulingService', () => {
     });
 
     it('should clean up stale overrides (tracks not in the batch) for the same dates', async () => {
-      prisma.teacher.findUnique.mockResolvedValue({ id: 'teacher-1', doubleSession: false });
-      prisma.$transaction.mockImplementation(async (cb: Function) => cb(prisma));
+      prisma.teacher.findUnique.mockResolvedValue({
+        id: 'teacher-1',
+        doubleSession: false,
+      });
+      prisma.$transaction.mockImplementation(async (cb: Function) =>
+        cb(prisma),
+      );
       prisma.availabilityOverride.findFirst.mockResolvedValue(null);
 
       await service.batchSetOverrides('teacher-1', [
-        { date: '2026-06-01', isAvailable: true, startTime: '09:00', endTime: '14:00', track: 'pista' },
+        {
+          date: '2026-06-01',
+          isAvailable: true,
+          startTime: '09:00',
+          endTime: '14:00',
+          track: 'pista',
+        },
       ]);
 
       // Should delete overrides for June 1 that are NOT pista
@@ -290,18 +383,30 @@ describe('SchedulingService', () => {
     });
 
     it('should return copied=0 when source week has no overrides', async () => {
-      prisma.teacher.findUnique.mockResolvedValue({ id: 'teacher-1', doubleSession: false });
+      prisma.teacher.findUnique.mockResolvedValue({
+        id: 'teacher-1',
+        doubleSession: false,
+      });
       prisma.availabilityOverride.findMany.mockResolvedValue([]);
 
-      const result = await service.copyWeekOverrides('teacher-1', sourceDate, targetDate);
+      const result = await service.copyWeekOverrides(
+        'teacher-1',
+        sourceDate,
+        targetDate,
+      );
 
       expect(result).toEqual({ copied: 0 });
       expect(prisma.availabilityOverride.findMany).toHaveBeenCalledTimes(1);
     });
 
     it('should copy source overrides to target week with shifted dates', async () => {
-      prisma.teacher.findUnique.mockResolvedValue({ id: 'teacher-1', doubleSession: false });
-      prisma.$transaction.mockImplementation(async (cb: Function) => cb(prisma));
+      prisma.teacher.findUnique.mockResolvedValue({
+        id: 'teacher-1',
+        doubleSession: false,
+      });
+      prisma.$transaction.mockImplementation(async (cb: Function) =>
+        cb(prisma),
+      );
       // First findMany: source overrides
       // Second findMany: no existing target overrides
       prisma.availabilityOverride.findMany
@@ -330,8 +435,13 @@ describe('SchedulingService', () => {
     });
 
     it('should propagate track when copying overrides', async () => {
-      prisma.teacher.findUnique.mockResolvedValue({ id: 'teacher-1', doubleSession: false });
-      prisma.$transaction.mockImplementation(async (cb: Function) => cb(prisma));
+      prisma.teacher.findUnique.mockResolvedValue({
+        id: 'teacher-1',
+        doubleSession: false,
+      });
+      prisma.$transaction.mockImplementation(async (cb: Function) =>
+        cb(prisma),
+      );
       const trackSourceOverrides = [
         {
           id: 'ov-3',
@@ -364,13 +474,22 @@ describe('SchedulingService', () => {
       await service.copyWeekOverrides('teacher-1', sourceDate, targetDate);
 
       expect(prisma.availabilityOverride.create).toHaveBeenCalledTimes(2);
-      expect(prisma.availabilityOverride.create.mock.calls[0][0].data.track).toBe('pista');
-      expect(prisma.availabilityOverride.create.mock.calls[1][0].data.track).toBe('circulacion');
+      expect(
+        prisma.availabilityOverride.create.mock.calls[0][0].data.track,
+      ).toBe('pista');
+      expect(
+        prisma.availabilityOverride.create.mock.calls[1][0].data.track,
+      ).toBe('circulacion');
     });
 
     it('should skip target dates that already have overrides when overrideExisting is false', async () => {
-      prisma.teacher.findUnique.mockResolvedValue({ id: 'teacher-1', doubleSession: false });
-      prisma.$transaction.mockImplementation(async (cb: Function) => cb(prisma));
+      prisma.teacher.findUnique.mockResolvedValue({
+        id: 'teacher-1',
+        doubleSession: false,
+      });
+      prisma.$transaction.mockImplementation(async (cb: Function) =>
+        cb(prisma),
+      );
       // Source overrides (June 1 and June 3)
       prisma.availabilityOverride.findMany
         .mockResolvedValueOnce(sourceOverrides)
@@ -389,7 +508,12 @@ describe('SchedulingService', () => {
           },
         ]);
 
-      await service.copyWeekOverrides('teacher-1', sourceDate, targetDate, false);
+      await service.copyWeekOverrides(
+        'teacher-1',
+        sourceDate,
+        targetDate,
+        false,
+      );
 
       // June 1 → June 8: no existing → should create
       // June 3 → June 10: existing → should skip
@@ -398,8 +522,13 @@ describe('SchedulingService', () => {
     });
 
     it('should overwrite target dates when overrideExisting is true', async () => {
-      prisma.teacher.findUnique.mockResolvedValue({ id: 'teacher-1', doubleSession: false });
-      prisma.$transaction.mockImplementation(async (cb: Function) => cb(prisma));
+      prisma.teacher.findUnique.mockResolvedValue({
+        id: 'teacher-1',
+        doubleSession: false,
+      });
+      prisma.$transaction.mockImplementation(async (cb: Function) =>
+        cb(prisma),
+      );
       prisma.availabilityOverride.findMany
         .mockResolvedValueOnce(sourceOverrides)
         .mockResolvedValueOnce([
@@ -420,7 +549,12 @@ describe('SchedulingService', () => {
         .mockResolvedValueOnce(null) // June 1→8: no existing
         .mockResolvedValueOnce({ id: 'existing-1', track: null }); // June 3→10: existing
 
-      await service.copyWeekOverrides('teacher-1', sourceDate, targetDate, true);
+      await service.copyWeekOverrides(
+        'teacher-1',
+        sourceDate,
+        targetDate,
+        true,
+      );
 
       // Both should be created/updated
       expect(prisma.availabilityOverride.create).toHaveBeenCalledTimes(1);
@@ -437,20 +571,32 @@ describe('SchedulingService', () => {
     });
 
     it('should return the correct copy count', async () => {
-      prisma.teacher.findUnique.mockResolvedValue({ id: 'teacher-1', doubleSession: false });
+      prisma.teacher.findUnique.mockResolvedValue({
+        id: 'teacher-1',
+        doubleSession: false,
+      });
       prisma.availabilityOverride.findMany
         .mockResolvedValueOnce(sourceOverrides)
         .mockResolvedValueOnce([]);
-      prisma.$transaction.mockImplementation(async (cb: Function) => cb(prisma));
+      prisma.$transaction.mockImplementation(async (cb: Function) =>
+        cb(prisma),
+      );
       prisma.availabilityOverride.findFirst.mockResolvedValue(null);
 
-      const result = await service.copyWeekOverrides('teacher-1', sourceDate, targetDate);
+      const result = await service.copyWeekOverrides(
+        'teacher-1',
+        sourceDate,
+        targetDate,
+      );
 
       expect(result).toEqual({ copied: 2 });
     });
 
     it('should not call $transaction when all target dates are skipped', async () => {
-      prisma.teacher.findUnique.mockResolvedValue({ id: 'teacher-1', doubleSession: false });
+      prisma.teacher.findUnique.mockResolvedValue({
+        id: 'teacher-1',
+        doubleSession: false,
+      });
       // Both source dates have matching target overrides
       prisma.availabilityOverride.findMany
         .mockResolvedValueOnce(sourceOverrides)
@@ -479,7 +625,12 @@ describe('SchedulingService', () => {
           },
         ]);
 
-      await service.copyWeekOverrides('teacher-1', sourceDate, targetDate, false);
+      await service.copyWeekOverrides(
+        'teacher-1',
+        sourceDate,
+        targetDate,
+        false,
+      );
 
       expect(prisma.availabilityOverride.create).not.toHaveBeenCalled();
       expect(prisma.availabilityOverride.update).not.toHaveBeenCalled();
@@ -497,27 +648,66 @@ describe('SchedulingService', () => {
     it('should reject time range overlapping with another track on same day', async () => {
       prisma.teacher.findUnique.mockResolvedValue(mockTeacher);
       prisma.teacherAvailability.findMany.mockResolvedValue([
-        { id: 'avail-1', teacherId: 'teacher-1', dayOfWeek: 1, startTime: '09:00', endTime: '12:00', track: 'pista' },
+        {
+          id: 'avail-1',
+          teacherId: 'teacher-1',
+          dayOfWeek: 1,
+          startTime: '09:00',
+          endTime: '12:00',
+          track: 'pista',
+        },
       ]);
       prisma.teacherAvailability.findFirst.mockResolvedValue(null);
 
       await expect(
-        service.setAvailability('teacher-1', 1, '10:00', '11:00', 'circulacion'),
+        service.setAvailability(
+          'teacher-1',
+          1,
+          '10:00',
+          '11:00',
+          'circulacion',
+        ),
       ).rejects.toThrow(BadRequestException);
     });
 
     it('should allow non-overlapping time on another track', async () => {
       prisma.teacher.findUnique.mockResolvedValue(mockTeacher);
       prisma.teacherAvailability.findMany.mockResolvedValue([
-        { id: 'avail-1', teacherId: 'teacher-1', dayOfWeek: 1, startTime: '09:00', endTime: '12:00', track: 'pista' },
+        {
+          id: 'avail-1',
+          teacherId: 'teacher-1',
+          dayOfWeek: 1,
+          startTime: '09:00',
+          endTime: '12:00',
+          track: 'pista',
+        },
       ]);
       prisma.teacherAvailability.findFirst.mockResolvedValue(null);
-      prisma.teacherAvailability.create.mockResolvedValue({ id: 'avail-2', teacherId: 'teacher-1', dayOfWeek: 1, startTime: '13:00', endTime: '15:00', track: 'circulacion' });
+      prisma.teacherAvailability.create.mockResolvedValue({
+        id: 'avail-2',
+        teacherId: 'teacher-1',
+        dayOfWeek: 1,
+        startTime: '13:00',
+        endTime: '15:00',
+        track: 'circulacion',
+      });
 
-      const result = await service.setAvailability('teacher-1', 1, '13:00', '15:00', 'circulacion');
+      const result = await service.setAvailability(
+        'teacher-1',
+        1,
+        '13:00',
+        '15:00',
+        'circulacion',
+      );
 
       expect(prisma.teacherAvailability.create).toHaveBeenCalledWith({
-        data: { teacherId: 'teacher-1', dayOfWeek: 1, startTime: '13:00', endTime: '15:00', track: 'circulacion' },
+        data: {
+          teacherId: 'teacher-1',
+          dayOfWeek: 1,
+          startTime: '13:00',
+          endTime: '15:00',
+          track: 'circulacion',
+        },
       });
       expect(result).toEqual(expect.objectContaining({ id: 'avail-2' }));
     });
@@ -525,30 +715,73 @@ describe('SchedulingService', () => {
     it('should allow same track update (overwrite existing)', async () => {
       prisma.teacher.findUnique.mockResolvedValue(mockTeacher);
       prisma.teacherAvailability.findMany.mockResolvedValue([
-        { id: 'avail-1', teacherId: 'teacher-1', dayOfWeek: 1, startTime: '09:00', endTime: '12:00', track: 'pista' },
+        {
+          id: 'avail-1',
+          teacherId: 'teacher-1',
+          dayOfWeek: 1,
+          startTime: '09:00',
+          endTime: '12:00',
+          track: 'pista',
+        },
       ]);
-      prisma.teacherAvailability.findFirst.mockResolvedValue({ id: 'avail-1', track: 'pista' });
-      prisma.teacherAvailability.update.mockResolvedValue({ id: 'avail-1', teacherId: 'teacher-1', dayOfWeek: 1, startTime: '09:00', endTime: '14:00', track: 'pista' });
+      prisma.teacherAvailability.findFirst.mockResolvedValue({
+        id: 'avail-1',
+        track: 'pista',
+      });
+      prisma.teacherAvailability.update.mockResolvedValue({
+        id: 'avail-1',
+        teacherId: 'teacher-1',
+        dayOfWeek: 1,
+        startTime: '09:00',
+        endTime: '14:00',
+        track: 'pista',
+      });
 
-      const result = await service.setAvailability('teacher-1', 1, '09:00', '14:00', 'pista');
+      const result = await service.setAvailability(
+        'teacher-1',
+        1,
+        '09:00',
+        '14:00',
+        'pista',
+      );
 
       expect(prisma.teacherAvailability.update).toHaveBeenCalledWith({
         where: { id: 'avail-1' },
         data: { startTime: '09:00', endTime: '14:00' },
       });
-      expect(result).toEqual(expect.objectContaining({ startTime: '09:00', endTime: '14:00' }));
+      expect(result).toEqual(
+        expect.objectContaining({ startTime: '09:00', endTime: '14:00' }),
+      );
     });
 
     it('should allow setting availability without track (backward compat)', async () => {
       prisma.teacher.findUnique.mockResolvedValue(mockTeacher);
       prisma.teacherAvailability.findMany.mockResolvedValue([]);
       prisma.teacherAvailability.findFirst.mockResolvedValue(null);
-      prisma.teacherAvailability.create.mockResolvedValue({ id: 'avail-3', teacherId: 'teacher-1', dayOfWeek: 2, startTime: '08:00', endTime: '14:00', track: null });
+      prisma.teacherAvailability.create.mockResolvedValue({
+        id: 'avail-3',
+        teacherId: 'teacher-1',
+        dayOfWeek: 2,
+        startTime: '08:00',
+        endTime: '14:00',
+        track: null,
+      });
 
-      const result = await service.setAvailability('teacher-1', 2, '08:00', '14:00');
+      const result = await service.setAvailability(
+        'teacher-1',
+        2,
+        '08:00',
+        '14:00',
+      );
 
       expect(prisma.teacherAvailability.create).toHaveBeenCalledWith({
-        data: { teacherId: 'teacher-1', dayOfWeek: 2, startTime: '08:00', endTime: '14:00', track: undefined },
+        data: {
+          teacherId: 'teacher-1',
+          dayOfWeek: 2,
+          startTime: '08:00',
+          endTime: '14:00',
+          track: undefined,
+        },
       });
       expect(result).toEqual(expect.objectContaining({ id: 'avail-3' }));
     });
@@ -565,16 +798,39 @@ describe('SchedulingService', () => {
     it('should filter by pista track when student has licenseSubType=pista', async () => {
       prisma.teacher.findUnique.mockResolvedValue(mockTeacher);
       prisma.vehicleTypeConfig.findUnique.mockResolvedValue(mockTypeConfig);
-      prisma.student.findUnique.mockResolvedValue({ id: 'student-1', licenseSubType: 'pista', licenseType: 'A2' });
+      prisma.student.findUnique.mockResolvedValue({
+        id: 'student-1',
+        licenseSubType: 'pista',
+        licenseType: 'A2',
+      });
       prisma.teacherAvailability.findMany.mockResolvedValue([
-        { id: 'avail-1', teacherId: 'teacher-1', dayOfWeek: 1, startTime: '09:00', endTime: '12:00', track: 'pista' },
-        { id: 'avail-2', teacherId: 'teacher-1', dayOfWeek: 1, startTime: '13:00', endTime: '15:00', track: 'circulacion' },
+        {
+          id: 'avail-1',
+          teacherId: 'teacher-1',
+          dayOfWeek: 1,
+          startTime: '09:00',
+          endTime: '12:00',
+          track: 'pista',
+        },
+        {
+          id: 'avail-2',
+          teacherId: 'teacher-1',
+          dayOfWeek: 1,
+          startTime: '13:00',
+          endTime: '15:00',
+          track: 'circulacion',
+        },
       ]);
       prisma.availabilityOverride.findMany.mockResolvedValue([]);
       prisma.reservation.findMany.mockResolvedValue([]);
 
       const result = await service.getAvailableSlotsInRange(
-        'teacher-1', '2026-06-01', 7, 'moto-pista', false, 'student-1',
+        'teacher-1',
+        '2026-06-01',
+        7,
+        'moto-pista',
+        false,
+        'student-1',
       );
 
       // Should return 7 days
@@ -588,15 +844,31 @@ describe('SchedulingService', () => {
     it('should use null-track availability when no track-specific entries exist', async () => {
       prisma.teacher.findUnique.mockResolvedValue(mockTeacher);
       prisma.vehicleTypeConfig.findUnique.mockResolvedValue(mockTypeConfig);
-      prisma.student.findUnique.mockResolvedValue({ id: 'student-1', licenseSubType: 'pista', licenseType: 'A2' });
+      prisma.student.findUnique.mockResolvedValue({
+        id: 'student-1',
+        licenseSubType: 'pista',
+        licenseType: 'A2',
+      });
       prisma.teacherAvailability.findMany.mockResolvedValue([
-        { id: 'avail-1', teacherId: 'teacher-1', dayOfWeek: 1, startTime: '09:00', endTime: '12:00', track: null },
+        {
+          id: 'avail-1',
+          teacherId: 'teacher-1',
+          dayOfWeek: 1,
+          startTime: '09:00',
+          endTime: '12:00',
+          track: null,
+        },
       ]);
       prisma.availabilityOverride.findMany.mockResolvedValue([]);
       prisma.reservation.findMany.mockResolvedValue([]);
 
       const result = await service.getAvailableSlotsInRange(
-        'teacher-1', '2026-06-01', 7, 'moto-pista', false, 'student-1',
+        'teacher-1',
+        '2026-06-01',
+        7,
+        'moto-pista',
+        false,
+        'student-1',
       );
 
       expect(result.days).toHaveLength(7);
@@ -607,15 +879,31 @@ describe('SchedulingService', () => {
     it('should fall back to null-track availability when no licenseSubType', async () => {
       prisma.teacher.findUnique.mockResolvedValue(mockTeacher);
       prisma.vehicleTypeConfig.findUnique.mockResolvedValue(mockTypeConfig);
-      prisma.student.findUnique.mockResolvedValue({ id: 'student-1', licenseSubType: null, licenseType: 'B' });
+      prisma.student.findUnique.mockResolvedValue({
+        id: 'student-1',
+        licenseSubType: null,
+        licenseType: 'B',
+      });
       prisma.teacherAvailability.findMany.mockResolvedValue([
-        { id: 'avail-1', teacherId: 'teacher-1', dayOfWeek: 1, startTime: '09:00', endTime: '12:00', track: null },
+        {
+          id: 'avail-1',
+          teacherId: 'teacher-1',
+          dayOfWeek: 1,
+          startTime: '09:00',
+          endTime: '12:00',
+          track: null,
+        },
       ]);
       prisma.availabilityOverride.findMany.mockResolvedValue([]);
       prisma.reservation.findMany.mockResolvedValue([]);
 
       const result = await service.getAvailableSlotsInRange(
-        'teacher-1', '2026-06-01', 7, 'moto-pista', false, 'student-1',
+        'teacher-1',
+        '2026-06-01',
+        7,
+        'moto-pista',
+        false,
+        'student-1',
       );
 
       expect(result.days).toHaveLength(7);

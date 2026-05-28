@@ -1,4 +1,12 @@
-import { IsInt, IsString, IsOptional, IsIn, Min, Max, Matches } from 'class-validator';
+import {
+  IsInt,
+  IsString,
+  IsOptional,
+  IsIn,
+  Min,
+  Max,
+  Matches,
+} from 'class-validator';
 import { ApiProperty } from '@nestjs/swagger';
 
 export class SetAvailabilityDto {

@@ -172,7 +172,12 @@ export class SchedulingService {
           });
         }
         return this.prisma.availabilityOverride.create({
-          data: { teacherId, date: dateObj, isAvailable: false, track: track ?? null },
+          data: {
+            teacherId,
+            date: dateObj,
+            isAvailable: false,
+            track: track ?? null,
+          },
         });
       } catch (err) {
         this.logger.error(
@@ -207,7 +212,15 @@ export class SchedulingService {
       }
 
       return this.prisma.availabilityOverride.create({
-        data: { teacherId, date: dateObj, isAvailable, startTime, endTime, reason, track: track ?? null },
+        data: {
+          teacherId,
+          date: dateObj,
+          isAvailable,
+          startTime,
+          endTime,
+          reason,
+          track: track ?? null,
+        },
       });
     } catch (err) {
       this.logger.error(
@@ -312,10 +325,14 @@ export class SchedulingService {
       }
 
       // Stale cleanup: for each date in the batch, delete overrides whose track is NOT in the batch
-      const datesInBatch = [...new Set(overrides.map((o) => {
-        const d = parseISO(o.date);
-        return d.toISOString().split('T')[0];
-      }))];
+      const datesInBatch = [
+        ...new Set(
+          overrides.map((o) => {
+            const d = parseISO(o.date);
+            return d.toISOString().split('T')[0];
+          }),
+        ),
+      ];
 
       for (const dateStr of datesInBatch) {
         const dateObj = parseISO(dateStr);
@@ -326,7 +343,9 @@ export class SchedulingService {
           })
           .map((o) => o.track);
 
-        const nonNullTracks = tracksForDate.filter((t): t is string => t != null);
+        const nonNullTracks = tracksForDate.filter(
+          (t): t is string => t != null,
+        );
         const hasNullTrack = tracksForDate.some((t) => t == null);
 
         await tx.availabilityOverride.deleteMany({
@@ -396,13 +415,11 @@ export class SchedulingService {
     const dayOffsetMs = targetStart.getTime() - sourceStart.getTime();
 
     let copied = 0;
-    const entriesToCopy: Array<typeof sourceOverrides[0]> = [];
+    const entriesToCopy: Array<(typeof sourceOverrides)[0]> = [];
 
     for (const override of sourceOverrides) {
       const srcDate =
-        override.date instanceof Date
-          ? override.date
-          : new Date(override.date);
+        override.date instanceof Date ? override.date : new Date(override.date);
       const tgtDate = new Date(srcDate.getTime() + dayOffsetMs);
       const tgtDateStr = tgtDate.toISOString().split('T')[0];
 
@@ -469,7 +486,9 @@ export class SchedulingService {
     // 1. Fetch teacher + vehicle config ONCE (not per day)
     const [teacher, typeConfig] = await Promise.all([
       this.prisma.teacher.findUnique({ where: { id: teacherId } }),
-      this.prisma.vehicleTypeConfig.findUnique({ where: { type: vehicleType } }),
+      this.prisma.vehicleTypeConfig.findUnique({
+        where: { type: vehicleType },
+      }),
     ]);
     if (!teacher) throw new NotFoundException('Teacher not found');
 
@@ -669,7 +688,9 @@ export class SchedulingService {
           startTime: slotTimeStr,
           duration: effectiveDuration,
           vehicleType,
-          doubleSession: hasDoubleBookingGenRule || !!(doubleSession && teacher.doubleSession),
+          doubleSession:
+            hasDoubleBookingGenRule ||
+            !!(doubleSession && teacher.doubleSession),
           ...(slotStudentContext ? { student: slotStudentContext } : {}),
         };
 
@@ -878,7 +899,8 @@ export class SchedulingService {
         startTime: slotTimeStr,
         duration: effectiveDuration,
         vehicleType,
-        doubleSession: hasDoubleBookingGenRule || !!(doubleSession && teacher.doubleSession),
+        doubleSession:
+          hasDoubleBookingGenRule || !!(doubleSession && teacher.doubleSession),
         ...(singleSlotStudentContext
           ? { student: singleSlotStudentContext }
           : {}),

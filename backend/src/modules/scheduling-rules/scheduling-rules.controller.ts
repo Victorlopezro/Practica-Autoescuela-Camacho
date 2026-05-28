@@ -60,7 +60,7 @@ export class SchedulingRulesController {
       const result = await this.aiService.translateRule(dto.naturalLanguage);
 
       if (result.success) {
-        const aiData = result.data as StructuredRule;
+        const aiData = result.data;
 
         // Store the full AI response as structured rules
         dto.structuredRules = aiData as unknown as Record<string, unknown>;
@@ -84,8 +84,9 @@ export class SchedulingRulesController {
             Array.isArray(aiData.appliesTo.teachers) &&
             aiData.appliesTo.teachers.length > 0
           ) {
-            const teacherIds =
-              await this.resolveTeacherNames(aiData.appliesTo.teachers);
+            const teacherIds = await this.resolveTeacherNames(
+              aiData.appliesTo.teachers,
+            );
             if (teacherIds.length > 0) {
               appliesToBuild.teachers = teacherIds;
             }
@@ -243,11 +244,7 @@ export class SchedulingRulesController {
     if (fields.includes('overlap')) return 'overlap';
     if (fields.includes('duration')) return 'duration';
     if (fields.includes('vehicleType')) return 'vehicle';
-    if (
-      fields.some((f) =>
-        ['dayOfWeek', 'date', 'time'].includes(f),
-      )
-    ) {
+    if (fields.some((f) => ['dayOfWeek', 'date', 'time'].includes(f))) {
       return 'availability';
     }
     return 'general';

@@ -50,7 +50,12 @@ describe('SchedulingController', () => {
     const teacherId = 'teacher-1';
     const dto: BatchOverrideDto = {
       overrides: [
-        { date: '2026-06-01', isAvailable: true, startTime: '09:00', endTime: '14:00' },
+        {
+          date: '2026-06-01',
+          isAvailable: true,
+          startTime: '09:00',
+          endTime: '14:00',
+        },
         { date: '2026-06-02', isAvailable: false },
       ],
     };
@@ -76,10 +81,7 @@ describe('SchedulingController', () => {
 
       await controller.batchSetOverrides(teacherId, emptyDto);
 
-      expect(scheduling.batchSetOverrides).toHaveBeenCalledWith(
-        teacherId,
-        [],
-      );
+      expect(scheduling.batchSetOverrides).toHaveBeenCalledWith(teacherId, []);
     });
 
     it('should propagate service errors', async () => {

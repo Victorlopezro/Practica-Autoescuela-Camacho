@@ -21,7 +21,12 @@ export const RULE_TYPES = [
 ] as const;
 export type RuleType = (typeof RULE_TYPES)[number];
 
-export const RULE_ACTIONS = ['allow', 'block', 'warn', 'doubleBooking'] as const;
+export const RULE_ACTIONS = [
+  'allow',
+  'block',
+  'warn',
+  'doubleBooking',
+] as const;
 export type RuleAction = (typeof RULE_ACTIONS)[number];
 
 export const RULE_CATEGORIES = ['evaluation', 'generation'] as const;
@@ -59,7 +64,8 @@ export class CreateSchedulingRuleDto {
   structuredRules?: Record<string, unknown>;
 
   @ApiPropertyOptional({
-    description: 'Rule type category (auto-detected from natural language if omitted)',
+    description:
+      'Rule type category (auto-detected from natural language if omitted)',
     enum: RULE_TYPES,
     example: 'availability',
   })

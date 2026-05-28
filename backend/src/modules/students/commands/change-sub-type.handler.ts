@@ -6,9 +6,7 @@ import { ChangeSubTypeCommand } from './change-sub-type.command';
 import { BalanceAdjustedEvent } from '../events/balance-adjusted.event';
 
 @CommandHandler(ChangeSubTypeCommand)
-export class ChangeSubTypeHandler
-  implements ICommandHandler<ChangeSubTypeCommand>
-{
+export class ChangeSubTypeHandler implements ICommandHandler<ChangeSubTypeCommand> {
   constructor(
     private readonly prisma: PrismaService,
     private readonly eventBus: EventBus,
