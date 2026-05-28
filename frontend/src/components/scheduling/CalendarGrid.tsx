@@ -161,18 +161,18 @@ export function CalendarGrid({
   }
 
   /** Wraps onSaveBlock: resolves date from dayIndex before calling parent */
-  function handleBlockSave(dayIndex: number, block: BlockData) {
+  async function handleBlockSave(dayIndex: number, block: BlockData) {
     const day = days[dayIndex];
     if (day) {
-      onSaveBlock(day.date, block);
+      await onSaveBlock(day.date, block);
     }
   }
 
   /** Wraps onRemoveBlock: resolves date from dayIndex before calling parent */
-  function handleBlockRemove(dayIndex: number, block: BlockData) {
+  async function handleBlockRemove(dayIndex: number, block: BlockData) {
     const day = days[dayIndex];
     if (day) {
-      onRemoveBlock(day.date, block);
+      await onRemoveBlock(day.date, block);
     }
   }
 
