@@ -770,7 +770,8 @@ export class SchedulingService {
     });
 
     // Filter by track
-    let baseAvailability: (typeof baseAvailabilities)[0];
+
+    let baseAvailability: (typeof baseAvailabilities)[0] | undefined;
     if (track) {
       // Prefer track-specific entry, fall back to null-track entry
       baseAvailability =
