@@ -91,7 +91,7 @@ describe('GlobalExceptionFilter', () => {
     loggerSpy.mockRestore();
   });
 
-  it('should not log error details in production environment', () => {
+  it('should log error details even in production environment', () => {
     process.env.NODE_ENV = 'production';
     const loggerSpy = jest
       .spyOn(Logger.prototype, 'error')
@@ -100,7 +100,7 @@ describe('GlobalExceptionFilter', () => {
 
     filter.catch(exception, mockHost);
 
-    expect(loggerSpy).not.toHaveBeenCalled();
+    expect(loggerSpy).toHaveBeenCalled();
     loggerSpy.mockRestore();
   });
 

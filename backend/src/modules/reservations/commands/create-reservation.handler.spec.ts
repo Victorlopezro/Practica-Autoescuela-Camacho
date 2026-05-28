@@ -24,7 +24,8 @@ describe('CreateReservationHandler', () => {
   beforeEach(async () => {
     prisma = {
       teacher: { findUnique: jest.fn() },
-      student: { findUnique: jest.fn() },
+      student: { findUnique: jest.fn(), findMany: jest.fn() },
+      reservation: { findMany: jest.fn() },
       $transaction: jest.fn(),
     };
     eventBus = { publish: jest.fn() };
@@ -65,6 +66,7 @@ describe('CreateReservationHandler', () => {
 
     prisma.teacher.findUnique.mockResolvedValue(mockTeacher);
     prisma.student.findUnique.mockResolvedValue(mockStudent);
+    prisma.reservation.findMany.mockResolvedValue([]);
 
     const mockReservation = {
       id: 'res-1',
@@ -160,6 +162,37 @@ describe('CreateReservationHandler', () => {
       status: 'confirmed',
     };
 
+    prisma.reservation.findMany.mockResolvedValue([existingReservation]);
+    prisma.student.findMany.mockResolvedValue([{ licenseType: 'B' }]);
+    // The rule engine should block when overlap is detected
+    const module: TestingModule = await Test.createTestingModule({
+      providers: [
+        CreateReservationHandler,
+        { provide: PrismaService, useValue: prisma },
+        { provide: EventBus, useValue: eventBus },
+        {
+          provide: RuleEngineService,
+          useValue: {
+            canCreateReservation: jest.fn().mockResolvedValue({
+              blocked: true,
+              blockingRule: { reason: 'Schedule conflict' },
+              warnings: [],
+            }),
+            evaluateTeacherRules: jest.fn().mockResolvedValue([]),
+          },
+        },
+        {
+          provide: ConfigService,
+          useValue: { get: jest.fn().mockReturnValue('true') },
+        },
+        {
+          provide: SchedulingRulesService,
+          useValue: { findAllActive: jest.fn().mockResolvedValue([]) },
+        },
+      ],
+    }).compile();
+    handler = module.get<CreateReservationHandler>(CreateReservationHandler);
+
     prisma.$transaction.mockImplementation(async (cb: Function) => {
       const tx = {
         student: {
@@ -206,6 +239,7 @@ describe('CreateReservationHandler', () => {
 
     prisma.teacher.findUnique.mockResolvedValue(mockTeacher);
     prisma.student.findUnique.mockResolvedValue(mockStudent);
+    prisma.reservation.findMany.mockResolvedValue([]);
 
     prisma.$transaction.mockImplementation(async (cb: Function) => {
       const tx = {
