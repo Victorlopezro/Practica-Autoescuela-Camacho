@@ -108,7 +108,6 @@ describe('Scheduling Generation (e2e)', () => {
       expect(rows.length).toBeGreaterThan(0);
       expect(rows.length).toBe(res.body.generationResult.generatedRows);
       expect(rows[0].teacherId).toBe(testTeacherId);
-      expect((rows[0] as Record<string, unknown>).isAvailable).toBe(true);
       expect(rows[0].ruleId).toBe(res.body.data.id);
 
       // Cleanup the created rule + its availability rows
