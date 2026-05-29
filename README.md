@@ -79,11 +79,12 @@ Tres roles con portales independientes:
 
 | Capa        | Tecnología                                                |
 | ----------- | --------------------------------------------------------- |
-| Backend     | NestJS 11, TypeScript 5, Prisma 7, PostgreSQL, Passport   |
+| Backend     | NestJS 11, TypeScript 5, Prisma 7, Passport JWT           |
+| Base de datos | **Supabase** (PostgreSQL gestionado)                    |
 | Frontend    | Next.js 16, React 19, Tailwind CSS 4, shadcn/ui, Axios    |
 | Hosting     | **InsForge** (backend compute + frontend deployments)     |
+| IA          | **InsForge AI** (OpenRouter / OpenAI-compatible)          |
 | Pagos (⏳)  | Stripe Checkout + Webhooks (pendiente de implementar)     |
-| IA          | OpenAI-compatible AI para traducción de lenguaje natural  |
 | Testing     | Jest (unit), Vitest (frontend), Storybook, Playwright     |
 | Herramienta | pnpm 11, ESLint, Prettier                                 |
 
