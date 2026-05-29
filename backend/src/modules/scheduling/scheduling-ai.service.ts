@@ -78,7 +78,7 @@ export class SchedulingAiService {
   ) {
     this.apiKey =
       this.config.get<string>('OPENROUTER_API_KEY') ??
-      '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';
+      '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';
   }
 
   async validateSlot(context: ValidationContext): Promise<ValidationResult> {

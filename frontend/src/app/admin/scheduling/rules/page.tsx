@@ -247,6 +247,9 @@ export default function AdminSchedulingRules() {
   /* ── Edit form state ── */
   const [editForm, setEditForm] = useState<UpdateSchedulingRuleDto>({});
 
+  /* Feedback message state */
+  const [feedback, setFeedback] = useState<{ type: 'success' | 'warning' | 'error'; message: string } | null>(null);
+
   /* ── Handlers ── */
 
   const resetCreateForm = useCallback(() => {
@@ -274,7 +277,33 @@ export default function AdminSchedulingRules() {
   }, []);
 
   const handleCreate = useCallback(async () => {
-    await services.schedulingRule.create(createForm);
+    const res = await services.schedulingRule.create(createForm);
+    const rule = res.data;
+    const gen = res.generationResult;
+
+    // Show generation feedback for generation rules
+    if (gen) {
+      if (gen.aiFailed) {
+        setFeedback({
+          type: 'warning',
+          message: `Regla creada, pero la IA de generación falló: ${gen.warnings[0] ?? 'Error desconocido'}. Puedes editar la regla o intentar de nuevo.`,
+        });
+      } else if (gen.generatedRows > 0) {
+        const warningText = gen.warnings.length > 0 ? ` (${gen.warnings.join('. ')})` : '';
+        setFeedback({
+          type: 'success',
+          message: `Regla creada. Se generaron ${gen.generatedRows} bloques de disponibilidad.${warningText}`,
+        });
+      } else if (gen.generatedRows === 0 && !gen.aiFailed) {
+        setFeedback({
+          type: 'warning',
+          message: `Regla creada, pero no se generó disponibilidad. ${gen.warnings.join('. ')}`,
+        });
+      }
+    } else {
+      setFeedback({ type: 'success', message: 'Regla creada correctamente.' });
+    }
+
     resetCreateForm();
     refresh();
   }, [createForm, resetCreateForm, refresh]);
@@ -351,6 +380,31 @@ export default function AdminSchedulingRules() {
               Una vez creadas, el motor de scheduling las evalúa en tiempo real al generar horarios.
             </p>
           </div>
+
+          {/* Feedback banner */}
+          {feedback && (
+            <div
+              className={`flex items-start gap-3 p-4 rounded-xl border ${
+                feedback.type === 'success'
+                  ? 'bg-success-container/20 border-success-container text-success'
+                  : feedback.type === 'warning'
+                    ? 'bg-warning-container/20 border-warning-container text-warning'
+                    : 'bg-error-container/20 border-error-container text-error'
+              }`}
+            >
+              <span className="material-symbols-outlined text-[20px] shrink-0 mt-0.5">
+                {feedback.type === 'success' ? 'check_circle' : feedback.type === 'warning' ? 'warning' : 'error'}
+              </span>
+              <p className="text-sm flex-1">{feedback.message}</p>
+              <button
+                onClick={() => setFeedback(null)}
+                className="text-current/60 hover:text-current shrink-0"
+                aria-label="Cerrar"
+              >
+                <span className="material-symbols-outlined text-[18px]">close</span>
+              </button>
+            </div>
+          )}
 
           {/* Empty state */}
           {rules.length === 0 && (

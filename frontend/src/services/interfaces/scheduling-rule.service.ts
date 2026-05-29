@@ -56,6 +56,23 @@ export interface UpdateSchedulingRuleDto {
   category?: RuleCategory;
 }
 
+export interface GenerationResult {
+  generatedRows: number;
+  skippedItems: number;
+  warnings: string[];
+  aiFailed?: boolean;
+}
+
+export interface CreateSchedulingRuleResponse {
+  data: SchedulingRuleDto;
+  generationResult?: GenerationResult;
+}
+
+export interface UpdateSchedulingRuleResponse {
+  data: SchedulingRuleDto;
+  generationResult?: GenerationResult;
+}
+
 export interface SchedulingRuleQueryDto {
   page?: number;
   limit?: number;
@@ -75,8 +92,8 @@ export interface PaginatedRulesDto {
 export interface ISchedulingRuleService {
   findAll(query: SchedulingRuleQueryDto): Promise<PaginatedRulesDto>;
   findOne(id: string): Promise<SchedulingRuleDto>;
-  create(dto: CreateSchedulingRuleDto): Promise<SchedulingRuleDto>;
-  update(id: string, dto: UpdateSchedulingRuleDto): Promise<SchedulingRuleDto>;
+  create(dto: CreateSchedulingRuleDto): Promise<CreateSchedulingRuleResponse>;
+  update(id: string, dto: UpdateSchedulingRuleDto): Promise<UpdateSchedulingRuleResponse>;
   remove(id: string): Promise<void>;
   translate(id: string): Promise<SchedulingRuleDto>;
   toggle(id: string, enabled: boolean): Promise<SchedulingRuleDto>;
