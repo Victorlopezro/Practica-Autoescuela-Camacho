@@ -18,13 +18,13 @@ describe('ScheduleGenerationService', () => {
   beforeEach(async () => {
     prisma = {
       teacher: {
-        findFirst: jest.fn(),
+        findMany: jest.fn().mockResolvedValue([mockTeacherLuis, mockTeacherMario]),
       },
       teacherAvailability: {
         deleteMany: jest.fn().mockResolvedValue({ count: 0 }),
         createMany: jest.fn().mockResolvedValue({ count: 0 }),
+        findFirst: jest.fn().mockResolvedValue(null), // default: no conflicts
       },
-      $transaction: jest.fn(),
     };
 
     aiService = {
@@ -66,11 +66,6 @@ describe('ScheduleGenerationService', () => {
         ],
       });
 
-      prisma.teacher.findFirst.mockResolvedValue(mockTeacherLuis);
-      prisma.$transaction.mockImplementation(async (cb: Function) =>
-        cb(prisma),
-      );
-
       const result = await service.applyScheduleRule(defaultInput);
 
       expect(result.generatedRows).toBe(5); // 5 weekdays
@@ -79,7 +74,9 @@ describe('ScheduleGenerationService', () => {
       expect(result.aiFailed).toBeUndefined();
       expect(aiService.translateGenerationRule).toHaveBeenCalledWith(
         defaultInput.naturalLanguage,
+        ['Luis López', 'Mario García'],
       );
+      expect(prisma.teacher.findMany).toHaveBeenCalled();
       expect(prisma.teacherAvailability.deleteMany).toHaveBeenCalledWith({
         where: { ruleId: 'rule-1' },
       });
@@ -110,11 +107,6 @@ describe('ScheduleGenerationService', () => {
           },
         ],
       });
-
-      prisma.teacher.findFirst.mockResolvedValue(mockTeacherMario);
-      prisma.$transaction.mockImplementation(async (cb: Function) =>
-        cb(prisma),
-      );
 
       const result = await service.applyScheduleRule({
         ruleId: 'rule-2',
@@ -149,11 +141,6 @@ describe('ScheduleGenerationService', () => {
         schedule: [],
         error: 'Servicio de IA no disponible',
       });
-
-      prisma.teacher.findFirst.mockResolvedValue(mockTeacherLuis);
-      prisma.$transaction.mockImplementation(async (cb: Function) =>
-        cb(prisma),
-      );
 
       const result = await service.applyScheduleRule({
         ruleId: 'rule-3',
@@ -192,17 +179,12 @@ describe('ScheduleGenerationService', () => {
       expect(result.aiFailed).toBe(true);
       expect(result.warnings).toHaveLength(1);
       expect(result.warnings[0]).toContain('AI translation failed');
-      expect(prisma.$transaction).not.toHaveBeenCalled();
+      expect(prisma.teacherAvailability.deleteMany).not.toHaveBeenCalled();
     });
 
     it('should handle AI network error with scheduleData fallback', async () => {
       aiService.translateGenerationRule.mockRejectedValue(
         new Error('Network timeout'),
-      );
-
-      prisma.teacher.findFirst.mockResolvedValue(mockTeacherLuis);
-      prisma.$transaction.mockImplementation(async (cb: Function) =>
-        cb(prisma),
       );
 
       const result = await service.applyScheduleRule({
@@ -237,15 +219,10 @@ describe('ScheduleGenerationService', () => {
       expect(result.generatedRows).toBe(0);
       expect(result.aiFailed).toBe(true);
       expect(result.warnings).toHaveLength(1);
-      expect(prisma.$transaction).not.toHaveBeenCalled();
+      expect(prisma.teacherAvailability.deleteMany).not.toHaveBeenCalled();
     });
 
     it('should create rows from scheduleData only (no AI)', async () => {
-      prisma.teacher.findFirst.mockResolvedValue(mockTeacherLuis);
-      prisma.$transaction.mockImplementation(async (cb: Function) =>
-        cb(prisma),
-      );
-
       const result = await service.applyScheduleRule({
         ruleId: 'rule-7',
         scheduleData: [
@@ -263,6 +240,7 @@ describe('ScheduleGenerationService', () => {
       expect(result.generatedRows).toBe(2);
       expect(result.skippedItems).toBe(0);
       expect(aiService.translateGenerationRule).not.toHaveBeenCalled();
+      expect(prisma.teacher.findMany).toHaveBeenCalled();
       expect(prisma.teacherAvailability.createMany).toHaveBeenCalledWith({
         data: expect.arrayContaining([
           expect.objectContaining({
@@ -292,16 +270,13 @@ describe('ScheduleGenerationService', () => {
         ],
       });
 
-      // Teacher not found
-      prisma.teacher.findFirst.mockResolvedValue(null);
-
       const result = await service.applyScheduleRule(defaultInput);
 
       expect(result.generatedRows).toBe(0);
       expect(result.skippedItems).toBe(1);
       expect(result.warnings).toHaveLength(1);
       expect(result.warnings[0]).toContain('not found');
-      expect(prisma.$transaction).not.toHaveBeenCalled();
+      expect(prisma.teacherAvailability.deleteMany).not.toHaveBeenCalled();
     });
 
     it('should skip only the missing teacher when some exist and some do not', async () => {
@@ -324,14 +299,6 @@ describe('ScheduleGenerationService', () => {
         ],
       });
 
-      prisma.teacher.findFirst
-        .mockResolvedValueOnce(mockTeacherLuis) // Luis found
-        .mockResolvedValueOnce(null); // Unknown not found
-
-      prisma.$transaction.mockImplementation(async (cb: Function) =>
-        cb(prisma),
-      );
-
       const result = await service.applyScheduleRule(defaultInput);
 
       expect(result.generatedRows).toBe(1); // Only Luis row
@@ -350,7 +317,7 @@ describe('ScheduleGenerationService', () => {
       expect(result.warnings[0]).toContain(
         'No naturalLanguage or scheduleData',
       );
-      expect(prisma.$transaction).not.toHaveBeenCalled();
+      expect(prisma.teacherAvailability.deleteMany).not.toHaveBeenCalled();
     });
 
     it('should do nothing when no rows to create after resolving', async () => {
@@ -362,10 +329,10 @@ describe('ScheduleGenerationService', () => {
       const result = await service.applyScheduleRule(defaultInput);
 
       expect(result.generatedRows).toBe(0);
-      expect(prisma.$transaction).not.toHaveBeenCalled();
+      expect(prisma.teacherAvailability.deleteMany).not.toHaveBeenCalled();
     });
 
-    it('should handle unique constraint violation (P2002) gracefully', async () => {
+    it('should skip rows that conflict with existing manual entries', async () => {
       aiService.translateGenerationRule.mockResolvedValue({
         schedule: [
           {
@@ -378,52 +345,36 @@ describe('ScheduleGenerationService', () => {
         ],
       });
 
-      prisma.teacher.findFirst.mockResolvedValue(mockTeacherLuis);
-
-      // Simulate a P2002 error inside the transaction
-      prisma.$transaction.mockImplementation(async (cb: Function) => {
-        const p2002Error = new Prisma.PrismaClientKnownRequestError(
-          'Unique constraint failed on teacher_availability',
-          { code: 'P2002', clientVersion: '7.8.0', meta: { target: ['teacherId', 'dayOfWeek', 'track'] } },
-        );
-        // Simulate the tx object that would throw
-        const mockTx = {
-          teacherAvailability: {
-            deleteMany: jest.fn().mockResolvedValue({ count: 5 }),
-            createMany: jest.fn().mockRejectedValue(p2002Error),
-          },
-        };
-        await cb(mockTx);
-      });
+      // Simulate existing manual row only for dayOfWeek=1
+      prisma.teacherAvailability.findFirst.mockImplementation(
+        (args: { where: { dayOfWeek: number } }) => {
+          if (args.where.dayOfWeek === 1) {
+            return Promise.resolve({
+              id: 'manual-1',
+              teacherId: 'teacher-luis',
+              dayOfWeek: 1,
+              track: null,
+              ruleId: null, // manual
+            });
+          }
+          return Promise.resolve(null);
+        },
+      );
 
       const result = await service.applyScheduleRule(defaultInput);
 
-      expect(result.generatedRows).toBe(0);
+      // Only 4 rows created (Monday skipped)
+      expect(result.generatedRows).toBe(4);
+      expect(result.skippedItems).toBe(1);
       expect(result.warnings).toHaveLength(1);
-      expect(result.warnings[0]).toContain('Conflicto de horarios');
-    });
-
-    it('should re-throw non-P2002 errors from transaction', async () => {
-      aiService.translateGenerationRule.mockResolvedValue({
-        schedule: [
-          {
-            teacher: 'Luis López',
-            daysOfWeek: [1],
-            startTime: '08:00',
-            endTime: '15:00',
-            track: null,
-          },
-        ],
+      expect(result.warnings[0]).toContain('omitido');
+      expect(result.warnings[0]).toContain('manual');
+      // Verify Monday row was NOT in the created batch
+      expect(prisma.teacherAvailability.createMany).toHaveBeenCalledWith({
+        data: expect.not.arrayContaining([
+          expect.objectContaining({ dayOfWeek: 1 }),
+        ]),
       });
-
-      prisma.teacher.findFirst.mockResolvedValue(mockTeacherLuis);
-
-      const genericError = new Error('Database connection lost');
-      prisma.$transaction.mockRejectedValue(genericError);
-
-      await expect(service.applyScheduleRule(defaultInput)).rejects.toThrow(
-        'Database connection lost',
-      );
     });
   });
 

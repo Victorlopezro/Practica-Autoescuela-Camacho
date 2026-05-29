@@ -34,12 +34,21 @@ export class ScheduleGenerationService {
       warnings: [],
     };
 
+    // Fetch all teachers upfront (used for AI prompt + teacher resolution)
+    const allTeachers = await this.prisma.teacher.findMany({
+      select: { id: true, name: true },
+    });
+    const teacherNames = allTeachers.map((t) => t.name);
+
     let schedule: ScheduleGenerationItemDto[] = [];
 
     // Step 1: If naturalLanguage provided, try AI translation
     if (input.naturalLanguage) {
       try {
-        const aiResult = await this.aiService.translateGenerationRule(input.naturalLanguage);
+        const aiResult = await this.aiService.translateGenerationRule(
+          input.naturalLanguage,
+          teacherNames,
+        );
         if (aiResult.error) {
           // AI returned structured error
           if (input.scheduleData) {
@@ -96,7 +105,9 @@ export class ScheduleGenerationService {
       return result;
     }
 
-    // Step 2: Resolve teachers and build rows
+    // Step 2: Resolve teachers and build rows (use cached allTeachers)
+    const teacherMap = new Map(allTeachers.map((t) => [t.name.toLowerCase(), t]));
+
     const rowsToCreate: Array<{
       teacherId: string;
       ruleId: string;
@@ -108,15 +119,10 @@ export class ScheduleGenerationService {
     }> = [];
 
     for (const item of schedule) {
-      // Find teacher by name (try exact match first, then partial/insensitive)
-      const teacher = await this.prisma.teacher.findFirst({
-        where: {
-          OR: [
-            { name: item.teacher },
-            { name: { contains: item.teacher, mode: 'insensitive' } },
-          ],
-        },
-      });
+      const normalized = item.teacher.toLowerCase();
+      const teacher =
+        teacherMap.get(normalized) ??
+        allTeachers.find((t) => t.name.toLowerCase().includes(normalized));
 
       if (!teacher) {
         result.skippedItems++;
@@ -139,37 +145,45 @@ export class ScheduleGenerationService {
       }
     }
 
-    // Step 3: Execute in transaction — delete old rows, create new ones
-    if (rowsToCreate.length > 0) {
-      try {
-        await this.prisma.$transaction(async (tx) => {
-          await tx.teacherAvailability.deleteMany({
-            where: { ruleId: input.ruleId },
-          });
-          await tx.teacherAvailability.createMany({
-            data: rowsToCreate,
-          });
-        });
-      } catch (error) {
-        if (
-          error instanceof Prisma.PrismaClientKnownRequestError &&
-          error.code === 'P2002'
-        ) {
-          this.logger.warn(
-            `Unique constraint violation for rule ${input.ruleId}: ${error.message}`,
-          );
-          result.warnings.push(
-            'Conflicto de horarios: algunos bloques coinciden con disponibilidad existente del mismo profesor, día y pista. ' +
-              'La transacción se ha revertido — los datos anteriores se conservan. Revisa la regla o ajusta los horarios manualmente.',
-          );
-          result.generatedRows = 0;
-          return result;
-        }
-        throw error;
+    // Step 3: Check for conflicts with manual entries (ruleId: null) — skip those
+    const nonConflictingRows: typeof rowsToCreate = [];
+    let skippedByConflict = 0;
+
+    for (const row of rowsToCreate) {
+      const existingManual = await this.prisma.teacherAvailability.findFirst({
+        where: {
+          teacherId: row.teacherId,
+          dayOfWeek: row.dayOfWeek,
+          track: row.track,
+          ruleId: null,
+        },
+      });
+
+      if (existingManual) {
+        skippedByConflict++;
+      } else {
+        nonConflictingRows.push(row);
       }
     }
 
-    result.generatedRows = rowsToCreate.length;
+    // Step 4: Delete old rule rows and create new ones
+    if (nonConflictingRows.length > 0) {
+      await this.prisma.teacherAvailability.deleteMany({
+        where: { ruleId: input.ruleId },
+      });
+      await this.prisma.teacherAvailability.createMany({
+        data: nonConflictingRows,
+      });
+    }
+
+    if (skippedByConflict > 0) {
+      result.skippedItems += skippedByConflict;
+      result.warnings.push(
+        `${skippedByConflict} bloque(s) omitido(s) porque ya existe disponibilidad manual para ese profesor, día y pista. Los cambios manuales tienen prioridad sobre las reglas.`,
+      );
+    }
+
+    result.generatedRows = nonConflictingRows.length;
     return result;
   }
 

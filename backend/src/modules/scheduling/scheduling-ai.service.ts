@@ -317,7 +317,12 @@ IMPORTANTE: usa el nombre COMPLETO del profesor (nombre y apellido) cuando sea p
 
   async translateGenerationRule(
     naturalLanguage: string,
+    teacherNames?: string[],
   ): Promise<AiGenerationTranslationResult> {
+    const teacherList = teacherNames?.length
+      ? `\nProfesores disponibles: [${teacherNames.map((n) => `"${n}"`).join(', ')}]\n\nSi el texto dice "todos los profesores", "todo el mundo", "toda la plantilla", "todos", u otra expresión que indique que aplica a TODOS los profesores, genera items para CADA UNO de los profesores disponibles listados arriba.`
+      : '';
+
     const systemPrompt = `Eres un asistente que extrae información de horarios de profesores de autoescuela a partir de texto en lenguaje natural.
 
 Extrae los siguientes datos y devuelve SOLO un JSON válido sin markdown ni explicaciones:
@@ -343,7 +348,7 @@ Reglas:
 - track es opcional: si menciona "pista", "circuito", "maniobras" → "pista"; si menciona "circulación", "calle" → "circulacion"
 - Si el texto menciona "todos los tracks" o no especifica, track debe ser null
 - startTime y endTime en formato HH:mm (24h)
-- Resuelve nombres de profesores completos: si el texto dice "Luis", devuelve "Luis López"; si dice "Mario", "Mario García"; etc.
+- Resuelve nombres de profesores completos: si el texto dice "Luis", devuelve "Luis López"; si dice "Mario", "Mario García"; etc.${teacherList}
 - action: SOLO incluye "doubleBooking" si el texto menciona EXPLÍCITAMENTE "doble sesión", "clases dobles", "sesión doble", "doble". Si el texto solo habla del horario normal del profesor, NO incluyas action.
 - Si no puedes determinar algún campo obligatorio, devuelve error en "error" con descripción`;
 
