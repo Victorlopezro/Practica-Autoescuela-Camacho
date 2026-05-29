@@ -47,9 +47,10 @@ Estos son los datos que el sistema conoce y sobre los que se pueden escribir reg
 | `teacher.doubleSession` | booleano | Si el profesor tiene doble sesión activada | _"Bloquear doble sesión para este profe"_ |
 | `student.licenseType` | texto | Carnet del alumno (A1, A2, AM, B, etc.) | _"Solo B puede usar el coche"_ |
 | `student.remainingClasses` | número | Clases que le quedan al alumno | _"Advertir si quedan menos de 3 clases"_ |
-| `overlappingLicenseTypes` | array | Carnets de los alumnos que ya ocupan ese slot | _"Permitir A1 si el que ya está es A2"_ |
-| `overlappingCount` | número | Cuántos alumnos ya tienen ese horario | _"Máximo 2 alumnos por horario"_ |
-| `isDeadlinePassed` | booleano | Si pasó el plazo de reserva (día anterior a las 18:00) | _"No reservar si pasó el plazo"_ |
+ | `overlappingLicenseTypes` | array | Carnets de los alumnos que ya ocupan ese slot | _"Permitir A1 si el que ya está es A2"_ |
+ | `overlappingVehicleTypes` | array | Tipos de vehículo de las reservas solapadas | _"No permitir dos motos en mismo horario"_ |
+ | `overlappingCount` | número | Cuántos alumnos ya tienen ese horario | _"Máximo 2 alumnos por horario"_ |
+ | `isDeadlinePassed` | booleano | Si pasó el plazo de reserva (día anterior a las 18:00) | _"No reservar si pasó el plazo"_ |
 
 ## Operadores
 
@@ -177,6 +178,22 @@ con un alumno que tenga carnet A2"
 | 50 | Incremento de cuadrícula | warn | Si al alumno le quedan ≤3 clases, avisar |
 | 60 | Restricción doble sesión | warn | Si al alumno le quedan >5 clases y dura 90min, avisar |
 | 100 | Bloquear solapamientos no permitidos | block | Si hay solapamiento y ninguna allow coincidió, bloquear |
+
+---
+
+## 🔧 Field Registry (para desarrolladores)
+
+El sistema usa un **Field Registry** como fuente única de verdad para los campos disponibles. Está definido en `rule-engine.service.ts`.
+
+Cuando se agrega un campo nuevo:
+
+1. Se añade una entrada al `FIELD_REGISTRY` con nombre, descripción, tipo y ejemplos
+2. Se agrega el campo al `RuleContext` (TypeScript)
+3. Se añade un resolver en el mapa del constructor
+4. ✅ El prompt de la IA se genera automáticamente
+5. ✅ La validación funciona sin cambios adicionales
+
+Esto permite que el sistema sea **extensible sin tocar prompts ni switch statements**.
 
 ---
 

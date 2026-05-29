@@ -1,5 +1,6 @@
 import { Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { generateFieldPromptSection } from './rule-engine.service';
 import { PrismaService } from '../../common/services/prisma.service';
 
 interface ValidationContext {
@@ -198,7 +199,9 @@ INTERPRETACION DE TERMINOS (IMPORTANTE):
 - "permitir", "se puede", "excepcion", "si hay clase" -> PERMITIR (onMatch: "allow")
 - El ano actual es 2026
 
-Campos permitidos para "field": student.licenseType, student.remainingClasses, teacher.doubleSession, vehicleType, time, duration, dayOfWeek, date, overlap
+Campos permitidos para "field" (definidos en el Field Registry):
+
+${generateFieldPromptSection()}
 
 IMPORTANTE — Diferencia entre dayOfWeek y date:
 - dayOfWeek: DÍA DE LA SEMANA (0=Domingo, 1=Lunes, ..., 6=Sábado). Se usa con operadores numéricos: eq, neq, lt, gt, in. El VALOR debe ser un NÚMERO (ej: 0, 1, 5) o array de números para "in".

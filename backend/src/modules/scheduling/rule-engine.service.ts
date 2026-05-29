@@ -27,6 +27,119 @@ export interface RuleCondition {
   value: unknown;
 }
 
+// ──────────────────────────────────────────────
+//  Field Registry — single source of truth
+// ──────────────────────────────────────────────
+
+export interface FieldDefinition {
+  name: string;
+  description: string;
+  type: 'string' | 'number' | 'string[]';
+  /** Enum values (if applicable) */
+  values?: string[];
+  /** Example conditions for the AI prompt */
+  examples: string[];
+}
+
+export const FIELD_REGISTRY: FieldDefinition[] = [
+  {
+    name: 'vehicleType',
+    description: 'Tipo de vehículo de la reserva',
+    type: 'string',
+    values: ['coche-manual', 'coche-automatico', 'moto-pista', 'moto-circulacion'],
+    examples: ['eq "coche-manual"', 'neq "moto-pista"', 'in ["coche-manual", "coche-automatico"]'],
+  },
+  {
+    name: 'time',
+    description: 'Hora de inicio de la reserva (formato HH:mm)',
+    type: 'string',
+    examples: [
+      'gte "14:00" (desde las 14:00)',
+      'lte "09:00" (hasta las 09:00)',
+      'in ["09:00-14:00", "16:00-20:00"] (rangos horarios como franjas)',
+      'notIn ["09:00-14:00"] (fuera de ese rango)',
+    ],
+  },
+  {
+    name: 'dayOfWeek',
+    description: 'Día de la semana (0=Domingo, 1=Lunes... 6=Sábado)',
+    type: 'number',
+    examples: ['eq 6 (sábados)', 'in [0, 6] (findes)', 'neq 0 (excepto domingos)'],
+  },
+  {
+    name: 'date',
+    description: 'Fecha específica en formato ISO YYYY-MM-DD',
+    type: 'string',
+    examples: [
+      'eq "2026-12-25" (Navidad)',
+      'gte "2026-08-01" (desde agosto)',
+      'lte "2026-08-31" (hasta agosto)',
+    ],
+  },
+  {
+    name: 'duration',
+    description: 'Duración de la clase en minutos',
+    type: 'number',
+    examples: ['gt 60 (más de 1 hora)', 'lte 90 (90 min o menos)'],
+  },
+  {
+    name: 'student.licenseType',
+    description: 'Tipo de carnet del alumno',
+    type: 'string',
+    values: ['AM', 'A1', 'A2', 'B', 'B-automatico'],
+    examples: ['eq "A2"', 'neq "B"', 'in ["A1", "A2"]'],
+  },
+  {
+    name: 'student.remainingClasses',
+    description: 'Clases restantes del alumno',
+    type: 'number',
+    examples: ['lt 3 (menos de 3 clases)', 'gte 5 (5 o más clases)'],
+  },
+  {
+    name: 'teacher.doubleSession',
+    description: 'Si el profesor ya tiene una sesión doble programada',
+    type: 'string',
+    values: ['true', 'false'],
+    examples: ['eq true (cuando ya tiene doble sesión)', 'eq false (cuando no)'],
+  },
+  {
+    name: 'overlappingLicenseTypes',
+    description: 'Tipos de carnet de los alumnos en reservas solapadas',
+    type: 'string[]',
+    examples: ['contains "A1" (si hay solapamiento con A1)'],
+  },
+  {
+    name: 'overlappingVehicleTypes',
+    description: 'Tipos de vehículo de las reservas solapadas',
+    type: 'string[]',
+    examples: ['contains "moto-pista" (si hay solapamiento con motos)'],
+  },
+  {
+    name: 'overlappingCount',
+    description: 'Número de reservas solapadas existentes',
+    type: 'number',
+    examples: ['gte 1 (hay al menos 1 solapamiento)', 'gt 3 (más de 3 solapamientos)'],
+  },
+  {
+    name: 'isDeadlinePassed',
+    description: 'Si ya pasó la hora límite para cancelar/clases (día anterior a las 18:00)',
+    type: 'string',
+    values: ['true', 'false'],
+    examples: ['eq true (cuando ya pasó el plazo)'],
+  },
+];
+
+/**
+ * Generate the "Campos permitidos" section for the AI prompt.
+ */
+export function generateFieldPromptSection(): string {
+  return FIELD_REGISTRY.map((f) => {
+    const values = f.values ? ` Valores: ${f.values.join(', ')}.` : '';
+    const examples = f.examples.map((e) => `  ✅ { "field": "${f.name}", "operator": ..., "value": ... } — ej: ${e}`).join('\n');
+    return `- ${f.name}: ${f.description}. Tipo: ${f.type}.${values}\n${examples}`;
+  }).join('\n\n');
+}
+
 export interface StructuredRuleData {
   conditions: RuleCondition[];
   logic?: 'all' | 'any';
@@ -89,13 +202,32 @@ export class RuleEngineService implements OnModuleInit {
   /** When true, cachedRules will be reloaded on next evaluate call */
   private cacheInvalidated = true;
 
+  /** Resolver map built from FIELD_REGISTRY — maps field name → resolver fn */
+  private readonly fieldResolvers: Map<string, (ctx: RuleContext) => unknown>;
+
   constructor(
     private readonly prisma: PrismaService,
     private readonly eventBus: EventBus,
     private readonly configService: ConfigService,
     @Inject(forwardRef(() => SchedulingRulesService))
     private readonly schedulingRulesService: SchedulingRulesService,
-  ) {}
+  ) {
+    const resolvers: Array<[string, (ctx: RuleContext) => unknown]> = [
+      ['vehicleType', (ctx) => ctx.vehicleType],
+      ['time', (ctx) => this.timeToMinutes(ctx.startTime)],
+      ['date', (ctx) => ctx.date],
+      ['dayOfWeek', (ctx) => new Date(ctx.date).getDay()],
+      ['duration', (ctx) => ctx.duration],
+      ['teacher.doubleSession', (ctx) => ctx.doubleSession],
+      ['student.licenseType', (ctx) => ctx.student?.licenseType],
+      ['student.remainingClasses', (ctx) => ctx.student?.remainingClasses],
+      ['overlappingLicenseTypes', (ctx) => ctx.overlappingLicenseTypes],
+      ['overlappingVehicleTypes', (ctx) => ctx.overlappingVehicleTypes],
+      ['overlappingCount', (ctx) => ctx.overlappingCount],
+      ['isDeadlinePassed', (ctx) => this.resolveIsDeadlinePassed(ctx)],
+    ];
+    this.fieldResolvers = new Map(resolvers);
+  }
 
   onModuleInit(): void {
     // Subscribe to RuleChangedEvent to invalidate cache
@@ -335,60 +467,27 @@ export class RuleEngineService implements OnModuleInit {
   }
 
   private resolveFieldValue(field: string, context: RuleContext): unknown {
-    switch (field) {
-      case 'vehicleType':
-        return context.vehicleType;
-
-      case 'time':
-        // Parse startTime "HH:mm" → total minutes for comparison
-        return this.timeToMinutes(context.startTime);
-
-      case 'date':
-        return context.date; // ISO date string "2026-05-23"
-
-      case 'dayOfWeek':
-        return new Date(context.date).getDay(); // 0=Sunday, 6=Saturday
-
-      case 'duration':
-        return context.duration;
-
-      case 'teacher.doubleSession':
-        return context.doubleSession;
-
-      case 'student.licenseType':
-        return context.student?.licenseType;
-
-      case 'student.remainingClasses':
-        return context.student?.remainingClasses;
-
-      case 'overlappingLicenseTypes':
-        return context.overlappingLicenseTypes;
-
-      case 'overlappingVehicleTypes':
-        return context.overlappingVehicleTypes;
-
-      case 'overlappingCount':
-        return context.overlappingCount;
-
-      case 'isDeadlinePassed': {
-        // Deadline = slot date - 1 day at BOOKING_DEADLINE_HOUR (default 18)
-        // The server runs in UTC; adjust BOOKING_DEADLINE_HOUR for your timezone.
-        // Example: Spain CEST (UTC+2) → 16 = 18:00 Spain time
-        const [h, m] = context.startTime.split(':').map(Number);
-        const slotDate = new Date(context.date + 'T00:00:00.000Z');
-        slotDate.setHours(0, h * 60 + m, 0, 0);
-        const deadline = new Date(slotDate);
-        deadline.setDate(deadline.getDate() - 1);
-        const cutoffHour =
-          Number(this.configService.get<number>('BOOKING_DEADLINE_HOUR')) || 18;
-        deadline.setHours(cutoffHour, 0, 0, 0);
-        return new Date() > deadline;
-      }
-
-      default:
-        this.logger.warn(`Unknown rule field: ${field}`);
-        return undefined;
+    const resolver = this.fieldResolvers.get(field);
+    if (!resolver) {
+      this.logger.warn(`Unknown rule field: ${field}`);
+      return undefined;
     }
+    return resolver(context);
+  }
+
+  private resolveIsDeadlinePassed(context: RuleContext): boolean {
+    // Deadline = slot date - 1 day at BOOKING_DEADLINE_HOUR (default 18)
+    // The server runs in UTC; adjust BOOKING_DEADLINE_HOUR for your timezone.
+    // Example: Spain CEST (UTC+2) → 16 = 18:00 Spain time
+    const [h, m] = context.startTime.split(':').map(Number);
+    const slotDate = new Date(context.date + 'T00:00:00.000Z');
+    slotDate.setHours(0, h * 60 + m, 0, 0);
+    const deadline = new Date(slotDate);
+    deadline.setDate(deadline.getDate() - 1);
+    const cutoffHour =
+      Number(this.configService.get<number>('BOOKING_DEADLINE_HOUR')) || 18;
+    deadline.setHours(cutoffHour, 0, 0, 0);
+    return new Date() > deadline;
   }
 
   private evaluateIn(resolvedValue: unknown, value: unknown): boolean {
