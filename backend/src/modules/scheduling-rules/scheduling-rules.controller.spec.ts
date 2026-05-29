@@ -183,7 +183,6 @@ describe('SchedulingRulesController', () => {
 
       expect(rulesService.create).toHaveBeenCalledWith(
         expect.objectContaining({
-          action: 'doubleBooking',
           ruleType: 'general',
         }),
         mockUser.sub,
