@@ -323,37 +323,60 @@ IMPORTANTE: usa el nombre COMPLETO del profesor (nombre y apellido) cuando sea p
     teacherNames?: string[],
   ): Promise<AiGenerationTranslationResult> {
     const teacherList = teacherNames?.length
-      ? `\nProfesores disponibles: [${teacherNames.map((n) => `"${n}"`).join(', ')}]\n\nSi el texto dice "todos los profesores", "todo el mundo", "toda la plantilla", "todos", u otra expresión que indique que TODOS los profesores, usa el valor exacto "ALL" en el campo teacher.`
+      ? `\n\nProfesores disponibles en el sistema: [${teacherNames.map((n) => `"${n}"`).join(', ')}]`
       : '';
 
     const systemPrompt = `Eres un asistente que extrae información de horarios de profesores de autoescuela a partir de texto en lenguaje natural.
 
-Extrae los siguientes datos y devuelve SOLO un JSON válido sin markdown ni explicaciones:
+Extrae los siguientes datos y devuelve SOLO un JSON válido sin markdown ni explicaciones.
+
+ADVERTENCIA CRÍTICA: El campo "teacher" NUNCA debe contener el texto literal "Nombre completo del profesor". Eso es solo un placeholder de ejemplo. Los únicos valores válidos son "ALL" (para todos los profesores) o el nombre real de un profesor.
 
 {
   "schedule": [
     {
-      "teacher": "Nombre completo del profesor",
-      "daysOfWeek": [1,2,3,4,5],  // 0=domingo, 1=lunes... 6=sábado
-      "startTime": "08:00",
+      "teacher": "ALL",
+      "daysOfWeek": [1,2,3,4,5],
+      "startTime": "09:00",
       "endTime": "15:00",
-      "track": "pista"  // opcional: "pista", "circulacion", null si no se especifica
+      "track": null
     }
-  ],
-  "action": "doubleBooking"  // SOLO si el texto menciona "doble sesión", "clases dobles", "double", "clases de 90 min". Si NO menciona nada de esto, NO incluyas el campo action.
+  ]
 }
 
-Reglas:
-- Si el texto menciona "lunes a viernes" o "entre semana", usa [1,2,3,4,5]
-- Si menciona "finde" o "fin de semana", usa [0,6]
-- Si menciona días específicos, usa solo esos días
-- Si no se especifican días, asume lunes a viernes [1,2,3,4,5]
-- track es opcional: si menciona "pista", "circuito", "maniobras" → "pista"; si menciona "circulación", "calle" → "circulacion"
-- Si el texto menciona "todos los tracks" o no especifica, track debe ser null
-- startTime y endTime en formato HH:mm (24h)
-- Resuelve nombres de profesores completos: si el texto dice "Luis", devuelve "Luis López"; si dice "Mario", "Mario García"; etc.${teacherList}
-- action: SOLO incluye "doubleBooking" si el texto menciona EXPLÍCITAMENTE "doble sesión", "clases dobles", "sesión doble", "doble". Si el texto solo habla del horario normal del profesor, NO incluyas action.
-- Si no puedes determinar algún campo obligatorio, devuelve error en "error" con descripción`;
+--- REGLAS ESTRICTAS (en orden de prioridad) ---
+
+1. CAMPO "teacher" — LOS ÚNICOS VALORES VÁLIDOS SON:
+   a) "ALL" — si el texto menciona "todos los profesores", "todo el mundo", "toda la plantilla", "todos", "todos los instructores", o cualquier expresión que indique a TODOS
+   b) El nombre REAL de un profesor específico, ej: "Luis López", "Mario García"
+   c) NUNCA uses "Nombre completo del profesor", "nombre", "profesor", o cualquier placeholder
+
+2. CAMPO "daysOfWeek":
+   - "lunes a viernes" o "entre semana" → [1,2,3,4,5]
+   - "finde" o "fin de semana" → [0,6]
+   - Días específicos → solo esos días
+   - Si no se especifican → [1,2,3,4,5] (lunes a viernes por defecto)
+
+3. CAMPO "track":
+   - "pista", "circuito", "maniobras" → "pista"
+   - "circulación", "calle" → "circulacion"
+   - "todos los tracks" o no especifica → null
+
+4. CAMPO "action" (OPCIONAL):
+   - Incluye "doubleBooking" SOLO si el texto menciona EXPLÍCITAMENTE "doble sesión", "clases dobles", "sesión doble", "doble".
+   - Si el texto solo habla del horario normal, NO incluyas action.
+
+5. FORMATO:
+   - startTime y endTime en HH:mm (24h)
+   - Si no puedes generar un schedule válido, devuelve: { "schedule": [], "error": "descripción del problema en español" }
+   - CASO ESPECIAL: si "todos los profesores" y no hay profesores disponibles en la lista, devuelve error indicando que no hay profesores registrados.${teacherList}
+
+--- EJEMPLOS ---
+✅ "Todos los profesores trabajan de 9 a 15 de lunes a viernes" → {"schedule":[{"teacher":"ALL","daysOfWeek":[1,2,3,4,5],"startTime":"09:00","endTime":"15:00","track":null}]}
+✅ "El horario laboral es de 9 a 15 para todos" → {"schedule":[{"teacher":"ALL","daysOfWeek":[1,2,3,4,5],"startTime":"09:00","endTime":"15:00","track":null}]}
+✅ "Luis da clases de pista los lunes y miércoles de 8 a 12" → {"schedule":[{"teacher":"Luis López","daysOfWeek":[1,3],"startTime":"08:00","endTime":"12:00","track":"pista"}]}
+❌ "Juan no trabaja los sábados" → ERROR: es una regla de bloqueo, no de generación. No se puede generar disponibilidad.
+❌ {"teacher": "Nombre completo del profesor"} → PROHIBIDO. NUNCA uses este valor literal.`;
 
     const userPrompt = `Texto del usuario: "${naturalLanguage}"`;
 
@@ -408,12 +431,34 @@ Reglas:
         };
       }
 
-      // Validate each item
+      // Validate each item + sanitize placeholders
+      const placeholderPatterns = [
+        'nombre completo',
+        'nombre del profesor',
+        'teacher name',
+        'full name',
+        'nombre del',
+        'profesor',
+      ];
+
       for (const item of parsed.schedule) {
         if (!item.teacher || !Array.isArray(item.daysOfWeek) || !item.startTime || !item.endTime) {
           return {
             schedule: [],
             error: 'La respuesta de IA contiene campos incompletos',
+          };
+        }
+
+        // Sanitize: detect placeholder values the AI might return instead of "ALL" or real names
+        const teacherLower = item.teacher.toLowerCase().trim();
+        const isPlaceholder = placeholderPatterns.some((p) => teacherLower.includes(p));
+        if (isPlaceholder) {
+          this.logger.warn(
+            `AI returned placeholder teacher "${item.teacher}" — rejecting generation`,
+          );
+          return {
+            schedule: [],
+            error: `La IA devolvió un placeholder ("${item.teacher}") en vez de "ALL" o un nombre real. Intentá de nuevo.`,
           };
         }
       }
