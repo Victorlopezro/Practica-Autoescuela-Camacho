@@ -49,14 +49,18 @@ Tres roles con portales independientes:
 - Sistema de **primera aplicación**: en la primera ejecución, se limpian los datos legacy; en ejecuciones posteriores, se respetan los ajustes manuales.
 - Detección automática de doble sesión desde lenguaje natural.
 
-### Pagos (Stripe)
+### Pagos (Stripe) ⏳ Pendiente
+
+> **Importante**: La integración con Stripe está planificada pero **aún no implementada**. El backend tiene los endpoints y modelos listos; el frontend usa datos mock.
 
 - Integración con Stripe Checkout.
 - Sesiones de pago para clases sueltas o paquetes.
 - Webhook de confirmación.
 - Reembolsos asociados a cancelaciones.
 
-### Notificaciones
+### Notificaciones (WhatsApp) ⏳ Pendiente
+
+> **Importante**: El sistema de notificaciones por WhatsApp está planificado pero **aún no implementado**. Existe el modelo de datos y un servicio mock; la integración real con WhatsApp Business API queda pendiente.
 
 - Canal **WhatsApp** para recordatorios y cambios de estado.
 - Plantillas configurables.
@@ -77,7 +81,7 @@ Tres roles con portales independientes:
 | ---------- | -------------------------------------------------------- |
 | Backend    | NestJS 11, TypeScript 5, Prisma 7, PostgreSQL, Passport   |
 | Frontend   | Next.js 16, React 19, Tailwind CSS 4, shadcn/ui, Axios   |
-| Pagos      | Stripe Checkout + Webhooks                                |
+| Pagos (⏳) | Stripe Checkout + Webhooks (pendiente de implementar)     |
 | IA         | OpenAI-compatible AI para traducción de lenguaje natural  |
 | Testing    | Jest (unit), Vitest (frontend), Storybook, Playwright     |
 | Herramienta| pnpm 11, ESLint, Prettier                                 |
@@ -151,10 +155,10 @@ El backend arranca en `http://localhost:3000`.
 | `DATABASE_URL`         | Conexión a PostgreSQL                          |
 | `JWT_ACCESS_SECRET`    | Secreto para tokens de acceso                  |
 | `JWT_REFRESH_SECRET`   | Secreto para refresh tokens                    |
-| `STRIPE_SECRET_KEY`    | Clave secreta de Stripe (sk_test_...)          |
-| `STRIPE_WEBHOOK_SECRET`| Secreto del webhook de Stripe                  |
-| `WHATSAPP_PHONE_ID`    | ID del teléfono de WhatsApp Business API       |
-| `WHATSAPP_TOKEN`       | Token de acceso de WhatsApp                    |
+| `STRIPE_SECRET_KEY`    | Clave secreta de Stripe (sk_test_...) — ⏳ pendiente de implementar |
+| `STRIPE_WEBHOOK_SECRET`| Secreto del webhook de Stripe — ⏳ pendiente de implementar         |
+| `WHATSAPP_PHONE_ID`    | ID del teléfono de WhatsApp Business API — ⏳ pendiente de implementar |
+| `WHATSAPP_TOKEN`       | Token de acceso de WhatsApp — ⏳ pendiente de implementar           |
 
 ### 3. Frontend
 
@@ -209,9 +213,10 @@ El proyecto está preparado para desplegarse en **Railway** (backend) y **Vercel
 El `Procfile` en la raíz usa `pnpm start:prod`. Variables de entorno requeridas:
 
 ```
-DATABASE_URL, JWT_ACCESS_SECRET, JWT_REFRESH_SECRET,
-CORS_ORIGIN, STRIPE_SECRET_KEY, STRIPE_WEBHOOK_SECRET
+DATABASE_URL, JWT_ACCESS_SECRET, JWT_REFRESH_SECRET, CORS_ORIGIN
 ```
+
+> Las variables `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `WHATSAPP_PHONE_ID` y `WHATSAPP_TOKEN` están definidas en el esquema pero **aún no son funcionales** — se añadirán cuando se implementen esos módulos.
 
 ### Frontend (Vercel)
 
