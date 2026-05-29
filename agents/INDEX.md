@@ -57,8 +57,9 @@
 | `agents/BOUNDARIES.md` | Límites de actuación |
 | `agents/WORKFLOW.md` | Flujo de trabajo |
 | `agents/PRIORITIES.md` | Prioridades de actuación |
-| `docs/agents/ARCHITECTURE.md` | Arquitectura del sistema |
-| `docs/agents/INDEX.md` | Este índice |
+| `agents/TECH-ARCHITECTURE.md` | Arquitectura del ecosistema técnico (agentes vs skills) |
+| `agents/AGENT-SYSTEM-ARCHITECTURE.md` | Arquitectura del sistema de agentes y coordinación |
+| `agents/INDEX.md` | Este índice |
 
 ## Convenciones
 
