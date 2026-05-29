@@ -21,7 +21,7 @@ interface AuthContextType {
   user: AuthUser | null;
   isLoading: boolean;
   isAuthenticated: boolean;
-  login: (username: string, password: string) => Promise<void>;
+  login: (username: string, password: string) => Promise<AuthUser>;
   logout: () => Promise<void>;
 }
 
@@ -59,6 +59,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     const { data } = await apiClient.post('/auth/login', { username, password });
     tokenStorage.setTokens(data.accessToken, data.refreshToken);
     setUser(data.user);
+    return data.user as AuthUser;
   }, []);
 
   const logout = useCallback(async () => {

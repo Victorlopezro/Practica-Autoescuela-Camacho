@@ -496,7 +496,7 @@ export default function AdminSchedulingRules() {
                 </div>
                 <p className="text-xs text-on-surface-variant mt-1">
                   {createForm.category === 'generation'
-                    ? 'Las reglas de generación definen cómo se crean los slots (ej: doble sesión automática). No usan traducción IA.'
+                    ? 'Las reglas de generación definen cómo se crean los slots de horario base del profesor. El texto en lenguaje natural se traduce automáticamente mediante IA para generar la disponibilidad.'
                     : 'Las reglas de evaluación definen qué slots se bloquean, permiten o advierten.'}
                 </p>
               </div>
@@ -545,7 +545,7 @@ export default function AdminSchedulingRules() {
                     placeholder="Ej: Generar doble sesión automática para Juan Pérez"
                   />
                   <p className="text-xs text-on-surface-variant mt-1">
-                    Opcional — las reglas de generación no requieren traducción IA.
+                    El texto se usará para generar automáticamente los horarios del profesor mediante IA.
                   </p>
                 </div>
               )}

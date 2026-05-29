@@ -5,12 +5,16 @@ import {
   IsInt,
   IsBoolean,
   IsIn,
+  IsArray,
   Min,
   MinLength,
   MaxLength,
   IsObject,
+  ValidateNested,
 } from 'class-validator';
+import { Type } from 'class-transformer';
 import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
+import { ScheduleGenerationItemDto } from './schedule-generation-item.dto';
 
 export const RULE_TYPES = [
   'availability',
@@ -116,4 +120,14 @@ export class CreateSchedulingRuleDto {
   @IsOptional()
   @IsIn(['evaluation', 'generation'])
   category?: string;
+
+  @ApiPropertyOptional({
+    description: 'Schedule generation data (used for generation-category rules)',
+    type: [ScheduleGenerationItemDto],
+  })
+  @IsOptional()
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => ScheduleGenerationItemDto)
+  scheduleData?: ScheduleGenerationItemDto[];
 }

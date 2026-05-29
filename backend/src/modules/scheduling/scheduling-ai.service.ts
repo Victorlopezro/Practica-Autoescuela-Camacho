@@ -54,6 +54,19 @@ export interface StructuredRuleError {
 
 export type StructuredRuleResult = StructuredRuleSuccess | StructuredRuleError;
 
+export interface AiGenerationScheduleItem {
+  teacher: string;
+  daysOfWeek: number[];
+  startTime: string;
+  endTime: string;
+  track?: string | null;
+}
+
+export interface AiGenerationTranslationResult {
+  schedule: AiGenerationScheduleItem[];
+  error?: string;
+}
+
 @Injectable()
 export class SchedulingAiService {
   private readonly logger = new Logger(SchedulingAiService.name);
@@ -293,6 +306,113 @@ IMPORTANTE: usa el nombre COMPLETO del profesor (nombre y apellido) cuando sea p
       return {
         success: false,
         error: 'Error al traducir la regla con IA. Inténtalo de nuevo.',
+      };
+    }
+  }
+
+  // ──────────────────────────────────────────────
+  //  Generation Rule Translation (NL → schedule data)
+  // ──────────────────────────────────────────────
+
+  async translateGenerationRule(
+    naturalLanguage: string,
+  ): Promise<AiGenerationTranslationResult> {
+    const systemPrompt = `Eres un asistente que extrae información de horarios de profesores de autoescuela a partir de texto en lenguaje natural.
+
+Extrae los siguientes datos y devuelve SOLO un JSON válido sin markdown ni explicaciones:
+
+{
+  "schedule": [
+    {
+      "teacher": "Nombre completo del profesor",
+      "daysOfWeek": [1,2,3,4,5],  // 0=domingo, 1=lunes... 6=sábado
+      "startTime": "08:00",
+      "endTime": "15:00",
+      "track": "pista"  // opcional: "pista", "circulacion", null si no se especifica
+    }
+  ]
+}
+
+Reglas:
+- Si el texto menciona "lunes a viernes" o "entre semana", usa [1,2,3,4,5]
+- Si menciona "finde" o "fin de semana", usa [0,6]
+- Si menciona días específicos, usa solo esos días
+- Si no se especifican días, asume lunes a viernes [1,2,3,4,5]
+- track es opcional: si menciona "pista", "circuito", "maniobras" → "pista"; si menciona "circulación", "calle" → "circulacion"
+- Si el texto menciona "todos los tracks" o no especifica, track debe ser null
+- startTime y endTime en formato HH:mm (24h)
+- Resuelve nombres de profesores completos: si el texto dice "Luis", devuelve "Luis López"; si dice "Mario", "Mario García"; etc.
+- Si no puedes determinar algún campo obligatorio, devuelve error en "error" con descripción`;
+
+    const userPrompt = `Texto del usuario: "${naturalLanguage}"`;
+
+    try {
+      const response = await fetch(
+        'https://openrouter.ai/api/v1/chat/completions',
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            Authorization: `Bearer ${this.apiKey}`,
+            'HTTP-Referer': 'https://autoescuela-camacho.app',
+          },
+          body: JSON.stringify({
+            model: 'openai/gpt-4o-mini',
+            messages: [
+              { role: 'system', content: systemPrompt },
+              { role: 'user', content: userPrompt },
+            ],
+            temperature: 0.1,
+            max_tokens: 500,
+          }),
+        },
+      );
+
+      if (!response.ok) {
+        const text = await response.text();
+        this.logger.warn(
+          `AI generation translation failed: ${response.status} ${text}`,
+        );
+        return {
+          schedule: [],
+          error: `Error del servicio de IA: ${response.status}`,
+        };
+      }
+
+      const data = await response.json();
+      const content = String(data.choices?.[0]?.message?.content ?? '');
+
+      const cleaned = content
+        .replace(/```json?\s*/gi, '')
+        .replace(/```/g, '')
+        .trim();
+
+      const parsed = JSON.parse(cleaned) as AiGenerationTranslationResult;
+
+      // Basic structure validation
+      if (!Array.isArray(parsed.schedule)) {
+        return {
+          schedule: [],
+          error: 'La respuesta de IA no contiene un array schedule válido',
+        };
+      }
+
+      // Validate each item
+      for (const item of parsed.schedule) {
+        if (!item.teacher || !Array.isArray(item.daysOfWeek) || !item.startTime || !item.endTime) {
+          return {
+            schedule: [],
+            error: 'La respuesta de IA contiene campos incompletos',
+          };
+        }
+      }
+
+      return parsed;
+    } catch (error) {
+      this.logger.error(`AI generation translation error: ${error}`);
+      return {
+        schedule: [],
+        error: 'Error al traducir la regla de generación con IA. Inténtalo de nuevo.',
       };
     }
   }

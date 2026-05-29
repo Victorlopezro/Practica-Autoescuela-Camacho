@@ -7,8 +7,6 @@ import {
   Body,
   Param,
   Query,
-  HttpCode,
-  HttpStatus,
   Logger,
 } from '@nestjs/common';
 import { ApiTags, ApiOperation, ApiBearerAuth } from '@nestjs/swagger';
@@ -17,10 +15,11 @@ import { CurrentUser } from '../../common/decorators/current-user.decorator';
 import type { JwtPayload } from '../../common/decorators/current-user.decorator';
 import { PrismaService } from '../../common/services/prisma.service';
 import { SchedulingRulesService } from './services/scheduling-rules.service';
+import { SchedulingAiService } from '../scheduling/scheduling-ai.service';
 import {
-  SchedulingAiService,
-  StructuredRule,
-} from '../scheduling/scheduling-ai.service';
+  ScheduleGenerationService,
+  GenerationResult,
+} from './services/schedule-generation.service';
 import {
   CreateSchedulingRuleDto,
   UpdateSchedulingRuleDto,
@@ -39,6 +38,7 @@ export class SchedulingRulesController {
     private readonly rulesService: SchedulingRulesService,
     private readonly aiService: SchedulingAiService,
     private readonly prisma: PrismaService,
+    private readonly scheduleGenerationService: ScheduleGenerationService,
   ) {}
 
   @Post()
@@ -52,7 +52,17 @@ export class SchedulingRulesController {
     if (dto.category === 'generation') {
       if (!dto.action) dto.action = 'doubleBooking';
       if (!dto.ruleType) dto.ruleType = 'general';
-      return this.rulesService.create(dto, user.sub);
+
+      const rule = await this.rulesService.create(dto, user.sub);
+
+      const generationResult =
+        await this.scheduleGenerationService.applyScheduleRule({
+          ruleId: rule.id,
+          naturalLanguage: dto.naturalLanguage,
+          scheduleData: dto.scheduleData,
+        });
+
+      return { data: rule, generationResult };
     }
 
     // Auto-translate from natural language if structured rules not provided
@@ -123,7 +133,8 @@ export class SchedulingRulesController {
     if (!dto.ruleType) dto.ruleType = 'general';
     if (!dto.action) dto.action = 'block';
 
-    return this.rulesService.create(dto, user.sub);
+    const rule = await this.rulesService.create(dto, user.sub);
+    return { data: rule };
   }
 
   @Get()
@@ -145,16 +156,44 @@ export class SchedulingRulesController {
   @Patch(':id')
   @Roles('admin:manage')
   @ApiOperation({ summary: 'Update a scheduling rule' })
-  async update(@Param('id') id: string, @Body() dto: UpdateSchedulingRuleDto) {
-    return this.rulesService.update(id, dto);
+  async update(
+    @Param('id') id: string,
+    @Body() dto: UpdateSchedulingRuleDto,
+  ) {
+    const existingRule = await this.rulesService.findOne(id);
+    const rule = await this.rulesService.update(id, dto);
+
+    let generationResult: GenerationResult | undefined;
+    if (
+      existingRule.category === 'generation' &&
+      (dto.naturalLanguage !== undefined || dto.scheduleData !== undefined)
+    ) {
+      generationResult =
+        await this.scheduleGenerationService.applyScheduleRule({
+          ruleId: id,
+          naturalLanguage: dto.naturalLanguage ?? existingRule.naturalLanguage,
+          scheduleData: dto.scheduleData,
+        });
+    }
+
+    return { data: rule, generationResult };
   }
 
   @Delete(':id')
   @Roles('admin:manage')
-  @HttpCode(HttpStatus.NO_CONTENT)
   @ApiOperation({ summary: 'Soft delete a scheduling rule' })
   async remove(@Param('id') id: string) {
+    const rule = await this.rulesService.findOne(id);
+
+    let generationRemoval: { deletedRows: number } | undefined;
+    if (rule.category === 'generation') {
+      generationRemoval =
+        await this.scheduleGenerationService.removeScheduleRule(id);
+    }
+
     await this.rulesService.remove(id);
+
+    return { data: { deleted: true }, generationRemoval };
   }
 
   @Post(':id/translate')

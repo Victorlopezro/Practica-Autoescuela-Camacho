@@ -6,16 +6,9 @@ import Link from 'next/link';
 import axios from 'axios';
 import { useAuth } from '@/providers/auth-provider';
 
-const roles = [
-  { id: 'student' as const, label: 'Alumno', icon: 'school' },
-  { id: 'teacher' as const, label: 'Profesor', icon: 'badge' },
-  { id: 'admin' as const, label: 'Admin', icon: 'admin_panel_settings' },
-];
-
 export default function LoginPage() {
   const router = useRouter();
   const { login } = useAuth();
-  const [role, setRole] = useState<'student' | 'teacher' | 'admin'>('student');
   const [showPassword, setShowPassword] = useState(false);
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
@@ -26,8 +19,8 @@ export default function LoginPage() {
     setError('');
     setIsSubmitting(true);
     try {
-      await login(username, password);
-      router.push(`/${role}/dashboard`);
+      const user = await login(username, password);
+      router.push(`/${user.role}/dashboard`);
     } catch (err) {
       if (axios.isAxiosError(err) && err.response?.status === 401) {
         setError('Credenciales inválidas');
@@ -57,7 +50,7 @@ export default function LoginPage() {
         <div className="relative z-10">
           <div className="mb-6">
             <img src="/logo-white.svg" alt="Autoescuela Camacho" className="h-14 w-auto" />
-            <p className="text-white/70 text-sm mt-1">Portal del Estudiante</p>
+            <p className="text-white/70 text-sm mt-1">Plataforma de Gestión</p>
           </div>
 
           <div className="mt-6">
@@ -111,36 +104,13 @@ export default function LoginPage() {
                   Iniciar sesión
                 </h2>
                 <p className="text-body-sm text-on-surface-variant">
-                  Selecciona tu perfil e ingresa tus credenciales
+                  Ingresa tus credenciales para acceder al sistema
                 </p>
               </div>
 
               {/* Card */}
               <div className="bg-surface-container-lowest shadow-[0_4px_24px_rgba(0,0,0,0.08)] rounded-2xl p-lg md:p-xl border border-outline-variant/30">
-                {/* Role Selector */}
-                <div className="mb-md">
-                  <label className="text-label-caps font-semibold text-on-surface-variant uppercase mb-xs block">
-                    Tipo de usuario
-                  </label>
-                  <div className="grid grid-cols-3 gap-2">
-                    {roles.map(r => (
-                      <button
-                        key={r.id}
-                        onClick={() => setRole(r.id)}
-                        className={`flex flex-col items-center gap-1 py-3 px-2 rounded-xl text-sm font-medium transition-all ${
-                          role === r.id
-                            ? 'bg-primary text-white shadow-sm ring-2 ring-primary/20'
-                            : 'bg-white border border-outline-variant/50 text-on-surface-variant hover:border-primary/30 hover:bg-surface-container-low'
-                        }`}
-                      >
-                        <span className="material-symbols-outlined text-[22px]">{r.icon}</span>
-                        <span className="text-xs">{r.label}</span>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Email Field */}
+                {/* Username Field */}
                 <div className="flex flex-col gap-xs mb-md">
                   <label className="text-label-caps font-semibold text-on-surface-variant uppercase" htmlFor="email">
                     Email o Usuario
