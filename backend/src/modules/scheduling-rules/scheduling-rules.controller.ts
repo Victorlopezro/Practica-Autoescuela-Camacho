@@ -48,9 +48,8 @@ export class SchedulingRulesController {
     @Body() dto: CreateSchedulingRuleDto,
     @CurrentUser() user: JwtPayload,
   ) {
-    // Generation rules: skip AI translation, set defaults directly
+    // Generation rules: create availability from NL via AI
     if (dto.category === 'generation') {
-      if (!dto.action) dto.action = 'doubleBooking';
       if (!dto.ruleType) dto.ruleType = 'general';
 
       const rule = await this.rulesService.create(dto, user.sub);
@@ -61,6 +60,14 @@ export class SchedulingRulesController {
           naturalLanguage: dto.naturalLanguage,
           scheduleData: dto.scheduleData,
         });
+
+      // If AI detected double booking intent, update the rule action
+      if (generationResult.detectedAction) {
+        await this.rulesService.update(rule.id, {
+          action: generationResult.detectedAction,
+        });
+        rule.action = generationResult.detectedAction;
+      }
 
       return { data: rule, generationResult };
     }

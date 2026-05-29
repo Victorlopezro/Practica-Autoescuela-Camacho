@@ -310,7 +310,30 @@ export default function AdminSchedulingRules() {
 
   const handleEdit = useCallback(async () => {
     if (!editRule) return;
-    await services.schedulingRule.update(editRule.id, editForm);
+    const res = await services.schedulingRule.update(editRule.id, editForm);
+    const gen = res.generationResult;
+
+    if (gen) {
+      if (gen.aiFailed) {
+        setFeedback({
+          type: 'warning',
+          message: `Regla actualizada, pero la IA falló: ${gen.warnings[0] ?? 'Error desconocido'}.`,
+        });
+      } else if (gen.generatedRows > 0) {
+        setFeedback({
+          type: 'success',
+          message: `Regla actualizada. Se regeneraron ${gen.generatedRows} bloques de disponibilidad.${gen.warnings.length > 0 ? ` (${gen.warnings.join('. ')})` : ''}`,
+        });
+      } else {
+        setFeedback({
+          type: 'warning',
+          message: `Regla actualizada, pero no se generó disponibilidad. ${gen.warnings.join('. ')}`,
+        });
+      }
+    } else {
+      setFeedback({ type: 'success', message: 'Regla actualizada correctamente.' });
+    }
+
     closeEdit();
     refresh();
   }, [editRule, editForm, closeEdit, refresh]);
@@ -534,7 +557,7 @@ export default function AdminSchedulingRules() {
                         setCreateForm((f) => ({
                           ...f,
                           category: cat,
-                          action: cat === 'generation' ? 'doubleBooking' : undefined,
+                          action: undefined,
                           ruleType: cat === 'generation' ? undefined : f.ruleType,
                         }))
                       }
@@ -605,19 +628,9 @@ export default function AdminSchedulingRules() {
               )}
 
               {createForm.category === 'generation' && (
-                <div>
-                  <label className="block text-sm font-medium text-on-surface mb-1">Acción</label>
-                  <select
-                    value={createForm.action ?? 'doubleBooking'}
-                    onChange={(e) => setCreateForm((f) => ({ ...f, action: e.target.value as RuleAction }))}
-                    className="w-full rounded-lg border border-outline-variant/30 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-                  >
-                    <option value="doubleBooking">Doble sesión</option>
-                  </select>
-                  <p className="text-xs text-on-surface-variant mt-1">
-                    Las reglas de generación solo soportan la acción de doble sesión.
-                  </p>
-                </div>
+                <p className="text-xs text-on-surface-variant -mt-2">
+                  La IA detectará automáticamente si es una regla de doble sesión según el texto. Si no se menciona "doble sesión", se creará como disponibilidad normal sin duplicar slots.
+                </p>
               )}
 
               <div>
@@ -726,17 +739,13 @@ export default function AdminSchedulingRules() {
                 )}
 
                 {editRule.category === 'generation' && (
-                  <div>
-                    <label className="block text-sm font-medium text-on-surface mb-1">Acción</label>
-                    <select
-                      value={editForm.action ?? editRule.action}
-                      onChange={(e) => setEditForm((f) => ({ ...f, action: e.target.value as RuleAction }))}
-                      className="w-full rounded-lg border border-outline-variant/30 px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-primary"
-                    >
-                      <option value="doubleBooking">Doble sesión</option>
-                    </select>
-                    <p className="text-xs text-on-surface-variant mt-1">
-                      Las reglas de generación solo soportan la acción de doble sesión.
+                  <div className="flex items-center gap-2 p-3 rounded-lg bg-surface-container-low">
+                    <span className="material-symbols-outlined text-[18px] text-on-surface-variant">info</span>
+                    <p className="text-xs text-on-surface-variant">
+                      {editRule.action === 'doubleBooking'
+                        ? 'Regla de doble sesión — duplica la duración de los slots generados.'
+                        : 'Regla de disponibilidad normal — los slots se generan con duración estándar.'}
+                      {' '}La acción se detecta automáticamente del lenguaje natural al crear la regla.
                     </p>
                   </div>
                 )}

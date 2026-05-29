@@ -64,6 +64,7 @@ export interface AiGenerationScheduleItem {
 
 export interface AiGenerationTranslationResult {
   schedule: AiGenerationScheduleItem[];
+  action?: 'doubleBooking';
   error?: string;
 }
 
@@ -330,7 +331,8 @@ Extrae los siguientes datos y devuelve SOLO un JSON válido sin markdown ni expl
       "endTime": "15:00",
       "track": "pista"  // opcional: "pista", "circulacion", null si no se especifica
     }
-  ]
+  ],
+  "action": "doubleBooking"  // SOLO si el texto menciona "doble sesión", "clases dobles", "double", "clases de 90 min". Si NO menciona nada de esto, NO incluyas el campo action.
 }
 
 Reglas:
@@ -342,6 +344,7 @@ Reglas:
 - Si el texto menciona "todos los tracks" o no especifica, track debe ser null
 - startTime y endTime en formato HH:mm (24h)
 - Resuelve nombres de profesores completos: si el texto dice "Luis", devuelve "Luis López"; si dice "Mario", "Mario García"; etc.
+- action: SOLO incluye "doubleBooking" si el texto menciona EXPLÍCITAMENTE "doble sesión", "clases dobles", "sesión doble", "doble". Si el texto solo habla del horario normal del profesor, NO incluyas action.
 - Si no puedes determinar algún campo obligatorio, devuelve error en "error" con descripción`;
 
     const userPrompt = `Texto del usuario: "${naturalLanguage}"`;

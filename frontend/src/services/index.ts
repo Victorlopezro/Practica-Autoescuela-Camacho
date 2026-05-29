@@ -40,6 +40,8 @@ import type {
   SchedulingRuleDto,
   CreateSchedulingRuleDto,
   UpdateSchedulingRuleDto,
+  CreateSchedulingRuleResponse,
+  UpdateSchedulingRuleResponse,
   PaginatedRulesDto,
 } from './interfaces';
 
@@ -639,36 +641,40 @@ const mockSchedulingRuleService: ISchedulingRuleService = {
   async create(dto: CreateSchedulingRuleDto) {
     await delay(400);
     return {
-      id: makeId(),
-      ...dto,
-      action: dto.action ?? 'block',
-      priority: dto.priority ?? 100,
-      enabled: dto.enabled ?? true,
-      naturalLanguage: dto.naturalLanguage,
-      structuredRules: null,
-      appliesTo: dto.appliesTo ?? null,
-      createdById: 'admin-1',
-      createdAt: new Date().toISOString(),
-      updatedAt: new Date().toISOString(),
-    } as SchedulingRuleDto;
+      data: {
+        id: makeId(),
+        ...dto,
+        action: dto.action ?? 'block',
+        priority: dto.priority ?? 100,
+        enabled: dto.enabled ?? true,
+        naturalLanguage: dto.naturalLanguage ?? '',
+        structuredRules: null,
+        appliesTo: dto.appliesTo ?? null,
+        createdById: 'admin-1',
+        createdAt: new Date().toISOString(),
+        updatedAt: new Date().toISOString(),
+      },
+    } as CreateSchedulingRuleResponse;
   },
   async update(id, dto: UpdateSchedulingRuleDto) {
     await delay(300);
     return {
-      id,
-      name: dto.name ?? 'Horario laboral',
-      naturalLanguage: 'Horario laboral de 08:00 a 20:00',
-      structuredRules: null,
-      ruleType: dto.ruleType ?? 'availability',
-      action: dto.action ?? 'block',
-      priority: dto.priority ?? 1,
-      enabled: dto.enabled ?? true,
-      appliesTo: dto.appliesTo ?? null,
-      category: dto.category ?? 'evaluation',
-      createdById: 'admin-1',
-      createdAt: '2026-05-01T00:00:00Z',
-      updatedAt: new Date().toISOString(),
-    } as SchedulingRuleDto;
+      data: {
+        id,
+        name: dto.name ?? 'Horario laboral',
+        naturalLanguage: 'Horario laboral de 08:00 a 20:00',
+        structuredRules: null,
+        ruleType: dto.ruleType ?? 'availability',
+        action: dto.action ?? 'block',
+        priority: dto.priority ?? 1,
+        enabled: dto.enabled ?? true,
+        appliesTo: dto.appliesTo ?? null,
+        category: dto.category ?? 'evaluation',
+        createdById: 'admin-1',
+        createdAt: '2026-05-01T00:00:00Z',
+        updatedAt: new Date().toISOString(),
+      },
+    } as UpdateSchedulingRuleResponse;
   },
   async remove() {
     await delay(300);

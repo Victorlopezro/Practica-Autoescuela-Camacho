@@ -15,6 +15,7 @@ export interface GenerationResult {
   skippedItems: number;
   warnings: string[];
   aiFailed?: boolean;
+  detectedAction?: 'doubleBooking';
 }
 
 @Injectable()
@@ -65,6 +66,11 @@ export class ScheduleGenerationService {
             })),
             track: item.track ?? undefined,
           }));
+
+          // Pass detected action from AI
+          if (aiResult.action) {
+            result.detectedAction = aiResult.action;
+          }
         }
       } catch (error) {
         // Network/parse error
