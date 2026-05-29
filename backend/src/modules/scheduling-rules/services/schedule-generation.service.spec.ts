@@ -376,6 +376,33 @@ describe('ScheduleGenerationService', () => {
         ]),
       });
     });
+
+    it('should expand "ALL" teacher marker to all teachers', async () => {
+      aiService.translateGenerationRule.mockResolvedValue({
+        schedule: [
+          {
+            teacher: 'ALL',
+            daysOfWeek: [1, 2, 3, 4, 5],
+            startTime: '08:00',
+            endTime: '15:00',
+            track: 'pista',
+          },
+        ],
+      });
+
+      const result = await service.applyScheduleRule(defaultInput);
+
+      // 2 teachers × 5 days = 10 rows
+      expect(result.generatedRows).toBe(10);
+      expect(result.skippedItems).toBe(0);
+      expect(result.warnings).toHaveLength(0);
+      expect(prisma.teacherAvailability.createMany).toHaveBeenCalledWith({
+        data: expect.arrayContaining([
+          expect.objectContaining({ teacherId: 'teacher-luis', dayOfWeek: 1 }),
+          expect.objectContaining({ teacherId: 'teacher-mario', dayOfWeek: 5 }),
+        ]),
+      });
+    });
   });
 
   // ──────────────────────────────────────────────

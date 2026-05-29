@@ -119,29 +119,38 @@ export class ScheduleGenerationService {
     }> = [];
 
     for (const item of schedule) {
-      const normalized = item.teacher.toLowerCase();
-      const teacher =
-        teacherMap.get(normalized) ??
-        allTeachers.find((t) => t.name.toLowerCase().includes(normalized));
+      // Check for "ALL" marker (todos los profesores)
+      const normalized = item.teacher.toLowerCase().trim();
+      let teachersToApply = allTeachers;
 
-      if (!teacher) {
-        result.skippedItems++;
-        result.warnings.push(
-          `Teacher "${item.teacher}" not found. Skipping.`,
-        );
-        continue;
+      if (normalized !== 'all') {
+        // Try to resolve to a specific teacher
+        const resolved =
+          teacherMap.get(normalized) ??
+          allTeachers.find((t) => t.name.toLowerCase().includes(normalized));
+
+        if (!resolved) {
+          result.skippedItems++;
+          result.warnings.push(
+            `Teacher "${item.teacher}" not found. Skipping.`,
+          );
+          continue;
+        }
+        teachersToApply = [resolved];
       }
 
-      for (const dayTime of item.schedule) {
-        rowsToCreate.push({
-          teacherId: teacher.id,
-          ruleId: input.ruleId,
-          dayOfWeek: dayTime.dayOfWeek,
-          startTime: dayTime.startTime,
-          endTime: dayTime.endTime,
-          track: item.track ?? null,
-          isAvailable: true,
-        });
+      for (const teacher of teachersToApply) {
+        for (const dayTime of item.schedule) {
+          rowsToCreate.push({
+            teacherId: teacher.id,
+            ruleId: input.ruleId,
+            dayOfWeek: dayTime.dayOfWeek,
+            startTime: dayTime.startTime,
+            endTime: dayTime.endTime,
+            track: item.track ?? null,
+            isAvailable: true,
+          });
+        }
       }
     }
 

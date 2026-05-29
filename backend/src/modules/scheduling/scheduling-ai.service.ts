@@ -320,7 +320,7 @@ IMPORTANTE: usa el nombre COMPLETO del profesor (nombre y apellido) cuando sea p
     teacherNames?: string[],
   ): Promise<AiGenerationTranslationResult> {
     const teacherList = teacherNames?.length
-      ? `\nProfesores disponibles: [${teacherNames.map((n) => `"${n}"`).join(', ')}]\n\nSi el texto dice "todos los profesores", "todo el mundo", "toda la plantilla", "todos", u otra expresión que indique que aplica a TODOS los profesores, genera items para CADA UNO de los profesores disponibles listados arriba.`
+      ? `\nProfesores disponibles: [${teacherNames.map((n) => `"${n}"`).join(', ')}]\n\nSi el texto dice "todos los profesores", "todo el mundo", "toda la plantilla", "todos", u otra expresión que indique que TODOS los profesores, usa el valor exacto "ALL" en el campo teacher.`
       : '';
 
     const systemPrompt = `Eres un asistente que extrae información de horarios de profesores de autoescuela a partir de texto en lenguaje natural.
