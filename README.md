@@ -49,6 +49,8 @@ Tres roles con portales independientes:
 - Sistema de **primera aplicación**: en la primera ejecución, se limpian los datos legacy; en ejecuciones posteriores, se respetan los ajustes manuales.
 - Detección automática de doble sesión desde lenguaje natural.
 
+> 📖 **Guía de reglas**: en [`guia-reglas/README.md`](guia-reglas/README.md) tenés una guía completa con los campos disponibles, operadores, acciones, prioridades, ejemplos que funcionan bien, y cosas que la IA no entiende bien. Es el documento de referencia para saber qué se le puede pedir a la IA al crear reglas desde el panel de administración.
+
 ### Pagos (Stripe) ⏳ Pendiente
 
 > **Importante**: La integración con Stripe está planificada pero **aún no implementada**. El backend tiene los endpoints y modelos listos; el frontend usa datos mock.
