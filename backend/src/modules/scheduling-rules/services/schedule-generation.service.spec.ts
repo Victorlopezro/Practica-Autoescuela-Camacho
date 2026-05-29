@@ -90,7 +90,6 @@ describe('ScheduleGenerationService', () => {
             startTime: '08:00',
             endTime: '15:00',
             track: null,
-            isAvailable: true,
           }),
         ]),
       });
@@ -369,7 +368,7 @@ describe('ScheduleGenerationService', () => {
       expect(result.skippedItems).toBe(1);
       expect(result.warnings).toHaveLength(1);
       expect(result.warnings[0]).toContain('omitido');
-      expect(result.warnings[0]).toContain('manual');
+      expect(result.warnings[0]).toContain('regla');
       // Verify Monday row was NOT in the created batch
       expect(prisma.teacherAvailability.createMany).toHaveBeenCalledWith({
         data: expect.not.arrayContaining([
