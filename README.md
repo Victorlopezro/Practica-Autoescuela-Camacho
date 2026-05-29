@@ -77,14 +77,15 @@ Tres roles con portales independientes:
 
 ## Stack técnico
 
-| Capa       | Tecnología                                               |
-| ---------- | -------------------------------------------------------- |
-| Backend    | NestJS 11, TypeScript 5, Prisma 7, PostgreSQL, Passport   |
-| Frontend   | Next.js 16, React 19, Tailwind CSS 4, shadcn/ui, Axios   |
-| Pagos (⏳) | Stripe Checkout + Webhooks (pendiente de implementar)     |
-| IA         | OpenAI-compatible AI para traducción de lenguaje natural  |
-| Testing    | Jest (unit), Vitest (frontend), Storybook, Playwright     |
-| Herramienta| pnpm 11, ESLint, Prettier                                 |
+| Capa        | Tecnología                                                |
+| ----------- | --------------------------------------------------------- |
+| Backend     | NestJS 11, TypeScript 5, Prisma 7, PostgreSQL, Passport   |
+| Frontend    | Next.js 16, React 19, Tailwind CSS 4, shadcn/ui, Axios    |
+| Hosting     | **InsForge** (backend compute + frontend deployments)     |
+| Pagos (⏳)  | Stripe Checkout + Webhooks (pendiente de implementar)     |
+| IA          | OpenAI-compatible AI para traducción de lenguaje natural  |
+| Testing     | Jest (unit), Vitest (frontend), Storybook, Playwright     |
+| Herramienta | pnpm 11, ESLint, Prettier                                 |
 
 ---
 
@@ -204,28 +205,63 @@ cd frontend && pnpm storybook
 
 ---
 
-## Despliegue
+## Despliegue (InsForge)
 
-El proyecto está preparado para desplegarse en **Railway** (backend) y **Vercel** (frontend).
+El proyecto está alojado en **InsForge**, que gestiona tanto el backend como el frontend.
 
-### Backend (Railway)
+### Requisitos previos
 
-El `Procfile` en la raíz usa `pnpm start:prod`. Variables de entorno requeridas:
+- Tener una cuenta en [InsForge](https://insforge.app)
+- Tener el proyecto enlazado (`.insforge/project.json`)
+- `flyctl` instalado en PATH (solo para despliegue del backend)
+
+### Backend (Compute Service)
+
+El backend es una app NestJS empaquetada en Docker. Se despliega como **compute service** de InsForge:
+
+```bash
+cd backend
+
+# Desplegar usando el Dockerfile existente
+npx @insforge/cli compute deploy . --name autoescuela-api --port 8080
+```
+
+El servicio se despliega en Fly.io a través de InsForge. El `Dockerfile` ya está configurado para construir y ejecutar la app en el puerto 8080.
+
+### Frontend (Deployments)
+
+El frontend Next.js se despliega a través de InsForge (Vercel bajo el capó):
+
+```bash
+cd frontend
+
+# 1. Asegurarse de que el build local funciona
+pnpm build
+
+# 2. Configurar variables de entorno persistentes
+npx @insforge/cli deployments env set NEXT_PUBLIC_API_URL https://autoescuela-api-xxxxxxxx.fly.dev
+
+# 3. Desplegar
+npx @insforge/cli deployments deploy .
+```
+
+> **Importante**: el build local debe pasar antes de desplegar para ahorrar recursos del servidor.
+
+### Variables de entorno en producción
+
+**Backend (compute):** se pasan con `--env` al desplegar o se gestionan con `npx @insforge/cli compute update <id> --env-set KEY=VALUE`:
 
 ```
 DATABASE_URL, JWT_ACCESS_SECRET, JWT_REFRESH_SECRET, CORS_ORIGIN
 ```
 
-> Las variables `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `WHATSAPP_PHONE_ID` y `WHATSAPP_TOKEN` están definidas en el esquema pero **aún no son funcionales** — se añadirán cuando se implementen esos módulos.
+**Frontend (deployment):** se configuran con `npx @insforge/cli deployments env set`:
 
-### Frontend (Vercel)
-
-```bash
-cd frontend
-pnpm build
+```
+NEXT_PUBLIC_API_URL
 ```
 
-Variables de entorno requeridas: `NEXT_PUBLIC_API_URL`.
+> Las variables `STRIPE_SECRET_KEY`, `STRIPE_WEBHOOK_SECRET`, `WHATSAPP_PHONE_ID` y `WHATSAPP_TOKEN` están definidas en el esquema pero **aún no son funcionales** — se añadirán cuando se implementen esos módulos.
 
 ---
 
