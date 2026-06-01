@@ -439,7 +439,27 @@ export class ScheduleGenerationService {
       select: { teacherId: true },
       distinct: ['teacherId'],
     });
-    const affectedTeacherIds = [...new Set(affectedRows.map((r) => r.teacherId))];
+    const affectedTeacherIds = [
+      ...new Set(affectedRows.map((r) => r.teacherId)),
+    ];
+
+    // Step 1b: Fallback — if no rows, check the deleted rule's appliesTo.teachers
+    if (affectedTeacherIds.length === 0) {
+      const deletedRule = await this.prisma.schedulingRule.findUnique({
+        where: { id: ruleId },
+        select: { appliesTo: true },
+      });
+      if (deletedRule?.appliesTo) {
+        const appliesTo = deletedRule.appliesTo as Record<string, unknown>;
+        const scopedIds = appliesTo['teachers'] as string[] | undefined;
+        if (Array.isArray(scopedIds) && scopedIds.length > 0) {
+          affectedTeacherIds.push(...scopedIds);
+          this.logger.log(
+            `removeScheduleRule: no rows found for rule ${ruleId}, using appliesTo.teachers (${scopedIds.length} teacher(s)) as fallback`,
+          );
+        }
+      }
+    }
 
     // Step 2: Delete all availability rows for this rule
     const result = await this.prisma.teacherAvailability.deleteMany({
@@ -490,13 +510,21 @@ export class ScheduleGenerationService {
             }
           }
 
-          // Skip if the teacher already has rows for this rule
-          const alreadyHas = await this.prisma.teacherAvailability.count({
+          // BUGFIX: delete existing rows for this teacher+rule FIRST, then clone fresh.
+          // Previously we used alreadyHas > 0 to skip, but a teacher might have partial
+          // coverage (e.g., only Monday from the base rule after a higher-priority rule
+          // overrode Tue-Fri). Skipping would leave them with just 1 day instead of all 5.
+          // Delete first ensures the teacher gets the COMPLETE template.
+          const existingCount = await this.prisma.teacherAvailability.count({
             where: { teacherId, ruleId: rule.id },
           });
-
-          if (alreadyHas > 0) {
-            continue;
+          if (existingCount > 0) {
+            const delCount = await this.prisma.teacherAvailability.deleteMany({
+              where: { teacherId, ruleId: rule.id },
+            });
+            this.logger.log(
+              `removeScheduleRule: removed ${delCount.count} stale row(s) for teacher ${teacherId} rule "${rule.name}" before re-cloning`,
+            );
           }
 
           // Clone rows from the template to this affected teacher

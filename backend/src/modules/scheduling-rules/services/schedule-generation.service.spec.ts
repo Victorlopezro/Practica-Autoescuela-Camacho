@@ -20,11 +20,16 @@ describe('ScheduleGenerationService', () => {
       teacher: {
         findMany: jest.fn().mockResolvedValue([mockTeacherLuis, mockTeacherMario]),
       },
+      schedulingRule: {
+        findUnique: jest.fn().mockResolvedValue(null), // default: rule not found
+        findMany: jest.fn().mockResolvedValue([]),
+      },
       teacherAvailability: {
         count: jest.fn().mockResolvedValue(0), // default: first application
         deleteMany: jest.fn().mockResolvedValue({ count: 0 }),
         createMany: jest.fn().mockResolvedValue({ count: 0 }),
         findFirst: jest.fn().mockResolvedValue(null), // default: no conflicts
+        findMany: jest.fn().mockResolvedValue([]),   // default: no rows
       },
     };
 
