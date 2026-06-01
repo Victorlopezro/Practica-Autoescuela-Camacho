@@ -186,7 +186,14 @@ Donde:
 ¿Es un slot válido? Responde SOLO en JSON.`;
   }
 
-  async translateRule(naturalLanguage: string): Promise<StructuredRuleResult> {
+  async translateRule(
+    naturalLanguage: string,
+    teacherNames?: string[],
+  ): Promise<StructuredRuleResult> {
+    const teacherListStr = teacherNames?.length
+      ? `\n\nProfesores registrados en el sistema (SOLO estos existen): [${teacherNames.map((n) => `"${n}"`).join(', ')}]\nUSA SIEMPRE estos nombres exactos en appliesTo.teachers.`
+      : '';
+
     const systemPrompt = `Eres un traductor de reglas de scheduling para autoescuela. Conviertes texto en español a una estructura JSON de reglas de disponibilidad. Responde SOLO con el JSON.
 
 Formato de salida:
@@ -258,7 +265,7 @@ Ejemplos:
 - "María no da clases de coche automático" → { "appliesTo": { "teachers": ["María López"], "vehicleTypes": ["coche-automatico"] } }
 - "Los del carnet B automático solo con profesores con experiencia" → { "appliesTo": { "licenseTypes": ["B-automatico"] } }
 
-IMPORTANTE: usa el nombre COMPLETO del profesor (nombre y apellido) cuando sea posible. Si el texto solo menciona el nombre de pila (ej: "juan"), usa ese nombre solo.`;
+IMPORTANTE: usa el nombre COMPLETO del profesor (nombre y apellido) cuando sea posible. Si el texto solo menciona el nombre de pila (ej: "juan"), usa ese nombre solo.${teacherListStr}`;
 
     const userPrompt = `Traduce la siguiente regla a JSON estructurado:\n\n${naturalLanguage}`;
 

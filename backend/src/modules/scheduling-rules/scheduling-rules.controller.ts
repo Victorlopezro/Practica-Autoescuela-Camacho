@@ -94,10 +94,21 @@ export class SchedulingRulesController {
 
     // Auto-translate from natural language if structured rules not provided
     if (dto.naturalLanguage && !dto.structuredRules) {
-      const result = await this.aiService.translateRule(dto.naturalLanguage);
+      const allTeachers = await this.prisma.teacher.findMany({
+        select: { name: true },
+      });
+      const teacherNames = allTeachers.map((t) => t.name);
+      const result = await this.aiService.translateRule(
+        dto.naturalLanguage,
+        teacherNames,
+      );
 
       if (result.success) {
         const aiData = result.data;
+
+        this.logger.log(
+          `AI translateRule response for "${dto.naturalLanguage.substring(0, 60)}": appliesTo=${JSON.stringify(aiData.appliesTo)} conditions=${aiData.conditions?.length ?? 0} conditions`,
+        );
 
         // Store the full AI response as structured rules
         dto.structuredRules = aiData as unknown as Record<string, unknown>;
@@ -247,11 +258,22 @@ export class SchedulingRulesController {
       return rule;
     }
 
-    const result = await this.aiService.translateRule(rule.naturalLanguage);
+    const allTeachers = await this.prisma.teacher.findMany({
+      select: { name: true },
+    });
+    const teacherNames = allTeachers.map((t) => t.name);
+    const result = await this.aiService.translateRule(
+      rule.naturalLanguage,
+      teacherNames,
+    );
 
     if (!result.success) {
       return result;
     }
+
+    this.logger.log(
+      `AI translateRule response for "${rule.naturalLanguage.substring(0, 60)}": appliesTo=${JSON.stringify(result.data.appliesTo)} conditions=${result.data.conditions?.length ?? 0} conditions`,
+    );
 
     const updateData: Record<string, unknown> = {
       structuredRules: result.data,
