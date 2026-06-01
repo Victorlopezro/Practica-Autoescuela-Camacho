@@ -1,12 +1,16 @@
-import { ConflictException, NotFoundException } from '@nestjs/common';
+import { ConflictException, Logger, NotFoundException } from '@nestjs/common';
 import { CommandHandler, ICommandHandler } from '@nestjs/cqrs';
 import * as argon2 from 'argon2';
 import { PrismaService } from '../../../common/services/prisma.service';
+import { ScheduleGenerationService } from '../../scheduling-rules/services/schedule-generation.service';
 import { CreateTeacherCommand } from './create-teacher.command';
 
 @CommandHandler(CreateTeacherCommand)
 export class CreateTeacherHandler implements ICommandHandler<CreateTeacherCommand> {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly scheduleGenerationService: ScheduleGenerationService,
+  ) {}
 
   async execute(command: CreateTeacherCommand) {
     const { username, password, name, lastName, email, phone, vehicleIds } =
@@ -28,14 +32,11 @@ export class CreateTeacherHandler implements ICommandHandler<CreateTeacherComman
 
     const hashed = await argon2.hash(password);
 
-    const result = await this.prisma.$transaction(async (tx) => {
-      // Create Teacher first to get the ID
-      const teacher = await tx.teacher.create({
-        data: { name },
-      });
+    // Step 1: Create teacher + user + vehicles in a transaction
+    const { teacher, user, vehicles } = await this.prisma.$transaction(async (tx) => {
+      const t = await tx.teacher.create({ data: { name } });
 
-      // Create User with teacherId pointing to Teacher
-      const user = await tx.user.create({
+      const u = await tx.user.create({
         data: {
           username,
           password: hashed,
@@ -44,7 +45,7 @@ export class CreateTeacherHandler implements ICommandHandler<CreateTeacherComman
           lastName,
           email,
           phone,
-          teacherId: teacher.id,
+          teacherId: t.id,
         },
         select: {
           id: true,
@@ -58,27 +59,52 @@ export class CreateTeacherHandler implements ICommandHandler<CreateTeacherComman
         },
       });
 
-      // Create TeacherVehicle relations
       if (vehicleIds?.length) {
         await tx.teacherVehicle.createMany({
           data: vehicleIds.map((vid: string) => ({
-            teacherId: teacher.id,
+            teacherId: t.id,
             vehicleId: vid,
           })),
         });
       }
 
-      // Fetch the vehicles for the response
-      const vehicles = vehicleIds?.length
+      const v = vehicleIds?.length
         ? await tx.vehicle.findMany({
             where: { id: { in: vehicleIds } },
             select: { id: true, plate: true },
           })
         : [];
 
-      return { ...teacher, user, vehicles };
+      return { teacher: t, user: u, vehicles: v };
     });
 
-    return result;
+    // Step 2: Apply existing generation rules (outside transaction — uses its own queries)
+    let rulesApplied = 0;
+    let rowsCreated = 0;
+    let rulesSkipped = 0;
+    try {
+      const genResult =
+        await this.scheduleGenerationService.applyExistingRulesToNewTeacher(
+          teacher.id,
+        );
+      rulesApplied = genResult.rulesApplied;
+      rowsCreated = genResult.rowsCreated;
+      rulesSkipped = genResult.rulesSkipped;
+    } catch (error) {
+      this.logger.error(
+        `Failed to apply generation rules to new teacher ${teacher.id}: ${error}`,
+      );
+    }
+
+    return {
+      ...teacher,
+      user,
+      vehicles,
+      generationRulesApplied: rulesApplied,
+      generationRowsCreated: rowsCreated,
+      generationRulesSkipped: rulesSkipped,
+    };
   }
+
+  private readonly logger = new Logger(CreateTeacherHandler.name);
 }

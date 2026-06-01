@@ -351,10 +351,18 @@ ADVERTENCIA CRÍTICA: El campo "teacher" NUNCA debe contener el texto literal "N
    b) El nombre REAL de un profesor específico, ej: "Luis López", "Mario García"
    c) NUNCA uses "Nombre completo del profesor", "nombre", "profesor", o cualquier placeholder
 
-2. CAMPO "daysOfWeek":
+2. CAMPO "daysOfWeek" — MAPEO ESTRICTO de días a números:
+   - domingo = 0
+   - lunes = 1
+   - martes = 2
+   - miércoles = 3
+   - jueves = 4
+   - viernes = 5
+   - sábado = 6
    - "lunes a viernes" o "entre semana" → [1,2,3,4,5]
    - "finde" o "fin de semana" → [0,6]
-   - Días específicos → solo esos días
+   - "lunes a sábado" → [1,2,3,4,5,6]
+   - Días específicos → solo los números de esos días según el mapeo de arriba
    - Si no se especifican → [1,2,3,4,5] (lunes a viernes por defecto)
 
 3. CAMPO "track":

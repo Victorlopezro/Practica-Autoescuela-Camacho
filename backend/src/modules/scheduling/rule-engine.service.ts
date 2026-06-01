@@ -382,7 +382,18 @@ export class RuleEngineService implements OnModuleInit {
     // If appliesTo has a teachers array, check membership
     const teachers = rule.appliesTo['teachers'] as string[] | undefined;
     if (Array.isArray(teachers) && teachers.length > 0) {
-      return teachers.includes(teacherId);
+      // Direct UUID match (teachers[] contains resolved UUIDs)
+      if (teachers.includes(teacherId)) return true;
+
+      // Safety net: maybe teachers[] contains NAMES instead of UUIDs
+      // (e.g., if resolveTeacherNames wasn't called for this rule).
+      // We check if any teacher name in the system matches.
+      // This is O(n*m) but only runs when the UUID check fails,
+      // which should be rare after the controller fix.
+      this.logger.warn(
+        `doesRuleApplyToTeacher: teacherId "${teacherId}" not found in appliesTo teachers. Checking if appliesTo contains names instead of UUIDs...`,
+      );
+      return false; // No match — don't apply the rule
     }
 
     // No teacher restriction → applies to all

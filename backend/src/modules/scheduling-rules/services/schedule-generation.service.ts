@@ -184,24 +184,42 @@ export class ScheduleGenerationService {
       `Teacher resolution: ${rowsToCreate.length} potential rows built from ${schedule.length} schedule items (${allTeachers.length} teachers available). [Rule: ${input.ruleId}]`,
     );
 
+    // ── Fetch current rule priority for conflict resolution ──
+    const currentRulePriority = (
+      await this.prisma.schedulingRule.findUnique({
+        where: { id: input.ruleId },
+        select: { priority: true },
+      })
+    )?.priority ?? 100;
+
     // Step 2.5: Detect if this is the first application of this rule.
-    // On first application, we clean up legacy manual data for the affected (teacher, day) pairs.
-    // On subsequent applications, we only update rule rows and leave manual overrides untouched.
     const isFirstApplication =
       (await this.prisma.teacherAvailability.count({
         where: { ruleId: input.ruleId },
       })) === 0;
 
-    // Phase 1: Legacy cleanup — only on first application.
-    // Manual rows (ruleId=null) created before the rule existed are legacy data
-    // and should be replaced. After this, any manual row is an intentional override.
-    let cleanedLegacyCount = 0;
-    if (isFirstApplication) {
-      const pairSet = new Set<string>();
-      for (const row of rowsToCreate) {
-        pairSet.add(`${row.teacherId}|${row.dayOfWeek}`);
-      }
+    // Phase 1: Clean legacy manual rows created BEFORE the rule existed.
+    //
+    // We use createdAt to distinguish:
+    //   - Row created BEFORE the rule → legacy data → cleaned
+    //   - Row created AFTER the rule  → intentional override → preserved
+    //
+    // This preserves the hierarchy: manual overrides > rules.
+    // On EVERY application we clean only rows older than the rule's creation,
+    // so legacy data is removed even if the rule was applied before this fix existed.
+    const ruleCreatedAt = (
+      await this.prisma.schedulingRule.findUnique({
+        where: { id: input.ruleId },
+        select: { createdAt: true },
+      })
+    )?.createdAt;
 
+    let cleanedLegacyCount = 0;
+
+    if (ruleCreatedAt) {
+      // Clean manual rows for affected teachers' (teacher, day) pairs
+      // that were created BEFORE the rule existed
+      const pairSet = new Set(rowsToCreate.map((r) => `${r.teacherId}|${r.dayOfWeek}`));
       for (const key of pairSet) {
         const [teacherId, dayOfWeekStr] = key.split('|');
         const result = await this.prisma.teacherAvailability.deleteMany({
@@ -209,6 +227,7 @@ export class ScheduleGenerationService {
             teacherId,
             dayOfWeek: parseInt(dayOfWeekStr, 10),
             ruleId: null,
+            createdAt: { lt: ruleCreatedAt },
           },
         });
         cleanedLegacyCount += result.count;
@@ -216,16 +235,17 @@ export class ScheduleGenerationService {
 
       if (cleanedLegacyCount > 0) {
         this.logger.log(
-          `Cleaned up ${cleanedLegacyCount} legacy manual row(s) for rule ${input.ruleId} (first application)`,
+          `Cleaned ${cleanedLegacyCount} legacy manual row(s) older than rule creation (${ruleCreatedAt.toISOString()})`,
         );
       }
     }
 
     // Step 3: Check for cross-rule conflicts + dedup by (teacherId, dayOfWeek).
-    // We do NOT delete manual rows here — they are intentional overrides
-    // with priority over the rule's schedule.
+    // Manual rows (ruleId=null) are intentional overrides and always win over rules.
+    // Cross-rule conflicts are resolved by priority (lower number = higher priority).
     const nonConflictingRows: typeof rowsToCreate = [];
     const seenKeys = new Set<string>();
+    const rowsToOverride = new Set<string>(); // IDs of rows to delete from lower-priority rules
     let skippedByConflict = 0;
     let skippedDuplicates = 0;
 
@@ -243,8 +263,6 @@ export class ScheduleGenerationService {
       }
 
       // Conflict check: another rule already claims this (teacher, day).
-      // ruleId: { not: input.ruleId } finds OTHER rule rows (non-null, different ruleId).
-      // Manual rows (ruleId=null) are NOT found here — they have priority over rules.
       const conflictingRow = await this.prisma.teacherAvailability.findFirst({
         where: {
           teacherId: row.teacherId,
@@ -254,11 +272,55 @@ export class ScheduleGenerationService {
       });
 
       if (conflictingRow) {
-        skippedByConflict++;
-        this.logger.warn(
-          `Skipping row for teacher ${row.teacherId} day ${row.dayOfWeek} track ${row.track}: existing entry from rule ${conflictingRow.ruleId}`,
-        );
-        continue;
+        // Manual row (ruleId=null) — already cleaned in Phase 1 for conflicting pairs,
+        // but may still exist for non-conflicting days. Either way, manual wins over rules.
+        if (!conflictingRow.ruleId) {
+          skippedByConflict++;
+          continue;
+        }
+
+        if (!isFirstApplication) {
+          // RE-APPLICATION: The user explicitly edited and re-applied this rule.
+          // The new rows take effect regardless of other rules' priorities.
+          // Conflicting rows from other rules are overridden.
+          rowsToOverride.add(conflictingRow.id);
+          this.logger.log(
+            `Re-apply override for teacher ${row.teacherId} day ${row.dayOfWeek}: ` +
+            `rule ${input.ruleId} overrides rule ${conflictingRow.ruleId}`,
+          );
+        } else {
+          // FIRST APPLICATION: Compare priorities to determine who wins.
+          const otherRule = await this.prisma.schedulingRule.findUnique({
+            where: { id: conflictingRow.ruleId },
+            select: { priority: true, deletedAt: true },
+          });
+
+          const otherActive = otherRule && !otherRule.deletedAt;
+          // Strictly less: with equal priority, the NEW rule wins (last applied takes effect).
+          // This prevents a rule that was previously applied but created 0 rows
+          // (all skipped by conflict) from being permanently blocked on re-apply.
+          const otherOutranks = otherActive && otherRule.priority < currentRulePriority;
+
+          if (otherOutranks) {
+            // Other rule is active AND has strictly higher priority — skip
+            skippedByConflict++;
+            this.logger.warn(
+              `Skipping row for teacher ${row.teacherId} day ${row.dayOfWeek}: ` +
+              `existing entry from rule ${conflictingRow.ruleId} ` +
+              `(priority ${otherRule!.priority}) outranks current rule (priority ${currentRulePriority})`,
+            );
+            continue;
+          }
+
+          // Current rule has strictly higher priority (lower number)
+          // OR the other rule was deleted — override the conflicting row
+          rowsToOverride.add(conflictingRow.id);
+          this.logger.log(
+            `Overriding row for teacher ${row.teacherId} day ${row.dayOfWeek}: ` +
+            `rule ${input.ruleId} (priority ${currentRulePriority}) > ` +
+            `rule ${conflictingRow.ruleId} (priority ${otherRule?.priority ?? 'deleted'})`,
+          );
+        }
       }
 
       seenKeys.add(key);
@@ -271,11 +333,26 @@ export class ScheduleGenerationService {
       );
     }
 
-    // Step 4: Delete old rule rows and create new ones
+    // Step 4: Delete old rule rows + overridden rows, then create new ones
     if (nonConflictingRows.length > 0) {
+      // Delete existing rows for this rule (from previous applications)
       await this.prisma.teacherAvailability.deleteMany({
         where: { ruleId: input.ruleId },
       });
+
+      // Delete rows from lower-priority rules that we're overriding
+      const overrideIds = [...rowsToOverride];
+      if (overrideIds.length > 0) {
+        const delResult = await this.prisma.teacherAvailability.deleteMany({
+          where: { id: { in: overrideIds } },
+        });
+        if (delResult.count > 0) {
+          this.logger.log(
+            `Deleted ${delResult.count} row(s) from lower-priority rules for rule ${input.ruleId}`,
+          );
+        }
+      }
+
       try {
         await this.prisma.teacherAvailability.createMany({
           data: nonConflictingRows,
@@ -296,18 +373,59 @@ export class ScheduleGenerationService {
         );
         return result;
       }
+
+      // Phase 5: Clean manual rows for days NOT covered by the rule's scope.
+      //
+      // If a rule covers Mon-Fri, any manual rows for Sat/Sun that existed
+      // before the rule was created should be cleaned → the teacher shows as
+      // unavailable on those days.
+      //
+      // Only cleans rows older than the rule (createdAt < ruleCreatedAt),
+      // preserving intentional manual overrides made after the rule's creation.
+      if (ruleCreatedAt) {
+        const coveredDays = new Set(rowsToCreate.map((r) => r.dayOfWeek));
+        const teacherIds = [...new Set(rowsToCreate.map((r) => r.teacherId))];
+        let cleanedNonCoveredCount = 0;
+
+        for (const teacherId of teacherIds) {
+          const result = await this.prisma.teacherAvailability.deleteMany({
+            where: {
+              teacherId,
+              dayOfWeek: { notIn: [...coveredDays] },
+              ruleId: null,
+              createdAt: { lt: ruleCreatedAt },
+            },
+          });
+          cleanedNonCoveredCount += result.count;
+        }
+
+        if (cleanedNonCoveredCount > 0) {
+          this.logger.log(
+            `Phase 5: Cleaned ${cleanedNonCoveredCount} manual row(s) for days outside rule scope (teacher(s) ${teacherIds.join(',')})`,
+          );
+        }
+      }
     }
 
     if (skippedByConflict > 0) {
       result.skippedItems += skippedByConflict;
       result.warnings.push(
-        `${skippedByConflict} bloque(s) omitido(s) porque otra regla ya cubre ese profesor, día y pista.`,
+        `${skippedByConflict} bloque(s) omitido(s) porque otra regla de prioridad igual o superior ya cubre ese profesor y día, o porque el horario se modificó manualmente.`,
+      );
+    }
+
+    if (rowsToOverride.size > 0) {
+      result.warnings.push(
+        `${rowsToOverride.size} bloque(s) de reglas con menor prioridad reemplazado(s) por esta regla.`,
       );
     }
 
     result.generatedRows = nonConflictingRows.length;
     this.logger.log(
-      `Rule ${input.ruleId}: ${nonConflictingRows.length} rows created, ${skippedByConflict} skipped by other rules, ${cleanedLegacyCount} legacy manual rows cleaned`,
+      `Rule ${input.ruleId}: ${nonConflictingRows.length} rows created, ` +
+      `${skippedByConflict} skipped (manual or higher-priority rule), ` +
+      `${rowsToOverride.size} lower-priority rows overridden, ` +
+      `${cleanedLegacyCount} legacy manual rows cleaned`,
     );
     return result;
   }
@@ -319,5 +437,106 @@ export class ScheduleGenerationService {
       where: { ruleId },
     });
     return { deletedRows: result.count };
+  }
+
+  /**
+   * Apply all active generation rules to a newly created teacher.
+   *
+   * For each active generation rule, this clones the existing availability
+   * rows (from any teacher that already has them for that rule) to the new
+   * teacher. This ensures that rules created BEFORE the teacher existed
+   * still take effect without needing to re-invoke the AI.
+   *
+   * Rules with appliesTo.teachers that don't include the new teacher are
+   * skipped (the rule was explicitly scoped to specific teachers).
+   */
+  async applyExistingRulesToNewTeacher(teacherId: string): Promise<{
+    rulesApplied: number;
+    rowsCreated: number;
+    rulesSkipped: number;
+  }> {
+    const genRules = await this.prisma.schedulingRule.findMany({
+      where: {
+        category: 'generation',
+        enabled: true,
+        deletedAt: null,
+      },
+    });
+
+    let rulesApplied = 0;
+    let rowsCreated = 0;
+    let rulesSkipped = 0;
+
+    for (const rule of genRules) {
+      // Skip rules that have appliesTo.teachers that don't include this teacher
+      if (rule.appliesTo) {
+        const appliesTo = rule.appliesTo as Record<string, unknown>;
+        const teacherIds = appliesTo['teachers'] as string[] | undefined;
+        if (Array.isArray(teacherIds) && teacherIds.length > 0) {
+          if (!teacherIds.includes(teacherId)) {
+            rulesSkipped++;
+            continue;
+          }
+        }
+      }
+
+      // Fetch distinct availability rows for this rule (from any teacher)
+      // Using groupBy to get distinct (dayOfWeek, startTime, endTime, track) combos
+      const existingRows = await this.prisma.teacherAvailability.findMany({
+        where: { ruleId: rule.id },
+        select: {
+          dayOfWeek: true,
+          startTime: true,
+          endTime: true,
+          track: true,
+        },
+        distinct: ['dayOfWeek', 'startTime', 'endTime', 'track'],
+      });
+
+      if (existingRows.length === 0) {
+        this.logger.warn(
+          `applyExistingRulesToNewTeacher: rule "${rule.name}" (${rule.id}) has no existing rows to clone. Skipping.`,
+        );
+        rulesSkipped++;
+        continue;
+      }
+
+      // Check if the teacher already has rows for this rule (shouldn't happen for new teacher, but safety)
+      const alreadyHas = await this.prisma.teacherAvailability.count({
+        where: { teacherId, ruleId: rule.id },
+      });
+
+      if (alreadyHas > 0) {
+        this.logger.log(
+          `applyExistingRulesToNewTeacher: teacher ${teacherId} already has ${alreadyHas} rows for rule "${rule.name}". Skipping.`,
+        );
+        rulesSkipped++;
+        continue;
+      }
+
+      // Clone rows for the new teacher
+      const newRows = existingRows.map((row) => ({
+        teacherId,
+        dayOfWeek: row.dayOfWeek,
+        startTime: row.startTime,
+        endTime: row.endTime,
+        track: row.track,
+        ruleId: rule.id,
+      }));
+
+      await this.prisma.teacherAvailability.createMany({ data: newRows });
+      rulesApplied++;
+      rowsCreated += newRows.length;
+
+      this.logger.log(
+        `applyExistingRulesToNewTeacher: cloned ${newRows.length} rows from rule "${rule.name}" to teacher ${teacherId}`,
+      );
+    }
+
+    this.logger.log(
+      `applyExistingRulesToNewTeacher: ${rulesApplied} rules applied, ${rowsCreated} rows created, ${rulesSkipped} skipped for teacher ${teacherId}`,
+    );
+
+    return { rulesApplied, rowsCreated, rulesSkipped };
   }
 }

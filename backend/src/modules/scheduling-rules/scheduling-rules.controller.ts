@@ -52,7 +52,27 @@ export class SchedulingRulesController {
     if (dto.category === 'generation') {
       if (!dto.ruleType) dto.ruleType = 'general';
 
+      // Resolve teacher names to IDs in appliesTo BEFORE saving
+      const rawAppliesTo = dto.appliesTo as { teachers?: string[] } | undefined;
+      if (rawAppliesTo?.teachers?.length) {
+        const resolvedIds = await this.resolveTeacherNames(rawAppliesTo.teachers);
+        if (resolvedIds.length > 0) {
+          rawAppliesTo.teachers = resolvedIds;
+          dto.appliesTo = rawAppliesTo as unknown as Record<string, unknown>;
+        }
+      }
+
       const rule = await this.rulesService.create(dto, user.sub);
+
+      // Save resolved appliesTo back if it was updated
+      if (dto.appliesTo) {
+        await this.rulesService.update(rule.id, {
+          appliesTo: dto.appliesTo,
+        });
+        // Reload rule to get updated appliesTo from DB
+        const updatedRule = await this.rulesService.findOne(rule.id);
+        rule.appliesTo = updatedRule.appliesTo;
+      }
 
       const generationResult =
         await this.scheduleGenerationService.applyScheduleRule({
@@ -170,11 +190,11 @@ export class SchedulingRulesController {
     const existingRule = await this.rulesService.findOne(id);
     const rule = await this.rulesService.update(id, dto);
 
+    // Always regenerate availability when editing a generation rule.
+    // The frontend edit form never sends naturalLanguage or scheduleData,
+    // so use the existing rule's naturalLanguage for AI re-generation.
     let generationResult: GenerationResult | undefined;
-    if (
-      existingRule.category === 'generation' &&
-      (dto.naturalLanguage !== undefined || dto.scheduleData !== undefined)
-    ) {
+    if (existingRule.category === 'generation') {
       generationResult =
         await this.scheduleGenerationService.applyScheduleRule({
           ruleId: id,

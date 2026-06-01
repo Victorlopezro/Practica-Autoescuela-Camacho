@@ -1,5 +1,6 @@
 import { Module } from '@nestjs/common';
 import { CqrsModule } from '@nestjs/cqrs';
+import { SchedulingRulesModule } from '../scheduling-rules/scheduling-rules.module';
 import { TeachersController } from './teachers.controller';
 import { CreateTeacherHandler } from './commands/create-teacher.handler';
 import { UpdateTeacherHandler } from './commands/update-teacher.handler';
@@ -12,7 +13,7 @@ const handlers = [
 ];
 
 @Module({
-  imports: [CqrsModule],
+  imports: [CqrsModule, SchedulingRulesModule],
   controllers: [TeachersController],
   providers: [...handlers],
 })
