@@ -333,6 +333,35 @@ export class ScheduleGenerationService {
       );
     }
 
+    // Step 3.5: Clean up days NOT covered by this rule from other generation rules.
+    //
+    // When a rule says "Luis works Tue-Sun", it implicitly means Luis does NOT
+    // work on Monday. Remove rows from other generation rules (e.g. base rule)
+    // for days outside the current rule's scope so the teacher's schedule
+    // is exactly what the rule defines — not a hybrid with other rules' leftovers.
+    //
+    // Only targets rows with a ruleId (generation rules), NOT manual overrides
+    // (ruleId = null), which are preserved separately.
+    {
+      const coveredDays = new Set(rowsToCreate.map((r) => r.dayOfWeek));
+      const teacherIds = [...new Set(rowsToCreate.map((r) => r.teacherId))];
+
+      for (const teacherId of teacherIds) {
+        const delResult = await this.prisma.teacherAvailability.deleteMany({
+          where: {
+            teacherId,
+            dayOfWeek: { notIn: [...coveredDays] },
+            ruleId: { not: input.ruleId },
+          },
+        });
+        if (delResult.count > 0) {
+          this.logger.log(
+            `applyScheduleRule Step 3.5: cleaned ${delResult.count} row(s) from other rules for teacher ${teacherId} on non-covered days (${[...coveredDays].join(',')}). Rule: ${input.ruleId}`,
+          );
+        }
+      }
+    }
+
     // Step 4: Delete old rule rows + overridden rows, then create new ones
     if (nonConflictingRows.length > 0) {
       // Delete existing rows for this rule (from previous applications)
