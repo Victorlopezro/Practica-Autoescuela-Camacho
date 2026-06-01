@@ -78,9 +78,16 @@ export class SchedulingAiService {
     private readonly config: ConfigService,
     private readonly prisma: PrismaService,
   ) {
-    this.apiKey =
-      this.config.get<string>('OPENROUTER_API_KEY') ??
-      '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';
+    // ⚠️ NUNCA usar una API key hardcodeada como fallback.
+    // La key SOLO debe venir de variable de entorno.
+    // Si no está configurada, se deja vacía y cada método
+    // devuelve un error controlado cuando intenta llamar a la IA.
+    this.apiKey = this.config.get<string>('OPENROUTER_API_KEY') ?? '';
+    if (!this.apiKey) {
+      this.logger.warn(
+        'OPENROUTER_API_KEY no está configurada. Las funciones de IA devolverán errores controlados.',
+      );
+    }
   }
 
   async validateSlot(context: ValidationContext): Promise<ValidationResult> {
