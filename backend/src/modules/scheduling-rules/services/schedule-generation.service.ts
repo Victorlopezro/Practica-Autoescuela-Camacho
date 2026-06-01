@@ -432,11 +432,101 @@ export class ScheduleGenerationService {
 
   async removeScheduleRule(
     ruleId: string,
-  ): Promise<{ deletedRows: number }> {
+  ): Promise<{ deletedRows: number; reappliedRules: number; clonedRows: number }> {
+    // Step 1: Capture affected teachers (who had rows from this rule)
+    const affectedRows = await this.prisma.teacherAvailability.findMany({
+      where: { ruleId },
+      select: { teacherId: true },
+      distinct: ['teacherId'],
+    });
+    const affectedTeacherIds = [...new Set(affectedRows.map((r) => r.teacherId))];
+
+    // Step 2: Delete all availability rows for this rule
     const result = await this.prisma.teacherAvailability.deleteMany({
       where: { ruleId },
     });
-    return { deletedRows: result.count };
+
+    // Step 3: Re-apply other active generation rules for affected teachers.
+    // Clones existing rows from other teachers so no AI re-invocation is needed.
+    let reappliedRules = 0;
+    let clonedRows = 0;
+
+    if (affectedTeacherIds.length > 0) {
+      const otherRules = await this.prisma.schedulingRule.findMany({
+        where: {
+          id: { not: ruleId },
+          category: 'generation',
+          enabled: true,
+          deletedAt: null,
+        },
+      });
+
+      for (const rule of otherRules) {
+        // Fetch distinct (day, time, track) combos from ANY teacher that has this rule
+        const existingRows = await this.prisma.teacherAvailability.findMany({
+          where: { ruleId: rule.id },
+          select: {
+            dayOfWeek: true,
+            startTime: true,
+            endTime: true,
+            track: true,
+          },
+          distinct: ['dayOfWeek', 'startTime', 'endTime', 'track'],
+        });
+
+        if (existingRows.length === 0) {
+          continue; // No rows to clone (rule hasn't been applied yet)
+        }
+
+        for (const teacherId of affectedTeacherIds) {
+          // Check if this rule is scoped to specific teachers (appliesTo)
+          if (rule.appliesTo) {
+            const appliesTo = rule.appliesTo as Record<string, unknown>;
+            const scopedTeacherIds = appliesTo['teachers'] as string[] | undefined;
+            if (Array.isArray(scopedTeacherIds) && scopedTeacherIds.length > 0) {
+              if (!scopedTeacherIds.includes(teacherId)) {
+                continue; // Rule doesn't apply to this teacher
+              }
+            }
+          }
+
+          // Skip if the teacher already has rows for this rule
+          const alreadyHas = await this.prisma.teacherAvailability.count({
+            where: { teacherId, ruleId: rule.id },
+          });
+
+          if (alreadyHas > 0) {
+            continue;
+          }
+
+          // Clone rows from the template to this affected teacher
+          const newRows = existingRows.map((row) => ({
+            teacherId,
+            dayOfWeek: row.dayOfWeek,
+            startTime: row.startTime,
+            endTime: row.endTime,
+            track: row.track,
+            ruleId: rule.id,
+          }));
+
+          await this.prisma.teacherAvailability.createMany({ data: newRows });
+          reappliedRules++;
+          clonedRows += newRows.length;
+
+          this.logger.log(
+            `removeScheduleRule: cloned ${newRows.length} rows from rule "${rule.name}" (${rule.id}) to teacher ${teacherId}`,
+          );
+        }
+      }
+
+      if (reappliedRules > 0) {
+        this.logger.log(
+          `removeScheduleRule: ${reappliedRules} rules re-applied, ${clonedRows} rows cloned for ${affectedTeacherIds.length} affected teacher(s) after deleting rule ${ruleId}`,
+        );
+      }
+    }
+
+    return { deletedRows: result.count, reappliedRules, clonedRows };
   }
 
   /**

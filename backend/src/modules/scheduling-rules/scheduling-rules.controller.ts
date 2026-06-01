@@ -212,15 +212,26 @@ export class SchedulingRulesController {
   async remove(@Param('id') id: string) {
     const rule = await this.rulesService.findOne(id);
 
-    let generationRemoval: { deletedRows: number } | undefined;
+    let generationResult: Awaited<
+      ReturnType<typeof this.scheduleGenerationService.removeScheduleRule>
+    > | undefined;
     if (rule.category === 'generation') {
-      generationRemoval =
+      generationResult =
         await this.scheduleGenerationService.removeScheduleRule(id);
     }
 
     await this.rulesService.remove(id);
 
-    return { data: { deleted: true }, generationRemoval };
+    return {
+      data: { deleted: true },
+      generationRemoval: generationResult
+        ? {
+            deletedRows: generationResult.deletedRows,
+            reappliedRules: generationResult.reappliedRules,
+            clonedRows: generationResult.clonedRows,
+          }
+        : undefined,
+    };
   }
 
   @Post(':id/translate')
