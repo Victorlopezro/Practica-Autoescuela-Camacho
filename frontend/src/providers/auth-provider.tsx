@@ -8,13 +8,13 @@ import { tokenStorage } from '@/lib/token';
 export interface AuthUser {
   id: string;
   username: string;
-  name?: string;
-  lastName?: string;
-  email?: string;
-  phone?: string;
+  name: string | null;
+  lastName: string | null;
+  email: string | null;
+  phone: string | null;
   role: 'admin' | 'teacher' | 'student';
-  teacherId?: string;
-  studentId?: string;
+  teacherId: string | null;
+  studentId: string | null;
 }
 
 interface AuthContextType {
