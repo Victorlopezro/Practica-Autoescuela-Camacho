@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useState, useEffect, useCallback, type ReactNode } from 'react';
 import { useRouter } from 'next/navigation';
-import apiClient from '@/services/api/client';
+import { services } from '@/services';
 import { tokenStorage } from '@/lib/token';
 
 export interface AuthUser {
@@ -42,8 +42,8 @@ export function AuthProvider({ children }: { children: ReactNode }) {
 
       try {
         // Try to get the current user profile
-        const { data } = await apiClient.get('/users/me');
-        setUser(data);
+        const userData = await services.auth.getMe();
+        setUser(userData);
       } catch {
         // Token invalid/expired, clear
         tokenStorage.clearTokens();
@@ -56,17 +56,17 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const login = useCallback(async (username: string, password: string) => {
-    const { data } = await apiClient.post('/auth/login', { username, password });
-    tokenStorage.setTokens(data.accessToken, data.refreshToken);
-    setUser(data.user);
-    return data.user as AuthUser;
+    const response = await services.auth.login({ username, password });
+    tokenStorage.setTokens(response.accessToken, response.refreshToken);
+    setUser(response.user);
+    return response.user as AuthUser;
   }, []);
 
   const logout = useCallback(async () => {
     try {
       const refreshToken = tokenStorage.getRefreshToken();
       if (refreshToken) {
-        await apiClient.post('/auth/logout', { refreshToken });
+        await services.auth.logout(refreshToken);
       }
     } catch {
       // Ignore errors during logout
