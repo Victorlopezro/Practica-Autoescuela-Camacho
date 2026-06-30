@@ -7,7 +7,7 @@ import { useData } from '@/hooks/useData';
 import { services } from '@/services';
 import type { TeacherStatsDto } from '@/services/interfaces';
 
-function getInitials(name?: string | null, lastName?: string | null): string {
+function getInitials(name?: string, lastName?: string): string {
   const first = name?.charAt(0) ?? '';
   const last = lastName?.charAt(0) ?? '';
   return `${first}${last}`.toUpperCase() || '?';

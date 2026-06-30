@@ -8,13 +8,13 @@ import { tokenStorage } from '@/lib/token';
 export interface AuthUser {
   id: string;
   username: string;
-  name: string | null;
-  lastName: string | null;
-  email: string | null;
-  phone: string | null;
+  name?: string;
+  lastName?: string;
+  email?: string;
+  phone?: string;
   role: 'admin' | 'teacher' | 'student';
-  teacherId: string | null;
-  studentId: string | null;
+  teacherId?: string;
+  studentId?: string;
 }
 
 interface AuthContextType {
@@ -26,6 +26,31 @@ interface AuthContextType {
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
+
+/** Map API AuthUserDto (string | null) to AuthUser (string | undefined) */
+function toAuthUser(dto: {
+  id: string;
+  username: string;
+  name?: string | null;
+  lastName?: string | null;
+  email?: string | null;
+  phone?: string | null;
+  role: string;
+  teacherId?: string | null;
+  studentId?: string | null;
+}): AuthUser {
+  return {
+    id: dto.id,
+    username: dto.username,
+    name: dto.name ?? undefined,
+    lastName: dto.lastName ?? undefined,
+    email: dto.email ?? undefined,
+    phone: dto.phone ?? undefined,
+    role: dto.role as AuthUser['role'],
+    teacherId: dto.teacherId ?? undefined,
+    studentId: dto.studentId ?? undefined,
+  };
+}
 
 export function AuthProvider({ children }: { children: ReactNode }) {
   const [user, setUser] = useState<AuthUser | null>(null);
@@ -43,7 +68,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       try {
         // Try to get the current user profile
         const userData = await services.auth.getMe();
-        setUser(userData);
+        setUser(toAuthUser(userData));
       } catch {
         // Token invalid/expired, clear
         tokenStorage.clearTokens();
@@ -58,8 +83,9 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const login = useCallback(async (username: string, password: string) => {
     const response = await services.auth.login({ username, password });
     tokenStorage.setTokens(response.accessToken, response.refreshToken);
-    setUser(response.user);
-    return response.user as AuthUser;
+    const mappedUser = toAuthUser(response.user);
+    setUser(mappedUser);
+    return mappedUser;
   }, []);
 
   const logout = useCallback(async () => {

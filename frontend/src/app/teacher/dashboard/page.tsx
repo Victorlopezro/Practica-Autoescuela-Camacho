@@ -51,7 +51,7 @@ export default function TeacherDashboard() {
     async () => {
       const [stats, reservations] = await Promise.all([
         services.teacher.getStats(user?.teacherId ?? ''),
-        services.reservation.list({ teacherId: user?.teacherId }),
+        services.reservation.list({ teacherId: user?.teacherId ?? undefined }),
       ]);
       return {
         stats,
